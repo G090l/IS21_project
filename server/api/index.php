@@ -35,7 +35,7 @@ function result($params) {
             case 'getClasses': return $app->getClasses($params);
             case 'buyClass': return $app->buyClass($params);
             case 'selectClass': return $app->selectClass($params);
-            //items
+            //shop
             case 'buyItem': return $app->buyItem($params);
             case 'sellItem': return $app->sellItem($params);
 

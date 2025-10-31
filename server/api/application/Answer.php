@@ -42,7 +42,7 @@ class Answer {
         '3005' => 'Error during purchase',
         '3006' => 'Class not owned',
         '3007' => 'Class already purchased',
-        //items
+        //shop
         '4001' => 'Item not found',
         '4002' => 'Not enough money to buy',
         '4003' => 'Item already owned',

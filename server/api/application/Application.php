@@ -5,7 +5,7 @@ require_once ('chat/Chat.php');
 require_once ('math/Math.php');
 require_once ('lobby/Lobby.php');
 require_once('menu/Menu.php');
-require_once('items/Items.php');
+require_once('shop/Shop.php');
 
 class Application {
     function __construct() {
@@ -15,7 +15,7 @@ class Application {
         $this->lobby = new Lobby($db);
         $this->menu = new Menu($db);
         $this->chat = new Chat($db);
-        $this->items = new Items($db);
+        $this->shop = new Shop($db);
     }
 
     public function login($params) {
@@ -197,12 +197,12 @@ class Application {
         return ['error' => 242];
     }
 
-    //items
+    //shop
     public function buyItem($params) {
         if ($params['token'] && $params['itemId']) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                return $this->items->buyItem($user->id, $params['itemId']);
+                return $this->shop->buyItem($user->id, $params['itemId']);
             }
             return ['error' => 705];
         }
@@ -213,7 +213,7 @@ class Application {
         if ($params['token'] && $params['itemId']) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                return $this->items->sellItem($user->id, $params['itemId']);
+                return $this->shop->sellItem($user->id, $params['itemId']);
             }
             return ['error' => 705];
         }
