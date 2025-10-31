@@ -51,6 +51,11 @@ class DB {
         return $this->query("SELECT * FROM characters WHERE user_id = ?", [$userId]);
     }
 
+    public function getCharacterIdByUserId($userId) {
+        $character = $this->query("SELECT id FROM characters WHERE user_id = ?", [$userId]);
+        return $character ? $character->id : null;
+    }
+
     public function updateToken($userId, $token) {
         $this->execute("UPDATE users SET token=? WHERE id=?", [$token, $userId]);
     }
@@ -81,27 +86,36 @@ class DB {
     }
 
     public function isUserPlaying($userId) {
-        return $this->query("SELECT id FROM room_members WHERE user_id = ? AND status = 'started'", [$userId]);
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return false;
+        return $this->query("SELECT id FROM room_members WHERE character_id = ? AND status = 'started'", [$character->id]);
     }
 
     public function getUserTypeInRoom($userId) {
-        return $this->query("SELECT type FROM room_members WHERE user_id=?", [$userId]);
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return false;
+        return $this->query("SELECT type FROM room_members WHERE character_id=?", [$character->id]);
     }
 
     public function leaveParticipantFromRoom($userId) {
-        $this->execute("DELETE FROM room_members WHERE user_id=?", [$userId]);
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return false;
+        $this->execute("DELETE FROM room_members WHERE character_id=?", [$character->id]);
     }
 
-    public function createRoom($userId) {
-        $this->execute("INSERT INTO rooms () VALUES ()");
+    public function createRoom($userId, $roomName) {
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return false;
+        
+        $this->execute("INSERT INTO rooms (name) VALUES (?)", [$roomName]);
         $roomId = $this->pdo->lastInsertId();
-        $this->addRoomMember($roomId, $userId, 'owner');
+        $this->addRoomMember($roomId, $character->id, 'owner');
     }
 
-    public function addRoomMember($roomId, $userId, $type, $status = 'ready') {
+    public function addRoomMember($roomId, $characterId, $type, $status = 'ready') {
         return $this->execute(
-            "INSERT INTO room_members (room_id, user_id, type, status) VALUES (?, ?, ?, ?)",
-            [$roomId, $userId, $type, $status]
+            "INSERT INTO room_members (room_id, character_id, type, status) VALUES (?, ?, ?, ?)",
+            [$roomId, $characterId, $type, $status]
         );
     }
 
@@ -109,8 +123,8 @@ class DB {
         return $this->query("SELECT id, status FROM rooms WHERE id=?", [$roomId]);
     }
 
-    public function getRoomMember($roomId, $userId) {
-        return $this->query("SELECT * FROM room_members WHERE room_id=? AND user_id=?", [$roomId, $userId]);
+    public function getRoomMember($roomId, $characterId) {
+        return $this->query("SELECT * FROM room_members WHERE room_id=? AND character_id=?", [$roomId, $characterId]);
     }
 
     public function updateRoomHash($hash) {
@@ -123,7 +137,9 @@ class DB {
     }
 
     public function getRoomMemberByUserId($userId) {
-        return $this->query("SELECT * FROM room_members WHERE user_id=?", [$userId]);
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return null;
+        return $this->query("SELECT * FROM room_members WHERE character_id=?", [$character->id]);
     }
 
     public function deleteAllRoomMembers($roomId) {
@@ -152,60 +168,70 @@ class DB {
 
     public function getOpenRooms() {
         return $this->queryAll("
-            SELECT r.id, r.status, COUNT(rm.user_id) as players_count 
+            SELECT r.id, r.name, r.status, COUNT(rm.character_id) as players_count 
             FROM rooms r 
             LEFT JOIN room_members rm ON r.id = rm.room_id 
             WHERE r.status = 'open' 
-            GROUP BY r.id, r.status
+            GROUP BY r.id, r.name, r.status
         ");
     }
 
     public function getPersonClassByType($type) {
-        return $this->query("SELECT * FROM person_classes WHERE type = ?", [$type]);
+        return $this->query("SELECT * FROM classes WHERE type = ?", [$type]);
     }
 
     public function getPersonClassById($id) {
-        return $this->query("SELECT * FROM person_classes WHERE id = ?", [$id]);
+        return $this->query("SELECT * FROM classes WHERE id = ?", [$id]);
     }
 
     public function getAllPersonClasses() {
-        return $this->queryAll("SELECT * FROM person_classes");
+        return $this->queryAll("SELECT * FROM classes");
     }
 
-    public function getUserPersonClass($userId, $personClassId) {
+    public function getUserPersonClass($userId, $classId) {
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return null;
         return $this->query(
-            "SELECT * FROM users_person_classes WHERE user_id = ? AND person_class_id = ?",
-            [$userId, $personClassId]
+            "SELECT * FROM characters_classes WHERE character_id = ? AND class_id = ?",
+            [$character->id, $classId]
         );
     }
 
     public function getUserOwnedClasses($userId) {
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return [];
         return $this->queryAll(
-            "SELECT pc.*, upc.selected FROM person_classes pc
-             JOIN users_person_classes upc ON upc.person_class_id = pc.id
-             WHERE upc.user_id = ?",
-            [$userId]
+            "SELECT c.*, cc.selected FROM classes c
+             JOIN characters_classes cc ON cc.class_id = c.id
+             WHERE cc.character_id = ?",
+            [$character->id]
         );
     }
 
-    public function addUserPersonClass($userId, $personClassId) {
+    public function addUserPersonClass($userId, $classId) {
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return false;
         return $this->execute(
-            "INSERT INTO users_person_classes (user_id, person_class_id, selected) VALUES (?, ?, 0)",
-            [$userId, $personClassId]
+            "INSERT INTO characters_classes (character_id, class_id, selected) VALUES (?, ?, 0)",
+            [$character->id, $classId]
         );
     }
 
     public function clearSelectedUserClasses($userId) {
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return false;
         return $this->execute(
-            "UPDATE users_person_classes SET selected = 0 WHERE user_id = ?",
-            [$userId]
+            "UPDATE characters_classes SET selected = 0 WHERE character_id = ?",
+            [$character->id]
         );
     }
 
-    public function setUserSelectedPersonClass($userId, $personClassId) {
+    public function setUserSelectedPersonClass($userId, $classId) {
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return false;
         return $this->execute(
-            "UPDATE users_person_classes SET selected = 1 WHERE user_id = ? AND person_class_id = ?",
-            [$userId, $personClassId]
+            "UPDATE characters_classes SET selected = 1 WHERE character_id = ? AND class_id = ?",
+            [$character->id, $classId]
         );
     }
 
@@ -242,22 +268,36 @@ class DB {
 
     public function addUserItem($characterId, $itemId) {
         return $this->execute(
-            "INSERT INTO character_items (character_id, item_id, x, y, selected, quantity) VALUES (?, ?, 0, 0, 0, 1)",
+            "INSERT INTO character_items (character_id, item_id, quantity) VALUES (?, ?, 1)",
             [$characterId, $itemId]
         );
     }
 
-    public function updateUserArrows($userId, $amount) {
+    public function createCharacter($userId) {
         return $this->execute(
-            "UPDATE characters SET arrows = arrows + ? WHERE user_id = ?",
-            [$amount, $userId]
+            "INSERT INTO characters (user_id, hp, defense, money, died) VALUES (?, 100, 0, 1000, 0)",
+            [$userId]
         );
     }
 
-    public function updateUserPotions($userId, $amount) {
+    public function updateUserItemQuantity($characterId, $itemId, $quantity) {
         return $this->execute(
-            "UPDATE characters SET potions = potions + ? WHERE user_id = ?",
-            [$amount, $userId]
+            "UPDATE character_items SET quantity = ? WHERE character_id = ? AND item_id = ?",
+            [$quantity, $characterId, $itemId]
+        );
+    }
+
+    public function deleteUserItem($characterId, $itemId) {
+        return $this->execute(
+            "DELETE FROM character_items WHERE character_id = ? AND item_id = ?",
+            [$characterId, $itemId]
+        );
+    }
+
+    public function updateCharacterMoneyAdd($characterId, $amount) {
+        return $this->execute(
+            "UPDATE characters SET money = money + ? WHERE id = ?",
+            [$amount, $characterId]
         );
     }
 }

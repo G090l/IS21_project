@@ -42,6 +42,28 @@ class User {
         }
         $this->db->registration($login, $password, $nickname);
 
+        /****Создание персонажа с базовым классом****/ 
+        $newUser = $this->db->getUserByLogin($login);
+        if (!$newUser) {
+            return ['error' => 705];
+        }
+        
+        $characterCreated = $this->db->createCharacter($newUser->id);
+        if (!$characterCreated) {
+            return ['error' => 1007];
+        }
+        
+        $classAdded = $this->db->addUserPersonClass($newUser->id, 1);
+        if (!$classAdded) {
+            return ['error' => 1008];
+        }
+        
+        $classSelected = $this->db->setUserSelectedPersonClass($newUser->id, 1);
+        if (!$classSelected) {
+            return ['error' => 1009];
+        }
+        /********************************************/ 
+
         $rnd = round(rand() * 100000);
         $passwordHash = md5($password . $rnd);
         
