@@ -14,6 +14,9 @@ class Answer {
         '1004' => 'Error to register user',
         '1005' => 'User is no exists',
         '1006' => 'User with this email is already registered',
+        '1007' => 'The character has not been created',
+        '1008' => 'Class not assigned',
+        '1009' => 'Class not selected',
         //lobby
         '2001' => 'Error creating room',
         '2002' => 'Error adding user to room',
@@ -39,15 +42,14 @@ class Answer {
         '3005' => 'Error during purchase',
         '3006' => 'Class not owned',
         '3007' => 'Class already purchased',
-        //store
+        //shop
         '4001' => 'Item not found',
         '4002' => 'Not enough money to buy',
         '4003' => 'Item already owned',
         '4004' => 'Error purchasing item',
-        '4005' => 'Invalid consumable type',
-        '4006' => 'Maximum arrows limit reached (50)',
-        '4007' => 'Maximum potions limit reached (3)',
-        '4008' => 'Error purchasing consumables',
+        '4005' => 'Maximum quantity reached for this item type',
+        '4006' => 'Item not found in inventory',
+        '4007' => 'Error selling item',
         //math
         '8001' => 'Enter at least one value',
         '8002' => 'The discriminant cannot be less than zero',

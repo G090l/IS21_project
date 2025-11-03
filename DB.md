@@ -18,9 +18,7 @@
 | user_id | integer | not null, unique |
 | hp | integer | 100 by default |
 | defense | integer | 10 by default |
-| arrows | integer | 0 by default |
-| potions | integer | 0 by default |
-| money | integer | 100 by default |
+| money | decimal(10,1) | 1000.0 by default |
 | died | boolean | false by default |
 
 ## Система классов
@@ -50,7 +48,7 @@
 | - | - | - |
 | id | integer | primary key |
 | name | string | not null |
-| item_type | enum | 'weapon'/'helmet'/'chestplate'/'leggings'/'shield' |
+| item_type | enum | 'weapon'/'helmet'/'chestplate'/'leggings'/'shield'/'potion'/'arrow' |
 | weapon_type | enum | 'sword'/'bow'/'axe'/'staff'/'dagger' or null |
 | damage | integer | 0 by default |
 | attack_speed | integer | 0 by default |
@@ -65,10 +63,6 @@
 | id | integer | primary key |
 | item_id | integer | not null |
 | character_id | integer | nullable |
-| room_id | integer | nullable |
-| x | integer | nullable |
-| y | integer | nullable |
-| selected | boolean | false by default |
 | quantity | integer | 1 by default |
 
 ## Лобби и комнаты
@@ -78,6 +72,7 @@
 | - | - | - |
 | id | integer | primary key |
 | status | enum | 'open'/'closed'/'started' |
+| name | string | not null |
 
 **room_members**
 | name | type | comment |

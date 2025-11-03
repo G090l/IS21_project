@@ -38,8 +38,15 @@ class Lobby {
             $this->leaveParticipantFromRoom($userId);
         }
 
-        //создаем комнату
-        $this->db->createRoom($userId);
+        //информация о пользователе для имени комнаты
+        $user = $this->db->getUserById($userId);
+        if (!$user) {
+            return ['error' => 705];
+        }
+
+        //создаем комнату с именем
+        $roomName = "Комната игрока " . $user->nickname;
+        $this->db->createRoom($userId, $roomName);
         $this->db->updateRoomHash(md5(rand()));
         return true;
     }
