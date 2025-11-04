@@ -1,7 +1,7 @@
 import Movement from "./Movement";
 import { EDIRECTION, TRect } from "../../config";
 
-type TProjectileOptions = {
+type TSwordOptions = {
     direction?: EDIRECTION;
     x?: number;
     y?: number;
@@ -14,7 +14,7 @@ type TProjectileOptions = {
 export class Projectile extends Movement {
     public damage: number;
 
-    constructor(options: TProjectileOptions = {}) {
+    constructor(options: TSwordOptions = {}) {
         const {
             direction = EDIRECTION.RIGHT,
             x = 0,

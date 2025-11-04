@@ -1,23 +1,35 @@
 import Movement from "./Movement";
+import { EDIRECTION, TRect } from "../../config";
+
+type TUnitOptions = {
+    name?: string;
+    health?: number;
+    damage?: number;
+    rect?: TRect;
+    direction?: EDIRECTION;
+    speed?: number;
+}
 
 class Unit extends Movement {
     public name: string;
     public health: number;
     public damage: number;
 
-    constructor(name = "", health = 0, damage = 0) {
-        super()
+    constructor(options: TUnitOptions = {}) {
+        const {
+            name = "",
+            health = 0,
+            damage = 0,
+            rect = { x: 0, y: 0, width: 0, height: 0 },
+            direction = EDIRECTION.RIGHT,
+            speed = 0
+        } = options;
+
+        super({ rect, direction, speed });
+
         this.name = name;
         this.health = health;
         this.damage = damage;
-    }
-
-    getUnit() {
-        return {
-            name: this.name,
-            health: this.health,
-            damage: this.damage,
-        };
     }
 }
 
