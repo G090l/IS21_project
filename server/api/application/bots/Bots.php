@@ -80,21 +80,15 @@ class Bots {
     }
 
     //получение всех ботов в комнате
-    public function getBots($userId) {
-        //проверка, существует ли юзер
-        $user = $this->db->getUserById($userId);
-        if (!$user) {
-            return ['error' => 705];
-        }
-
-        //проверка, есть ли юзер в комнате
-        $roomMember = $this->db->getRoomMemberByUserId($userId);
-        if (!$roomMember) {
-            return ['error' => 2008];
+    public function getBotsInRoom($roomId) {
+        //проверка, что комната существует
+        $room = $this->db->getRoomById($roomId);
+        if (!$room) {
+            return ['error' => 2003];
         }
 
         //получаем всех ботов в комнате
-        $bots = $this->db->getBotsByRoomId($roomMember->room_id);
+        $bots = $this->db->getBotsByRoomId($roomId);
         
         //проверка, есть ли боты в комнате
         if (!$bots || count($bots) === 0) {

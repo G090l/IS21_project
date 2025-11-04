@@ -239,12 +239,8 @@ class Application {
     }
 
     public function getBots($params) {
-        if ($params['token']) {
-            $user = $this->user->getUser($params['token']);
-            if ($user) {
-                return $this->bots->getBots($user->id);
-            }
-            return ['error' => 705];
+        if ($params['roomId']) {
+            return $this->bots->getBotsInRoom($params['roomId']);
         }
         return ['error' => 242];
     }
