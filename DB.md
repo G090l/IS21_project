@@ -100,12 +100,26 @@
 | speed | integer | |
 | damage | integer | |
 
+## Система ботов
+
 **bots**
 | name | type | comment |
 | - | - | - |
 | id | integer | primary key |
+| name | string | not null |
+| hp | integer | 100 by default |
+| damage | integer | 10 by default |
+| attack_speed | integer | 1 by default |
+| attack_distance | integer | 1 by default |
+| money | decimal(10,1) | 0.0 by default |
+
+**bots_rooms**
+| name | type | comment |
+| - | - | - |
+| id | integer | primary key |
 | room_id | integer | not null |
-| data | string | JSON |
+| type | integer | not null |
+| data | text | JSON, format: (hp, x, y) |
 
 ## Вспомогательные таблицы
 

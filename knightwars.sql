@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: MySQL-8.0
--- Время создания: Окт 31 2025 г., 14:21
+-- Время создания: Ноя 04 2025 г., 14:55
 -- Версия сервера: 8.0.41
 -- Версия PHP: 8.3.14
 
@@ -47,7 +47,31 @@ CREATE TABLE `arrows` (
 
 CREATE TABLE `bots` (
   `id` int NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `hp` int DEFAULT '100',
+  `damage` int DEFAULT '10',
+  `attack_speed` int DEFAULT '1',
+  `attack_distance` int DEFAULT '1',
+  `money` decimal(10,1) DEFAULT '0.0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `bots`
+--
+
+INSERT INTO `bots` (`id`, `name`, `hp`, `damage`, `attack_speed`, `attack_distance`, `money`) VALUES
+(4, 'skelet', 50, 10, 1, 1, 0.0);
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `bots_rooms`
+--
+
+CREATE TABLE `bots_rooms` (
+  `id` int NOT NULL,
   `room_id` int NOT NULL,
+  `type` int NOT NULL,
   `data` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -212,7 +236,7 @@ CREATE TABLE `rooms` (
 --
 
 INSERT INTO `rooms` (`id`, `status`, `name`) VALUES
-(26, 'open', 'Комната игрока KloddeF');
+(26, 'started', 'Комната игрока KloddeF');
 
 -- --------------------------------------------------------
 
@@ -275,8 +299,15 @@ ALTER TABLE `arrows`
 -- Индексы таблицы `bots`
 --
 ALTER TABLE `bots`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `bots_rooms`
+--
+ALTER TABLE `bots_rooms`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `room_id` (`room_id`);
+  ADD KEY `room_id` (`room_id`),
+  ADD KEY `bots_rooms_ibfk_bot_type` (`type`);
 
 --
 -- Индексы таблицы `characters`
@@ -363,7 +394,13 @@ ALTER TABLE `arrows`
 -- AUTO_INCREMENT для таблицы `bots`
 --
 ALTER TABLE `bots`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT для таблицы `bots_rooms`
+--
+ALTER TABLE `bots_rooms`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT для таблицы `characters`
@@ -430,10 +467,11 @@ ALTER TABLE `arrows`
   ADD CONSTRAINT `arrows_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE;
 
 --
--- Ограничения внешнего ключа таблицы `bots`
+-- Ограничения внешнего ключа таблицы `bots_rooms`
 --
-ALTER TABLE `bots`
-  ADD CONSTRAINT `bots_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE;
+ALTER TABLE `bots_rooms`
+  ADD CONSTRAINT `bots_rooms_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `bots_rooms_ibfk_bot_type` FOREIGN KEY (`type`) REFERENCES `bots` (`id`) ON DELETE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `characters`

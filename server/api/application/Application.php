@@ -6,6 +6,7 @@ require_once ('math/Math.php');
 require_once ('lobby/Lobby.php');
 require_once('menu/Menu.php');
 require_once('shop/Shop.php');
+require_once('bots/Bots.php');
 
 class Application {
     function __construct() {
@@ -16,6 +17,7 @@ class Application {
         $this->menu = new Menu($db);
         $this->chat = new Chat($db);
         $this->shop = new Shop($db);
+        $this->bots = new Bots($db);
     }
 
     public function login($params) {
@@ -220,4 +222,56 @@ class Application {
         return ['error' => 242];
     }
 
+    //bots
+    public function spawnBot($params) {
+        if ($params['token'] && $params['botType'] && $params['botData']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                $botData = json_decode($params['botData'], true);
+                if (!$botData) {
+                    return ['error' => 5003];
+                }
+                return $this->bots->spawnBot($user->id, $params['botType'], $botData);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function getBots($params) {
+        if ($params['token']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->bots->getBotsInRoom($user->id);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function updateBot($params) {
+        if ($params['token'] && $params['botId'] && $params['botData']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                $botData = json_decode($params['botData'], true);
+                if (!$botData) {
+                    return ['error' => 5003];
+                }
+                return $this->bots->updateBot($user->id, $params['botId'], $botData);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function removeBot($params) {
+        if ($params['token'] && $params['botId']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->bots->removeBot($user->id, $params['botId']);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
 }
