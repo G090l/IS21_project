@@ -80,7 +80,7 @@ class Bots {
     }
 
     //получение всех ботов в комнате
-    public function getBotsInRoom($roomId) {
+    public function getBots($roomId) {
         //проверка, что комната существует
         $room = $this->db->getRoomById($roomId);
         if (!$room) {

@@ -240,7 +240,7 @@ class Application {
 
     public function getBots($params) {
         if ($params['roomId']) {
-            return $this->bots->getBotsInRoom($params['roomId']);
+            return $this->bots->getBots($params['roomId']);
         }
         return ['error' => 242];
     }
