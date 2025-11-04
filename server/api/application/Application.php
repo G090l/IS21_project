@@ -242,7 +242,7 @@ class Application {
         if ($params['token']) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                return $this->bots->getBotsInRoom($user->id);
+                return $this->bots->getBots($user->id);
             }
             return ['error' => 705];
         }
