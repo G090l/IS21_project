@@ -11,6 +11,7 @@
     * 2.2. Пользователь
     * 2.3. Сообщение
     * 2.4. Комната (лобби)
+    * 2.5. Боты
 3. Список запросов
     * 3.1. Список ошибок
 4. Подробно
@@ -101,6 +102,22 @@ RoomsResponse: {
     status: 'unchanged' | 'updated';
     hash?: string;
     rooms?: Room[];
+}
+```
+
+### 2.5. Боты
+```
+BotsInRooms: {
+    id: number,
+    room_id: number,
+    type: number,
+    data: string(JSON),
+    name: string,
+    hp: number,
+    damage: number,
+    attack_speed: number,
+    attack_distance: number,
+    money: number
 }
 ```
 
@@ -620,7 +637,7 @@ RoomsResponse: {
 ```
 **Успешный ответ**
 ```
-  Answer<true>
+  Answer<BotsInRooms[]>
 ```
 
 **Ошибки**
