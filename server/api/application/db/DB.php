@@ -300,5 +300,43 @@ class DB {
             [$amount, $characterId]
         );
     }
+
+    public function getBotByName($botName) {
+        return $this->query("SELECT * FROM bots WHERE name = ?", [$botName]);
+    }
+
+    public function getBotById($botId) {
+        return $this->query("SELECT * FROM bots_rooms WHERE id = ?", [$botId]);
+    }
+
+    public function addBotToRoom($roomId, $botType, $botData) {
+        $jsonData = json_encode($botData);
+        return $this->execute(
+            "INSERT INTO bots_rooms (room_id, type, data) VALUES (?, ?, ?)",
+            [$roomId, $botType, $jsonData]
+        );
+    }
+
+    public function getBotsByRoomId($roomId) {
+        return $this->queryAll(
+            "SELECT br.*, b.name, b.hp, b.damage, b.attack_speed, b.attack_distance, b.money 
+            FROM bots_rooms br 
+            JOIN bots b ON br.type = b.id 
+            WHERE br.room_id = ?",
+            [$roomId]
+        );
+    }
+
+    public function updateBotData($botId, $botData) {
+        $jsonData = json_encode($botData);
+        return $this->execute(
+            "UPDATE bots_rooms SET data = ? WHERE id = ?",
+            [$jsonData, $botId]
+        );
+    }
+
+    public function removeBotFromRoom($botId) {
+        return $this->execute("DELETE FROM bots_rooms WHERE id = ?", [$botId]);
+    }
 }
 

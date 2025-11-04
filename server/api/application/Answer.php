@@ -34,6 +34,8 @@ class Answer {
         '2014' => 'You cannot start a room: you are either not the owner or you are not in the room',
         '2015' => 'Room not found or not open',
         '2016' => 'Rooms data not changed',
+        '2017' => 'Room not found or game not started',
+        '2018' => 'User is not room owner',
          //menu
         '3001' => 'No classes found',
         '3002' => 'Class not found',
@@ -50,6 +52,12 @@ class Answer {
         '4005' => 'Maximum quantity reached for this item type',
         '4006' => 'Item not found in inventory',
         '4007' => 'Error selling item',
+        //bots
+        '5001' => 'Bot type not found',
+        '5002' => 'Error spawning bot',
+        '5003' => 'Invalid bot data format',
+        '5004' => 'Bot not found in room',
+        '5005' => 'There are no bots in the room',
         //math
         '8001' => 'Enter at least one value',
         '8002' => 'The discriminant cannot be less than zero',

@@ -38,6 +38,11 @@ function result($params) {
             //shop
             case 'buyItem': return $app->buyItem($params);
             case 'sellItem': return $app->sellItem($params);
+            //bots
+            case 'spawnBot': return $app->spawnBot($params);
+            case 'getBots': return $app->getBots($params);
+            case 'updateBot': return $app->updateBot($params);
+            case 'removeBot': return $app->removeBot($params);
 
             default: return ['error' => 102];
         }
