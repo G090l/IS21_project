@@ -3,12 +3,13 @@ import CONFIG from "../../config";
 import Store from "../store/Store";
 import { TAnswer, TError, TMessagesResponse, TRoom, TRoomsResponse, TUser } from "./types";
 
-const { CHAT_TIMESTAMP, HOST } = CONFIG;
+const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST } = CONFIG;
 
 class Server {
     HOST = HOST;
     store: Store;
     chatInterval: NodeJS.Timer | null = null;
+    roomInterval: NodeJS.Timer | null = null;
     showErrorCb: (error: TError) => void = () => { };
 
     constructor(store: Store) {
@@ -16,7 +17,7 @@ class Server {
     }
 
     // посылает запрос и обрабатывает ответ
-    private async request<T>(method: string, params: { [key: string]: string } = {}): Promise<T | null> {
+    private async request<T>(method: string, params: { [key: string]: string | number } = {}): Promise<T | null> {
         try {
             params.method = method;
             const token = this.store.getToken();
@@ -107,44 +108,62 @@ class Server {
         }
     }
 
-    async createRoom(): Promise<boolean | null> {
-        const result = await this.request<boolean>('createRoom');
-        return result;
+    async getRooms(): Promise<TRoomsResponse | null> {
+        const room_hash = this.store.getRoomHash();
+        const result = await this.request<TRoomsResponse>('getRooms', { room_hash });
+        if (result?.status === 'updated') {
+            this.store.setRoomHash(result.hash);
+            return result;
+        }
+        return null;
     }
 
-    async joinToRoom(roomId: number): Promise<boolean | null> {
-        const result = await this.request<boolean>('joinToRoom', { roomId: roomId.toString() });
-        return result;
+    startGettingRooms(cb: (hash: string) => void): void {
+        this.roomInterval = setInterval(async () => {
+            const result = await this.getRooms();
+            if (result) {
+                const { rooms, hash } = result;
+                this.store.addRooms(rooms);
+                hash && cb(hash);
+            }
+        }, ROOM_TIMESTAMP);
+
     }
 
-    async leaveRoom(): Promise<boolean | null> {
-        const result = await this.request<boolean>('leaveRoom');
-        return result;
+    stopGettingRooms(): void {
+        if (this.roomInterval) {
+            clearInterval(this.roomInterval);
+            this.roomInterval = null;
+            this.store.clearRooms();
+        }
     }
 
-    async dropFromRoom(targetToken: string): Promise<boolean | null> {
-        const result = await this.request<boolean>('dropFromRoom', { targetToken });
-        return result;
+    createRoom(): Promise<boolean | null> {
+        return this.request<boolean>('createRoom');
     }
 
-    async deleteUser(): Promise<boolean | null> {
+    joinToRoom(roomId: number): Promise<boolean | null> {
+        return this.request<boolean>('joinToRoom', { roomId });
+    }
+
+    leaveRoom(): Promise<boolean | null> {
+        return this.request<boolean>('leaveRoom');
+    }
+
+    dropFromRoom(targetToken: string): Promise<boolean | null> {
+        return this.request<boolean>('dropFromRoom', { targetToken });
+    }
+
+    async deleteUser(): Promise<boolean> {
         const result = await this.request<boolean>('deleteUser');
-
         if (result) {
             this.store.clearUser();
-            return true;
         }
-        return false;
+        return !!result;
     }
 
-    async startGame(): Promise<boolean | null> {
-        const result = await this.request<boolean>('startGame');
-        return result;
-    }
-
-    async getRooms(roomHash: string): Promise<TRoomsResponse | null> {
-        const result = await this.request<TRoomsResponse>('getRooms', { roomHash });
-        return result;
+    startGame(): Promise<boolean | null> {
+        return this.request<boolean>('startGame');
     }
 
     async getUserInfo(): Promise<{ id: number; login: string; nickname: string; money: number } | null> {

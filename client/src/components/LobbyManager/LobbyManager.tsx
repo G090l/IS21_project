@@ -23,40 +23,52 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
     };
 
     const createRoomClickHandler = async () => {
-        await server.createRoom();
-        setPage(PAGES.LOBBY);
+        const success = await server.createRoom();
+        if (success) {
+            setPage(PAGES.LOBBY);
+        }
     }
 
     const joinToRoomClickHandler = async (roomId: number) => {
-        await server.joinToRoom(roomId);
-        setCurrentRoom(roomId);
+        const success = await server.joinToRoom(roomId);
+        if (success) {
+            setCurrentRoom(roomId);
+            setPage(PAGES.LOBBY);
+        }
     }
 
     const leaveRoomClickHandler = async () => {
-        await server.leaveRoom();
-        setCurrentRoom(null);
+        const success = await server.leaveRoom();
+        if (success) {
+            setCurrentRoom(null);
+            setPage(PAGES.LOBBY);
+        }
     }
 
-    const dropFromRoomClickHandler = async () => {
-        await server.deleteUser();
-        setPage(PAGES.LOGIN);
+    const dropFromRoomClickHandler = async (targetToken: string) => {
+        await server.dropFromRoom(targetToken);
     }
 
     const deleteUserClickHandler = async () => {
-        await server.deleteUser();
-        setPage(PAGES.LOGIN);
+        const success = await server.deleteUser();
+        if (success) {
+            setPage(PAGES.LOGIN);
+        }
     }
 
     const startGameClickHandler = async () => {
-        await server.startGame();
+        const success = await server.startGame();
+        if (success) {
+            setPage(PAGES.GAME);
+        }
     }
 
     const getRoomsClickHandler = async () => {
-        await server.deleteUser();
-        setPage(PAGES.LOGIN);
+        await server.getRooms();
     }
 
     const exitAccountClickHandler = async () => {
+        await server.leaveRoom();
         await server.logout();
         setPage(PAGES.LOGIN);
     };

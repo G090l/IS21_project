@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState, useMemo, useRef, KeyboardEvent } from 'react';
+import React, { useContext, useEffect, useState, useMemo, useRef } from 'react';
+import cn from 'classnames';
 import { ServerContext, StoreContext } from '../../App';
 import { TMessages } from '../../services/server/types';
 import Button from '../Button/Button';
@@ -121,47 +122,37 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
         return () => {
             server.stopChatMessages();
         }
-    }, [user, server, store, isOpen, startAutoClose, cancelAutoClose]);
+    }, [isOpen]);
 
     const input = useMemo(() =>
         <input
             ref={messageRef}
             placeholder='сообщение'
             onChange={handleInputChange}
+            maxLength={96}
         />, []);
 
     const sendClickHandler = () => {
         if (messageRef.current) {
             const message = messageRef.current.value;
-
             if (message) {
                 server.sendMessage(message);
                 messageRef.current.value = '';
                 typingState.set(false);
             }
-
             messageRef.current.focus();
         }
     }
 
-    const handleMouseEnter = () => {
-        setIsHovered(true);
-    };
-
-    const handleMouseLeave = () => {
-        setIsHovered(false);
-    };
-
-    const toggleChat = () => {
-        onToggle(!isOpen);
-    };
+    const handleMouseEnter = () => setIsHovered(true);
+    const handleMouseLeave = () => setIsHovered(false);
+    const toggleChat = () => onToggle(!isOpen);
 
     return (<div
-        className={`chat ${isOpen ? 'chat-open' : ''}`}
+        className={cn('chat', { 'chat-open': isOpen })}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
     >
-
         <div className="chat-toggle" onClick={toggleChat}>
             {isOpen ? 'Закрыть чат' : 'Открыть чат'}
         </div>
@@ -182,7 +173,6 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
                             <div key={index}>
                                 {`${message.author} (${message.created}): ${message.message}`}
                             </div>)
-
                     )}
                 </div>
 

@@ -1,4 +1,4 @@
-import { TMessages, TUser } from "../server/types";
+import { TMessages, TRooms, TUser } from "../server/types";
 
 const TOKEN = 'token';
 const REMEMBER_ME = 'rememberMe';
@@ -7,6 +7,9 @@ class Store {
     user: TUser | null = null;
     messages: TMessages = [];
     chatHash: string = 'empty chat hash';
+    rooms: TRooms = [];
+    roomHash: string  = 'empty room  hash'; 
+
     rememberMe: boolean = false;
 
     constructor() {
@@ -72,6 +75,26 @@ class Store {
 
     setChatHash(hash: string): void {
         this.chatHash = hash;
+    }
+
+    addRooms(newRooms: TRooms | undefined): void {
+        if (newRooms?.length) {
+            this.rooms = newRooms;
+        }
+    }
+
+    clearRooms(): void {
+        this.rooms = [];
+    }
+
+    getRoomHash(): string {
+        return this.roomHash;
+    }
+
+    setRoomHash(hash: string | undefined): void {
+        if (hash) {
+            this.roomHash = hash;
+        }
     }
 }
 

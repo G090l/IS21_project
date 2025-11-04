@@ -8,4 +8,15 @@
         background-color: rgb(255, 255, 0, 0.5);
         cursor: pointer;
     }
+
+    .chat-window {
+        width: 400px;
+
+        .chat-messages {
+            white-space: pre-line;
+            overflow-wrap: break-word;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+    }
 }
