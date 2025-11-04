@@ -45,7 +45,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         if (canvasRef.current && gameRef.current) {
             canvasRef.current.clear();
             const scene = gameRef.current.getScene();
-            const { Heroes, Walls, /*Swords,*/ Arrows, Enemies } = scene;
+            const { Heroes, Walls, Swords, Arrows, Enemies } = scene;
 
             // Рисуем стены
             Walls.forEach(wall => {
@@ -68,14 +68,12 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
                 printGameObject(canvasRef.current!, enemy.rect, 'red'); // Враги красного цвета
             });
 
-            /* Рисуем мечи
+            // Рисуем мечи
             if (isAttackingRef.current) {
-                Swords.forEach((sword, index) => {
-                    if (index === 0 && sword) {
-                        printGameObject(canvasRef.current!, sword, 'red');
-                    }
+                Swords.forEach(sword => {
+                    printGameObject(canvasRef.current!, sword.rect, 'red');
                 });
-            }*/
+            }
 
             // Рисуем стрелы
             Arrows.forEach(arrow => {

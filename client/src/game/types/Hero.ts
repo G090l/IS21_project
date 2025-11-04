@@ -1,7 +1,8 @@
-import { TRect, EDIRECTION } from "../../config";
+import { EDIRECTION } from "../../config";
 import CharacterClass, { KNIGHT } from "./CharacterClass";
 import Unit from "./Unit";
 import Projectile from "./Projectile";
+import Sword from "./Sword";
 
 class Hero extends Unit {
     private characterClass: CharacterClass = KNIGHT;
@@ -31,24 +32,25 @@ class Hero extends Unit {
         return [...this.inventory];
     }
 
-    getAttackPosition(): TRect | null {
+    getAttackPosition(): Sword | null {
         if (!this.isAttacking) {
             return null;
         }
 
-        const swordOffset = 100;
-        const swordSize = 100;
+        const swordWidth = 100;
+        const swordHeight = 100;
 
         const x = this.direction === EDIRECTION.RIGHT
-            ? this.rect.x + swordOffset
-            : this.rect.x - swordOffset;
+            ? this.rect.x + 100
+            : this.rect.x - 100;
 
-        return {
+        return new Sword({
             x,
             y: this.rect.y,
-            width: swordSize,
-            height: swordSize
-        };
+            damage: this.damage,
+            width: swordWidth,
+            height: swordHeight
+        });
     }
 
     createProjectile(): Projectile {

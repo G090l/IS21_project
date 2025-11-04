@@ -1,6 +1,12 @@
 import Movement from "./Movement";
 import { EDIRECTION, TRect } from "../../config";
 
+// Интерфейс Attack
+interface IAttack {
+    damage: number;
+    rect: TRect;
+}
+
 type TProjectileOptions = {
     direction?: EDIRECTION;
     x?: number;
@@ -11,7 +17,7 @@ type TProjectileOptions = {
     height?: number;
 }
 
-export class Projectile extends Movement {
+export class Projectile extends Movement implements IAttack {
     public damage: number;
 
     constructor(options: TProjectileOptions = {}) {

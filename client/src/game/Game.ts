@@ -4,12 +4,13 @@ import Hero from "./types/Hero";
 import Server from "../services/server/Server";
 import Projectile from "./types/Projectile";
 import Enemy from "./types/Enemy";
+import Sword from "./types/Sword";
 
 class Game {
     private server: Server;
     public Heroes: Hero[];
     private Walls: TRect[];
-    private Swords: TRect[];
+    private Swords: Sword[];
     private gameMap: Map;
     private Arrows: Projectile[];
     private Enemies: Enemy[];
@@ -94,10 +95,9 @@ class Game {
 
     private checkSwordCollisions(): void {
         this.Swords.forEach(sword => {
-
             this.Enemies.forEach(enemy => {
-                if (enemy.checkRectCollision(sword, enemy.rect)) {
-                    //enemy.health -= sword.damage;
+                if (enemy.checkRectCollision(sword.rect, enemy.rect)) {
+                    enemy.health -= sword.damage;
                 }
             });
         });
@@ -139,6 +139,17 @@ class Game {
         this.Enemies = this.Enemies.filter(enemy => enemy.isAlive());
     }
 
+    private updateHeroes(): void {
+        this.Heroes.forEach(hero => {
+            const dx = hero.movement.dx * hero.speed;
+            const dy = hero.movement.dy * hero.speed;
+
+            if (this.canMove(hero, hero.rect.x + dx, hero.rect.y + dy) && !hero.isAttacking) {
+                hero.move(dx, dy);
+            }
+        });
+    }
+
     private updateArrows(): void {
         this.Arrows.forEach(arrow => {
             if (arrow.direction == "right") {
@@ -153,26 +164,22 @@ class Game {
         let isUpdated = false;
 
         // Обновляем всех героев
-        this.Heroes.forEach(hero => {
-            const dx = hero.movement.dx * hero.speed;
-            const dy = hero.movement.dy * hero.speed;
-
-            if (this.canMove(hero, hero.rect.x + dx, hero.rect.y + dy)) {
-                hero.move(dx, dy);
-                isUpdated = true;
-            }
-        });
-
+        this.updateHeroes();
+        isUpdated = true;
         // Обновляем врагов
         this.updateEnemies();
+        isUpdated = true;
 
         // Обновляем снаряды
         this.updateArrows();
+        isUpdated = true;
         this.checkArrowCollisions();
-        // Обновляем позиции мечей для всех героев
-        this.Swords = this.Heroes.map(hero => hero.getAttackPosition());
+        isUpdated = true;
 
-        // Передаем состояние атаки в проверку столкновений меча
+        // Обновляем позиции мечей для всех героев
+        this.Swords = this.Heroes.map(hero => hero.getAttackPosition()).filter((sword): sword is Sword => sword !== null);
+
+        // Проверяем столкновения меча
         this.checkSwordCollisions();
 
         if (isUpdated) {

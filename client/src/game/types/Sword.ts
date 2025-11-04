@@ -1,41 +1,40 @@
-import Movement from "./Movement";
 import { EDIRECTION, TRect } from "../../config";
 
+// Интерфейс Attack
+interface IAttack {
+    damage: number;
+    rect: TRect;
+}
 type TSwordOptions = {
-    direction?: EDIRECTION;
     x?: number;
     y?: number;
     damage?: number;
-    speed?: number;
     width?: number;
     height?: number;
 }
 
-export class Projectile extends Movement {
+export class Sword implements IAttack {
     public damage: number;
+    public rect: TRect;
 
     constructor(options: TSwordOptions = {}) {
         const {
-            direction = EDIRECTION.RIGHT,
             x = 0,
             y = 0,
-            damage = 10,
-            speed = 5,
-            width = 30,
-            height = 10
+            damage = 0,
+            width = 0,
+            height = 0
         } = options;
 
-        const rect: TRect = {
+        this.rect = {
             x,
             y,
             width,
             height
         };
 
-        super({ rect, direction, speed });
-
         this.damage = damage;
     }
 }
 
-export default Projectile;
+export default Sword;
