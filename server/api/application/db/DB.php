@@ -154,6 +154,22 @@ class DB {
         return $this->execute("DELETE FROM users WHERE id=?", [$userId]);
     }
 
+    public function deleteAllCharacterItems($characterId) {
+        return $this->execute("DELETE FROM character_items WHERE character_id = ?", [$characterId]);
+    }
+
+    public function deleteAllCharacterClasses($characterId) {
+        return $this->execute("DELETE FROM characters_classes WHERE character_id = ?", [$characterId]);
+    }
+
+    public function deleteCharacter($userId) {
+        return $this->execute("DELETE FROM characters WHERE user_id = ?", [$userId]);
+    }
+
+    public function deleteUserMessages($userId) {
+        return $this->execute("DELETE FROM messages WHERE user_id = ?", [$userId]);
+    }
+
     public function getAllRoomMembers($roomId) {
         return $this->queryAll("SELECT * FROM room_members WHERE room_id=?", [$roomId]);
     }

@@ -87,7 +87,18 @@ class User {
             }
         }
         
-        //удаляем юзера
+        //последовательно убиваем все связанные данные в других таблицах
+        $character = $this->db->getCharacterByUserId($user->id);
+        if ($character) {
+            $characterId = $character->id;
+            
+            $this->db->deleteAllCharacterItems($characterId);
+            $this->db->deleteAllCharacterClasses($characterId);
+            $this->db->deleteCharacter($user->id);
+        }
+        
+        $this->db->deleteUserMessages($user->id);
+        
         $success = $this->db->deleteUser($user->id);
         if ($success) {
             return true;
