@@ -79,8 +79,14 @@ class Lobby {
             $this->leaveParticipantFromRoom($userId);
         }
         
-        //добавляем юзера в комнату
-        $this->db->addRoomMember($roomId, $userId, 'participant');
+        // Получаем character_id пользователя
+        $character = $this->db->getCharacterByUserId($userId);
+        if (!$character) {
+            return ['error' => 706]; 
+        }
+        
+        //добавляем перса в комнату
+        $this->db->addRoomMember($roomId, $character->id, 'participant');
         $this->db->updateRoomHash(md5(rand()));
         return true;
     }
