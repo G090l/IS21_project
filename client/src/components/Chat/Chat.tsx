@@ -122,7 +122,7 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
         return () => {
             server.stopChatMessages();
         }
-    }, [isOpen]);
+    }, [user, server, store, isOpen, startAutoClose, cancelAutoClose]);
 
     const input = useMemo(() =>
         <input
