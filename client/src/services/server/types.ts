@@ -15,9 +15,9 @@ export type TUser = {
     nickname: string;
     money: number;
     token: string;
-
 }
 
+export type TRooms = TRoom[];
 export type TRoom = {
     id: number;
     status: 'open' | 'closed' | 'started';
@@ -26,8 +26,8 @@ export type TRoom = {
 
 export type TRoomsResponse = {
     status: 'unchanged' | 'updated';
-    hash: string;
-    rooms?: TRoom[];
+    hash?: string;
+    rooms?: TRooms;
 }
 
 export type TMessage = {

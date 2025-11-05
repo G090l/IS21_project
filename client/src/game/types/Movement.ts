@@ -1,28 +1,28 @@
 import { EDIRECTION, TRect } from "../../config";
 
+type TMovementOptions = {
+    rect: TRect;
+    direction: EDIRECTION;
+    speed: number;
+}
+
 class Movement {
     public rect: TRect;
     public direction: EDIRECTION;
     public speed: number;
     public movement: { dx: number, dy: number };
 
-    constructor(rect = { x: 0, y: 0, width: 0, height: 0 }, direction = EDIRECTION.RIGHT, speed = 0) {
+    constructor(options: TMovementOptions) {
+        const {
+            rect,
+            direction,
+            speed,
+        } = options;
+
         this.rect = rect;
         this.direction = direction;
         this.speed = speed;
-        this.movement = { dx: 0, dy: 0 }
-    }
-
-    getMovement() {
-        return {
-            rect: this.rect,
-            direction: this.direction,
-            speed: this.speed
-        };
-    }
-
-    setMovement(dx: number, dy: number): void {
-        this.movement = { dx, dy };
+        this.movement = { dx: 0, dy: 0 };
     }
 
     move(dx: number, dy: number): void {

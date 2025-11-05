@@ -163,7 +163,7 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
             const keyCode = event.keyCode ? event.keyCode : event.which ? event.which : 0;
-
+            if (isChatOpen && keyCode === 70) return;
             switch (keyCode) {
                 case 65: // a
                     keysPressedRef.current.a = true;
@@ -218,7 +218,7 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
             document.removeEventListener('keydown', keyDownHandler);
             document.removeEventListener('keyup', keyUpHandler);
         };
-    }, [showStartButton, showShopButton]);
+    }, [showStartButton, showShopButton, isChatOpen]);
 
 
     const classShopClickHandler = () => {

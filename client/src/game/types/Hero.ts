@@ -1,11 +1,14 @@
-import { TRect } from "../../config";
+import { EDIRECTION } from "../../config";
 import CharacterClass, { KNIGHT } from "./CharacterClass";
 import Unit from "./Unit";
+import Projectile from "./Projectile";
+import Sword from "./Sword";
 
 class Hero extends Unit {
     private characterClass: CharacterClass = KNIGHT;
     private equipment: string[] = [];
     private inventory: string[] = [...KNIGHT.inventory];
+    public isAttacking: boolean = false;
 
     constructor() {
         super();
@@ -29,20 +32,38 @@ class Hero extends Unit {
         return [...this.inventory];
     }
 
-    getAttackPosition(): TRect {
-        const swordOffset = 100;
-        const swordSize = 100;
+    getAttackPosition(): Sword | null {
+        if (!this.isAttacking) {
+            return null;
+        }
 
-        const x = this.direction === 'right'
-            ? this.rect.x + swordOffset
-            : this.rect.x - swordOffset;
+        const swordWidth = 100;
+        const swordHeight = 100;
 
-        return {
+        const x = this.direction === EDIRECTION.RIGHT
+            ? this.rect.x + 100
+            : this.rect.x - 100;
+
+        return new Sword({
             x,
             y: this.rect.y,
-            width: swordSize,
-            height: swordSize
-        };
+            damage: this.damage,
+            width: swordWidth,
+            height: swordHeight
+        });
+    }
+
+    createProjectile(): Projectile {
+        const projectileX = this.direction === EDIRECTION.RIGHT
+            ? this.rect.x + this.rect.width + 1
+            : this.rect.x - 31;
+        const projectileY = this.rect.y + (this.rect.height / 2);
+
+        return new Projectile({
+            direction: this.direction,
+            x: projectileX,
+            y: projectileY
+        });
     }
 
     addToInventory(item: string): void {

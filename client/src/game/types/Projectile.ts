@@ -1,17 +1,46 @@
 import Movement from "./Movement";
 import { EDIRECTION, TRect } from "../../config";
 
-export class Projectile extends Movement {
+// Интерфейс Attack
+interface IAttack {
+    damage: number;
+    rect: TRect;
+}
+
+type TProjectileOptions = {
+    direction?: EDIRECTION;
+    x?: number;
+    y?: number;
+    damage?: number;
+    speed?: number;
+    width?: number;
+    height?: number;
+}
+
+export class Projectile extends Movement implements IAttack {
     public damage: number;
-    constructor(direction = EDIRECTION.RIGHT, x = 0, y = 0) {
-        super();
-        this.direction = direction;
-        this.rect.x = x;
-        this.rect.y = y;
-        this.rect.width = 30;
-        this.rect.height = 10;
-        this.damage = 10;
-        this.speed = 5;
+
+    constructor(options: TProjectileOptions = {}) {
+        const {
+            direction = EDIRECTION.RIGHT,
+            x = 0,
+            y = 0,
+            damage = 10,
+            speed = 5,
+            width = 30,
+            height = 10
+        } = options;
+
+        const rect: TRect = {
+            x,
+            y,
+            width,
+            height
+        };
+
+        super({ rect, direction, speed });
+
+        this.damage = damage;
     }
 }
 

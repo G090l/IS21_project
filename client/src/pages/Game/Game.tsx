@@ -45,7 +45,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         if (canvasRef.current && gameRef.current) {
             canvasRef.current.clear();
             const scene = gameRef.current.getScene();
-            const { Heroes, Walls, Swords, Arrows, Enemies } = scene; // Добавляем Enemies
+            const { Heroes, Walls, Swords, Arrows, Enemies } = scene;
 
             // Рисуем стены
             Walls.forEach(wall => {
@@ -70,10 +70,8 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
 
             // Рисуем мечи
             if (isAttackingRef.current) {
-                Swords.forEach((sword, index) => {
-                    if (index === 0 && sword) {
-                        printGameObject(canvasRef.current!, sword, 'red');
-                    }
+                Swords.forEach(sword => {
+                    printGameObject(canvasRef.current!, sword.rect, 'red');
                 });
             }
 
@@ -154,7 +152,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
 
             // Передаем состояние атаки в обновление сцены
             if (gameRef.current) {
-                gameRef.current.setAttack(isAttackingRef.current);
+                gameRef.current.Heroes[0].isAttacking = isAttackingRef.current;
             }
 
             animationFrameRef.current = requestAnimationFrame(gameLoop);

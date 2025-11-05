@@ -5,11 +5,7 @@
     justify-content: center;
     align-items: center;
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    max-width: 1920px;
-    max-height: 1080px;
+    background: #f0dfd4;
 
     .canvas-container {
         .startGame-button {
