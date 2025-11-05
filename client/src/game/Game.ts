@@ -3,21 +3,18 @@ import Map from "./types/Map";
 import Hero from "./types/Hero";
 import Server from "../services/server/Server";
 import Projectile from "./types/Projectile";
-import Unit from "./types/Unit";
 import Enemy from "./types/Enemy";
+import Sword from "./types/Sword";
 
 class Game {
     private server: Server;
-    private Heroes: Hero[];
+    public Heroes: Hero[];
     private Walls: TRect[];
-    private Swords: TRect[];
+    private Swords: Sword[];
     private gameMap: Map;
     private Arrows: Projectile[];
-    private Bots: Unit[];
     private Enemies: Enemy[];
     private interval: NodeJS.Timer | null = null;
-    private movement: { dx: number; dy: number } = { dx: 0, dy: 0 };
-    private isAttacking: boolean = false;
 
     constructor(server: Server) {
         this.server = server;
@@ -26,7 +23,6 @@ class Game {
         this.Walls = this.gameMap.walls;
         this.Swords = [];
         this.Arrows = [];
-        this.Bots = [];
         this.Enemies = [new Enemy()];
         //this.server.startGetScene(() => this.getSceneFromBackend());
         this.startUpdateScene();
@@ -41,9 +37,8 @@ class Game {
         return {
             Heroes: this.Heroes.map(hero => hero),
             Walls: this.Walls,
-            Swords: this.Swords.map(hero => hero),
+            Swords: this.Swords.map(sword => sword),
             Arrows: this.Arrows.map(arrow => arrow),
-            Bots: this.Bots.map(bot => bot),
             Enemies: this.Enemies.map(enemy => enemy),
         };
     }
@@ -52,12 +47,8 @@ class Game {
         if (heroIndex >= this.Heroes.length) return;
 
         const hero = this.Heroes[heroIndex];
-        const arrow = new Projectile(hero.direction, hero.direction == "right" ? hero.rect.x + hero.rect.width + 1 : hero.rect.x - 31, hero.rect.y + (hero.rect.height / 2));
+        const arrow = hero.createProjectile();
         this.Arrows.push(arrow);
-    }
-
-    setAttack(isAttacking: boolean): void {
-        this.isAttacking = isAttacking;
     }
 
     private userIsOwner() {
@@ -68,7 +59,7 @@ class Game {
             this.stopUpdateScene();
         }
         this.interval = setInterval(
-            () => this.updateScene(this.isAttacking),
+            () => this.updateScene(),
             CONFIG.GAME_UPDATE_TIMESTAMP
         );
     }
@@ -102,16 +93,11 @@ class Game {
         return true;
     }
 
-    private checkSwordCollisions(isAttacking: boolean): void {
-        // Если не атакуем, не проверяем столкновения с мечом
-        if (!isAttacking) return;
-
-        this.Heroes.forEach(hero => {
-            const swordRect = hero.getAttackPosition();
-
+    private checkSwordCollisions(): void {
+        this.Swords.forEach(sword => {
             this.Enemies.forEach(enemy => {
-                if (this.Heroes[0].checkRectCollision(swordRect, enemy.rect)) {
-                    enemy.health -= hero.damage;
+                if (enemy.checkRectCollision(sword.rect, enemy.rect)) {
+                    enemy.health -= sword.damage;
                 }
             });
         });
@@ -143,7 +129,6 @@ class Game {
     }
 
     private updateEnemies(): void {
-
         this.Enemies.forEach(enemy => {
             if (enemy.isAlive()) {
                 enemy.update(this.Heroes[0], this.Walls);
@@ -154,41 +139,48 @@ class Game {
         this.Enemies = this.Enemies.filter(enemy => enemy.isAlive());
     }
 
-    private updateScene(isAttacking: boolean) {
-        let isUpdated = false;
-
-        // Обновляем всех героев
+    private updateHeroes(): void {
         this.Heroes.forEach(hero => {
             const dx = hero.movement.dx * hero.speed;
             const dy = hero.movement.dy * hero.speed;
 
-            // Пробуем переместиться
-            if (this.canMove(hero, hero.rect.x + dx, hero.rect.y + dy)) {
+            if (this.canMove(hero, hero.rect.x + dx, hero.rect.y + dy) && !hero.isAttacking) {
                 hero.move(dx, dy);
-                isUpdated = true;
             }
         });
+    }
 
+    private updateArrows(): void {
+        this.Arrows.forEach(arrow => {
+            if (arrow.direction == "right") {
+                arrow.move(10, 0)
+            } else {
+                arrow.move(-10, 0)
+            }
+        });
+    }
+
+    private updateScene() {
+        let isUpdated = false;
+
+        // Обновляем всех героев
+        this.updateHeroes();
+        isUpdated = true;
         // Обновляем врагов
         this.updateEnemies();
+        isUpdated = true;
 
-        // Передвинуть стрелы
-        if (this.Arrows) {
-            this.Arrows.forEach(arrow => {
-                if (arrow.direction == "right") {
-                    arrow.move(10, 0)
-                } else {
-                    arrow.move(-10, 0)
-                }
-            });
-            this.checkArrowCollisions();
-        }
+        // Обновляем снаряды
+        this.updateArrows();
+        isUpdated = true;
+        this.checkArrowCollisions();
+        isUpdated = true;
 
         // Обновляем позиции мечей для всех героев
-        this.Swords = this.Heroes.map(hero => hero.getAttackPosition());
+        this.Swords = this.Heroes.map(hero => hero.getAttackPosition()).filter((sword): sword is Sword => sword !== null);
 
-        // Передаем состояние атаки в проверку столкновений меча
-        this.checkSwordCollisions(isAttacking);
+        // Проверяем столкновения меча
+        this.checkSwordCollisions();
 
         if (isUpdated) {
             // Логика отправки на сервер
