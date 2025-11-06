@@ -8,8 +8,9 @@ import Canvas from '../../services/canvas/Canvas';
 import useCanvas from '../../services/canvas/useCanvas';
 import Chat from '../../components/Chat/Chat';
 import background from '../../assets/img/menu/background.png';
-import './Menu.scss'
 import LobbyManager from '../../components/LobbyManager/LobbyManager';
+import StartingGameMenu from '../../components/StartingGameMenu/StartingGameMenu';
+import './Menu.scss'
 
 const MENU_FIELD = 'menu-field';
 const GREEN = '#00e81c';
@@ -21,6 +22,7 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
     const { WINDOW } = CONFIG;
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isLobbyManagerOpen, setIsLobbyManagerOpen] = useState(false);
+    const [isStartingGameMenuOpen, setIsStartingGameMenuOpen] = useState(false);
     const gameRef = useRef<MenuGame | null>(null);
     const canvasRef = useRef<Canvas | null>(null);
     const animationFrameRef = useRef<number>(0);
@@ -163,7 +165,7 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
             const keyCode = event.keyCode ? event.keyCode : event.which ? event.which : 0;
-            if (isChatOpen && keyCode === 70) return;
+            if (document.activeElement?.tagName === 'INPUT' && keyCode === 70) return;
             switch (keyCode) {
                 case 65: // a
                     keysPressedRef.current.a = true;
@@ -180,7 +182,7 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
                 case 70: // f
                     event.preventDefault();
                     if (showStartButton) {
-                        startingGameMenuClickHandler();
+                        toggleStartingGameMenu();
                     } else if (showShopButton) {
                         classShopClickHandler();
                     }
@@ -225,15 +227,15 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
         setPage(PAGES.CLASS_SHOP);
     };
 
-    const startingGameMenuClickHandler = () => {
-        setPage(PAGES.STARTING_GAME_MENU);
+    const toggleStartingGameMenu = () => {
+        setIsStartingGameMenuOpen(true);
     };
 
     return (<div className='menu'>
         <div className="canvas-container">
             {showStartButton && (
                 <Button
-                    onClick={startingGameMenuClickHandler}
+                    onClick={toggleStartingGameMenu}
                     className='startGame-button'
                     id='test-menu-startGame-button'
                 />
@@ -250,6 +252,13 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
                 isOpen={isLobbyManagerOpen}
                 onToggle={setIsLobbyManagerOpen}
             />
+            {isStartingGameMenuOpen && (
+                <StartingGameMenu
+                    setPage={setPage}
+                    isOpen={isStartingGameMenuOpen}
+                    onToggle={setIsStartingGameMenuOpen}
+                />
+            )}
             <div id={MENU_FIELD} className={MENU_FIELD}></div>
             <Chat
                 isOpen={isChatOpen}
