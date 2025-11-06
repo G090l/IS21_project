@@ -111,8 +111,9 @@ class Server {
     async getRooms(): Promise<TRoomsResponse | null> {
         const room_hash = this.store.getRoomHash();
         const result = await this.request<TRoomsResponse>('getRooms', { room_hash });
-        if (result?.status === 'updated') {
+        if (result) {
             this.store.setRoomHash(result.hash);
+            this.store.addRooms(result.rooms); 
             return result;
         }
         return null;
@@ -134,12 +135,11 @@ class Server {
         if (this.roomInterval) {
             clearInterval(this.roomInterval);
             this.roomInterval = null;
-            this.store.clearRooms();
         }
     }
 
-    createRoom(): Promise<boolean | null> {
-        return this.request<boolean>('createRoom');
+    createRoom(roomName: string): Promise<boolean | null> {
+        return this.request<boolean>('createRoom', { roomName });
     }
 
     joinToRoom(roomId: number): Promise<boolean | null> {

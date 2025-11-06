@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import cn from 'classnames';
 import { ServerContext, StoreContext } from '../../App';
 import Button from '../Button/Button';
 import { IBasePage, PAGES } from '../../pages/PageManager';
@@ -21,21 +22,6 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
     const toggleLobbyManager = () => {
         onToggle(!isOpen);
     };
-
-    const createRoomClickHandler = async () => {
-        const success = await server.createRoom();
-        if (success) {
-            setPage(PAGES.LOBBY);
-        }
-    }
-
-    const joinToRoomClickHandler = async (roomId: number) => {
-        const success = await server.joinToRoom(roomId);
-        if (success) {
-            setCurrentRoom(roomId);
-            setPage(PAGES.LOBBY);
-        }
-    }
 
     const leaveRoomClickHandler = async () => {
         const success = await server.leaveRoom();
@@ -63,10 +49,6 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
         }
     }
 
-    const getRoomsClickHandler = async () => {
-        await server.getRooms();
-    }
-
     const exitAccountClickHandler = async () => {
         await server.leaveRoom();
         await server.logout();
@@ -74,7 +56,7 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
     };
 
     return (<div
-        className={`lobby-manager ${isOpen ? 'lobby-manager-open' : ''}`}
+        className={cn('lobby-manager', { 'lobby-manager-open': isOpen })}
     >
 
         <div className="lobby-manager-toggle" onClick={toggleLobbyManager}>
@@ -83,14 +65,12 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
 
         {isOpen && (
             <div className="lobby-manager-window">
-                <Button onClick={createRoomClickHandler} text='Создать комнату' />
-                <Button onClick={joinToRoomClickHandler} text='Присоединиться к комнате' />
                 <Button onClick={leaveRoomClickHandler} text='Покинуть комнату' />
                 <Button onClick={dropFromRoomClickHandler} text='Выгнать из комнаты' />
                 <Button onClick={deleteUserClickHandler} text='Удалить аккаунт' />
                 <Button onClick={startGameClickHandler} text='Начать игру' />
-                <Button onClick={getRoomsClickHandler} text='Получить комнаты' />
                 <Button onClick={exitAccountClickHandler} text='Выйти из аккаунта' />
+                <button onClick={() => setPage(PAGES.GAME)}>Игра</button>
             </div>
         )}
 

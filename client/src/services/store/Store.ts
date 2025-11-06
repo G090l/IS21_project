@@ -83,6 +83,10 @@ class Store {
         }
     }
 
+    getRooms(): TRooms {
+        return this.rooms;
+    }
+
     clearRooms(): void {
         this.rooms = [];
     }

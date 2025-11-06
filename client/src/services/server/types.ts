@@ -21,6 +21,7 @@ export type TRooms = TRoom[];
 export type TRoom = {
     id: number;
     status: 'open' | 'closed' | 'started';
+    name: string;
     players_count: number;
 }
 
