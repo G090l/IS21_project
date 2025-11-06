@@ -484,12 +484,672 @@
 		},
 		{
 			"name": "Лобби и Комнат",
-			"item": [],
+			"item": [
+				{
+					"name": "BE-5 Успешное создание комнаты",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === boolean\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and data === true\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data).to.equal(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}?method=createRoom&token=78344a286c4e4cb07e94b9c0333b3104",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "createRoom"
+								},
+								{
+									"key": "token",
+									"value": "78344a286c4e4cb07e94b9c0333b3104"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-6 Попытка начала игры с меньше 3 игроками",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"error === object\", function () {\r",
+									"    pm.expect(responseData).to.have.property('error');\r",
+									"    pm.expect(responseData.error).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"code === number\", function () {\r",
+									"    pm.expect(responseData.error).to.have.property('code');\r",
+									"    pm.expect(responseData.error.code).to.be.a('number');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"text === string\", function () {\r",
+									"    pm.expect(responseData.error).to.have.property('text');\r",
+									"    pm.expect(responseData.error.text).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === error and code === 2013 and text === Not enough players to start game (need 3 players)\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('error');\r",
+									"    pm.expect(responseData.error.code).to.equal(2013);\r",
+									"    pm.expect(responseData.error.text).to.equal('Not enough players to start game (need 3 players)');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}?method=startGame&token=78344a286c4e4cb07e94b9c0333b3104",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "startGame"
+								},
+								{
+									"key": "token",
+									"value": "78344a286c4e4cb07e94b9c0333b3104"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-8 Успешный выход участника из комнаты",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === boolean\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and data === true\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data).to.equal(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}?method=leaveRoom&token=78344a286c4e4cb07e94b9c0333b3104",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "leaveRoom"
+								},
+								{
+									"key": "token",
+									"value": "78344a286c4e4cb07e94b9c0333b3104"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-9 Исключение участника из комнаты владельцем",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}?method=dropFromRoom&token=owner_token&targetToken=78344a286c4e4cb07e94b9c0333b3104",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "dropFromRoom"
+								},
+								{
+									"key": "token",
+									"value": "owner_token"
+								},
+								{
+									"key": "targetToken",
+									"value": "78344a286c4e4cb07e94b9c0333b3104"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-19 Присоединение к несуществующей комнате",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"error === object\", function () {\r",
+									"    pm.expect(responseData).to.have.property('error');\r",
+									"    pm.expect(responseData.error).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"code === number\", function () {\r",
+									"    pm.expect(responseData.error).to.have.property('code');\r",
+									"    pm.expect(responseData.error.code).to.be.a('number');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"text === string\", function () {\r",
+									"    pm.expect(responseData.error).to.have.property('text');\r",
+									"    pm.expect(responseData.error.text).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === error and code === 2003 and text === Room not found\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('error');\r",
+									"    pm.expect(responseData.error.code).to.equal(2003);\r",
+									"    pm.expect(responseData.error.text).to.equal('Room not found');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}?method=joinToRoom&token=78344a286c4e4cb07e94b9c0333b3104&roomId=9999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "joinToRoom"
+								},
+								{
+									"key": "token",
+									"value": "78344a286c4e4cb07e94b9c0333b3104"
+								},
+								{
+									"key": "roomId",
+									"value": "9999"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-21 Начало игры не владельцем комнаты",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"error === object\", function () {\r",
+									"    pm.expect(responseData).to.have.property('error');\r",
+									"    pm.expect(responseData.error).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"code === number\", function () {\r",
+									"    pm.expect(responseData.error).to.have.property('code');\r",
+									"    pm.expect(responseData.error.code).to.be.a('number');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"text === string\", function () {\r",
+									"    pm.expect(responseData.error).to.have.property('text');\r",
+									"    pm.expect(responseData.error.text).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === error and code === 2014 and text === You cannot start a room: you are either not the owner or you are not in the room\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('error');\r",
+									"    pm.expect(responseData.error.code).to.equal(2014);\r",
+									"    pm.expect(responseData.error.text).to.equal('You cannot start a room: you are either not the owner or you are not in the room');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}?method=startGame&token=78344a286c4e4cb07e94b9c0333b3104",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "startGame"
+								},
+								{
+									"key": "token",
+									"value": "78344a286c4e4cb07e94b9c0333b3104"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-7 Получение актуального списка комнат",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === object\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"status === string\", function () {\r",
+									"    pm.expect(responseData.data).to.have.property('status');\r",
+									"    pm.expect(responseData.data.status).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"hash === string\", function () {\r",
+									"    pm.expect(responseData.data).to.have.property('hash');\r",
+									"    pm.expect(responseData.data.hash).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"rooms === array\", function () {\r",
+									"    pm.expect(responseData.data).to.have.property('rooms');\r",
+									"    pm.expect(responseData.data.rooms).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and status === updated\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data.status).to.equal('updated');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"hash имеет правильный формат\", function () {\r",
+									"    const hash = responseData.data.hash;\r",
+									"    pm.expect(hash).to.match(/^[a-f0-9]{32}$/);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}?method=getRooms&token=78344a286c4e4cb07e94b9c0333b3104&room_hash=06f570065e17aedd9435b474eccdb81f",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "getRooms"
+								},
+								{
+									"key": "token",
+									"value": "78344a286c4e4cb07e94b9c0333b3104"
+								},
+								{
+									"key": "room_hash",
+									"value": "06f570065e17aedd9435b474eccdb81f"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
 			"description": "Автоматизированные тесты на основе тест-кейсов BE-5, BE-6, BE-7, BE-8, BE-9, BE-19, BE-21"
 		},
 		{
 			"name": "Чат",
-			"item": [],
+			"item": [
+				{
+					"name": "BE-11 Отправка сообщения в чат",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === boolean\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and data === true\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data).to.equal(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}?method=sendMessage&token=78344a286c4e4cb07e94b9c0333b3104&message=Hello World",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "sendMessage"
+								},
+								{
+									"key": "token",
+									"value": "78344a286c4e4cb07e94b9c0333b3104"
+								},
+								{
+									"key": "message",
+									"value": "Hello World"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-12 Получение сообщений из чата",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === object\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"messages === array\", function () {\r",
+									"    pm.expect(responseData.data).to.have.property('messages');\r",
+									"    pm.expect(responseData.data.messages).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"hash === string\", function () {\r",
+									"    pm.expect(responseData.data).to.have.property('hash');\r",
+									"    pm.expect(responseData.data.hash).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"hash имеет правильный формат\", function () {\r",
+									"    const hash = responseData.data.hash;\r",
+									"    pm.expect(hash).to.match(/^[a-f0-9]{32}$/);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}?method=getMessages&token=78344a286c4e4cb07e94b9c0333b3104&hash=6da65d36406907d12f6ec6d208f8f89c",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "getMessages"
+								},
+								{
+									"key": "token",
+									"value": "78344a286c4e4cb07e94b9c0333b3104"
+								},
+								{
+									"key": "hash",
+									"value": "6da65d36406907d12f6ec6d208f8f89c"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
 			"description": "Автоматизированные тесты на основе тест-кейсов BE-11, BE-12"
 		}
 	],
