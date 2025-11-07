@@ -83,10 +83,11 @@ class Application {
 
     //lobby
     public function createRoom($params) {
-        if ($params['token']) {
+        if ($params['token'] && $params['roomName'] && $params['roomSize']) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                return $this->lobby->createRoom($user->id);
+                $roomSize = (int)$params['roomSize'];
+                return $this->lobby->createRoom($user->id, $params['roomName'], $roomSize);
             }
             return ['error' => 705];
         }
@@ -142,6 +143,17 @@ class Application {
             $user = $this->user->getUser($params['token']);
             if ($user) {
                 return $this->lobby->startGame($user->id);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function renameRoom($params) {
+        if ($params['token'] && $params['newRoomName']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->lobby->renameRoom($user->id, $params['newRoomName']);
             }
             return ['error' => 705];
         }

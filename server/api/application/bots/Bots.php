@@ -21,6 +21,51 @@ class Bots {
             }
         }
 
+         //если передается токен атакющего - то это строка
+        if (isset($botData['lastHitToken']) && !is_string($botData['lastHitToken'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    //смерт бота с начислением награды
+    private function removeBotWithReward($lastHitToken, $botId, $botTypeId) {
+        //получаем пользователя по lastHitToken
+        $attackerUser = $this->db->getUserByToken($lastHitToken);
+        if (!$attackerUser) {
+            return ['error' => 5006]; 
+        }
+
+        //проверяем, что атакующий находится в комнате
+        $attackerRoomMember = $this->db->getRoomMemberByUserId($attackerUser->id);
+        if (!$attackerRoomMember) {
+            return ['error' => 5007]; 
+        }
+
+        //получаем информацию о боте
+        $botInfo = $this->db->getBotTypeById($botTypeId);
+        if (!$botInfo) {
+            return ['error' => 5001];
+        }
+
+        //получаем персонажа атакующего
+        $character = $this->db->getCharacterByUserId($attackerUser->id);
+        if (!$character) {
+            return ['error' => 706];
+        }
+
+        //начисляем деньги
+        $reward = $botInfo->money;
+        if ($reward > 0) {
+            $moneyUpdated = $this->db->updateCharacterMoneyAdd($character->id, $reward);
+            if (!$moneyUpdated) {
+                return ['error' => 5008]; 
+            }
+        }
+
+        //удаляем бота
+        $botRemoved = $this->db->removeBotFromRoom($botId);
         return true;
     }
 
@@ -128,21 +173,28 @@ class Bots {
             return ['error' => 5003];
         }
 
-        //если хп бота = 0 или меньше - удаляем бота
+         //извлекаем токен атакующего
+        $lastHitToken = $botData['lastHitToken'] ?? null;
+        
+        //надо удалить токен атакающего из данных бота перед сохранением
+        unset($botData['lastHitToken']);
+
+        //если хп бота = 0 или меньше - он умирает
         if ($botData['hp'] <= 0) {
-            return $this->removeBot($userId, $botId);
+            //если передан токен атакующего - начисляем награду, иначе просто удаляем бота без награды
+            if ($lastHitToken) {
+                return $this->removeBotWithReward($lastHitToken, $botId, $bot->type);
+            } else {
+                return $this->removeBot($userId, $botId);
+            }
         }
 
         //обновляем данные бота
         $botUpdated = $this->db->updateBotData($botId, $botData);
-        if (!$botUpdated) {
-            return ['error' => 5002];
-        }
-
         return true;
     }
 
-    //удаление бота из комнаты
+    //удаление бота (без наград)
     public function removeBot($userId, $botId) {
         //проверка, существует ли юзер
         $user = $this->db->getUserById($userId);
@@ -169,10 +221,6 @@ class Bots {
 
         //удаляем бота
         $botRemoved = $this->db->removeBotFromRoom($botId);
-        if (!$botRemoved) {
-            return ['error' => 5002];
-        }
-
         return true;
     }
 }

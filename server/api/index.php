@@ -29,6 +29,7 @@ function result($params) {
             case 'leaveRoom': return $app->leaveRoom($params);
             case 'dropFromRoom': return $app->dropFromRoom($params);
             case 'startGame': return $app->startGame($params);
+            case 'renameRoom': return $app->renameRoom($params);
             case 'getRooms': return $app->getRooms($params);
             //menu
             case 'getUserInfo': return $app->getUserInfo($params);
