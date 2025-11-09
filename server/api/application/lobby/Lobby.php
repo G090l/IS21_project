@@ -21,16 +21,16 @@ class Lobby {
         $this->db->leaveParticipantFromRoom($userId);
     }
 
-    public function createRoom($userId) {
+    public function createRoom($userId, $roomName, $roomSize) {
         //если юзер уже играет (started) --> error
         if ($this->isUserPlaying($userId)) {
-            return ['error' => 2006];
+            return ['error' => 2001];
         }
         $userType = $this->getUserTypeInRoom($userId);
         
         //если комната уже создана (owner) --> error
         if ($userType === 'owner') {
-            return ['error' => 2005];
+            return ['error' => 2002];
         }
 
         //если юзер является участником другой комнаты (ready) --> leave & create
@@ -38,15 +38,19 @@ class Lobby {
             $this->leaveParticipantFromRoom($userId);
         }
 
-        //информация о пользователе для имени комнаты
+        //информация о пользователе
         $user = $this->db->getUserById($userId);
         if (!$user) {
             return ['error' => 705];
         }
 
-        //создаем комнату с именем
-        $roomName = "Комната игрока " . $user->nickname;
-        $this->db->createRoom($userId, $roomName);
+        //проверка размера комнаты
+        if ($roomSize < 1 || $roomSize > 6) {
+            return ['error' => 2013];
+        }
+
+        //создаем комнату
+        $this->db->createRoom($userId, $roomName, $roomSize);
         $this->db->updateRoomHash(md5(rand()));
         return true;
     }
@@ -60,22 +64,26 @@ class Lobby {
         
         //проверка, что комната открыта
         if ($room->status != 'open') {
-            return ['error' => 2007];
+            return ['error' => 2005];
         }
 
         //проверка, если юзер уже играет (started) --> error
         if ($this->isUserPlaying($userId)) {
-            return ['error' => 2006];
+            return ['error' => 2001];
         }
         $userType = $this->getUserTypeInRoom($userId);
 
         //проверка, если комната уже уже создана юзером (owner) --> error
         if ($userType === 'owner') {
-            return ['error' => 2005];
+            return ['error' => 2002];
         }
 
         //если юзер является участником другой комнаты (ready) --> leave & create
         if ($userType === 'participant') {
+            $currentRoomMember = $this->db->getRoomMemberByUserId($userId);
+            if ($currentRoomMember && $currentRoomMember->room_id == $roomId) {
+                return ['error' => 2004];
+            }
             $this->leaveParticipantFromRoom($userId);
         }
         
@@ -96,7 +104,7 @@ class Lobby {
         
         //если юзер не в комнате, то ошибка
         if (!$userType) {
-            return ['error' => 2008];
+            return ['error' => 2006];
         }
         
         //если юзер === 'owner', то комната распускается, а если юзер НЕ 'owner', то он удалется из комнаты
@@ -121,7 +129,7 @@ class Lobby {
         
         //проверяем, что владелец вообще в комнате и является owner
         if (!$roomMember || $roomMember->type !== 'owner') {
-            return ['error' => 2010];
+            return ['error' => 2008];
         }
         
         //получаем цель по его токену
@@ -135,7 +143,7 @@ class Lobby {
         
         //проверяем, что владелец не пытается кикнуть себя
         if ($userId == $targetId) {
-            return ['error' => 2009];
+            return ['error' => 2007];
         }
         
         //получаем информацию о цели для кика в комнате
@@ -143,7 +151,7 @@ class Lobby {
         
         //проверяем, что цель вообще находится в той же комнате
         if (!$targetRoomMember || $targetRoomMember->room_id != $roomMember->room_id) {
-            return ['error' => 2011];
+            return ['error' => 2009];
         }
         
         // кикаем участника
@@ -158,19 +166,19 @@ class Lobby {
         
         //проверяем, что владелец вообще в комнате и является owner
         if (!$roomMember || $roomMember->type !== 'owner') {
-            return ['error' => 2014];
+            return ['error' => 2010];
         }
         
         //есть ли такая комната и открыта ли она
         $room = $this->db->getRoomById($roomMember->room_id);
         if (!$room || $room->status != 'open') {
-            return ['error' => 2015];
+            return ['error' => 2011];
         }
         
         //получаем всех участников комнаты
         $roomMembers = $this->db->getAllRoomMembers($roomMember->room_id);
         
-        //проверка, есть ли в комнате 3 пользователя со статусом ready
+        //проверка, есть ли в комнате хотя бы 1 пользователь со статусом ready
         $readyPlayers = 0;
         foreach ($roomMembers as $member) {
             if ($member['status'] === 'ready') {
@@ -178,13 +186,39 @@ class Lobby {
             }
         }
         
-        if ($readyPlayers < 3) {
-            return ['error' => 2013];
+        //проверка на всех ready игроков
+        if ($readyPlayers != $room->room_size) {
+            return ['error' => 2012]; 
         }
         
         //меняем статус комнаты и участников на started
         $this->db->updateRoomStatus($roomMember->room_id, 'started');
         $this->db->updateAllRoomMembersStatus($roomMember->room_id, 'started');
+        
+        $this->db->updateRoomHash(md5(rand()));
+        return true;
+    }
+
+    public function renameRoom($userId, $newRoomName) {
+        //получаем инфу о юзере
+        $roomMember = $this->db->getRoomMemberByUserId($userId);
+        
+        //проверяем, что владелец вообще в комнате и является owner
+        if (!$roomMember || $roomMember->type !== 'owner') {
+            return ['error' => 2010];
+        }
+        
+        //есть ли такая комната
+        $room = $this->db->getRoomById($roomMember->room_id);
+        if (!$room) {
+            return ['error' => 2003];
+        }
+        
+        //обновляем имя комнаты
+        $roomRenamed = $this->db->updateRoomName($roomMember->room_id, $newRoomName);
+        if (!$roomRenamed) {
+            return ['error' => 2014];
+        }
         
         $this->db->updateRoomHash(md5(rand()));
         return true;

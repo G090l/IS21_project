@@ -103,11 +103,11 @@ class DB {
         $this->execute("DELETE FROM room_members WHERE character_id=?", [$character->id]);
     }
 
-    public function createRoom($userId, $roomName) {
+    public function createRoom($userId, $roomName, $roomSize) {
         $character = $this->getCharacterByUserId($userId);
         if (!$character) return false;
         
-        $this->execute("INSERT INTO rooms (name) VALUES (?)", [$roomName]);
+        $this->execute("INSERT INTO rooms (name, room_size) VALUES (?, ?)", [$roomName, $roomSize]);
         $roomId = $this->pdo->lastInsertId();
         $this->addRoomMember($roomId, $character->id, 'owner');
     }
@@ -120,7 +120,7 @@ class DB {
     }
 
     public function getRoomById($roomId) {
-        return $this->query("SELECT id, status FROM rooms WHERE id=?", [$roomId]);
+        return $this->query("SELECT id, status, name, room_size FROM rooms WHERE id=?", [$roomId]);
     }
 
     public function getRoomMember($roomId, $characterId) {
@@ -184,11 +184,11 @@ class DB {
 
     public function getOpenRooms() {
         return $this->queryAll("
-            SELECT r.id, r.name, r.status, COUNT(rm.character_id) as players_count 
+            SELECT r.id, r.name, r.status, r.room_size, COUNT(rm.character_id) as players_count 
             FROM rooms r 
             LEFT JOIN room_members rm ON r.id = rm.room_id 
             WHERE r.status = 'open' 
-            GROUP BY r.id, r.name, r.status
+            GROUP BY r.id, r.name, r.status, r.room_size
         ");
     }
 
@@ -325,6 +325,10 @@ class DB {
         return $this->query("SELECT * FROM bots_rooms WHERE id = ?", [$botId]);
     }
 
+    public function getBotTypeById($botTypeId) {
+        return $this->query("SELECT * FROM bots WHERE id = ?", [$botTypeId]);
+    }
+
     public function addBotToRoom($roomId, $botType, $botData) {
         $jsonData = json_encode($botData);
         return $this->execute(
@@ -353,6 +357,10 @@ class DB {
 
     public function removeBotFromRoom($botId) {
         return $this->execute("DELETE FROM bots_rooms WHERE id = ?", [$botId]);
+    }
+
+    public function updateRoomName($roomId, $newRoomName) {
+        return $this->execute("UPDATE rooms SET name = ? WHERE id = ?", [$newRoomName, $roomId]);
     }
 }
 
