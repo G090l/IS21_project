@@ -19,6 +19,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const { WINDOW } = CONFIG;
     const { setPage } = props;
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [isShopOpen, setIsShopOpen] = useState(false);
     const gameRef = useRef<Game | null>(null);
     const canvasRef = useRef<Canvas | null>(null);
     const animationFrameRef = useRef<number>(0);
@@ -96,6 +97,14 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
 
     const backClickHandler = () => {
         setPage(PAGES.MENU);
+    };
+
+    const shopClickHandler = () => {
+        setIsShopOpen(true);
+    };
+
+    const closeShopHandler = () => {
+        setIsShopOpen(false);
     };
 
     const mouseClick = () => {
@@ -225,11 +234,58 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     return (
         <div className='game'>
             <h1>Игра</h1>
-            <Button onClick={backClickHandler} text='Назад' />
+            <div className="game-controls">
+                <Button onClick={backClickHandler} text='Назад' />
+                <Button onClick={shopClickHandler} text='Магазин' />
+            </div>
             <div className="debug-info">
                 <p>Управление: WASD - движение, ЛКМ - атака мечом, ПКМ - выстрел из лука</p>
             </div>
             <div id={GAME_FIELD} className={GAME_FIELD}></div>
+            
+            {/* Окно магазина */}
+            {isShopOpen && (
+                <div className="shop-overlay">
+                    <div className="shop-modal">
+                        <h2>Магазин</h2>
+                        <div className="shop-categories">
+                            <Button 
+                                onClick= {() => {}} 
+                                text='Шлем' 
+                            />
+                            <Button 
+                                onClick= {() => {}}
+                                text='Броня' 
+                            />
+                            <Button 
+                                onClick= {() => {}} 
+                                text='Низ' 
+                            />
+                            <Button 
+                                onClick= {() => {}} 
+                                text='Мечи' 
+                            />
+                            <Button 
+                                onClick= {() => {}}
+                                text='Луки' 
+                            />
+                            <Button 
+                                onClick= {() => {}} 
+                                text='Купить стрелы' 
+                            />
+                            <Button 
+                                onClick= {() => {}}
+                                text='Купить зелья' 
+                            />
+                        </div>
+                        <Button 
+                            onClick={closeShopHandler} 
+                            text='Выйти из магазина' 
+                        />
+                    </div>
+                </div>
+            )}
+            
             <Chat
                 isOpen={isChatOpen}
                 onToggle={setIsChatOpen}
