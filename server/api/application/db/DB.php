@@ -4,8 +4,7 @@ class DB {
 
     function __construct() {
         //$host = '127.0.0.1';
-        //$host = '127.127.126.15';
-        $host = 'MySQL-8.0';
+        $host = '127.127.126.15';
         $port = '3306';
         $user = 'root';      
         $pass = '';          
