@@ -48,7 +48,7 @@ class Application {
     public function getUserInfo($params) {
         if (!empty($params['token'])) {
             $user = $this->user->getUser($params['token']);
-            if ($user) return $this->classes->getUserInfo($user->id);
+            if ($user) return $this->user->getUserInfo($user->id);
             return ['error' => 705];
         }
         return ['error' => 242];
