@@ -14,6 +14,7 @@
     * 2.5. Боты
 3. Список запросов
     * 3.1. Список ошибок
+    * 3.2. Примеры запросов
 4. Подробно
     * 4.1. login
     * 4.2. logout
@@ -207,6 +208,31 @@ BotsInRooms: {
 * `8002` - дискриминант < 0 (нет действительных корней)
 * `8003` - нет действительных корней
 * `9000` - неизвестная ошибка
+
+### 3.2. Примеры запросов
+| Название | URL |
+| - | - |
+| login | http://knightwars.local/api/?method=login&login=abdul1&passwordHash=123456 |
+| logout | http://knightwars.local/api/?method=logout&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| registration | http://knightwars.local/api/?method=registration&login=abdul1&passwordHash=123456&nickname=Muhammad |
+| math | http://knightwars.local/api/?method=math&equation=2x^2-4x+2=0 |
+| createRoom | http://knightwars.local/api/?method=createRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| joinToRoom | http://knightwars.local/api/?method=joinToRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&roomId=1 |
+| leaveRoom | http://knightwars.local/api/?method=leaveRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| dropFromRoom | http://knightwars.local/api/?method=dropFromRoom&token=ТОКЕН_ВЛАДЕЛЬЦА&targetToken=ТОКЕН_ЦЕЛИ |
+| deleteUser | http://knightwars.local/api/?method=deleteUser&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| startGame | http://knightwars.local/api/?method=startGame&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| getRooms | http://knightwars.local/api/?method=getRooms&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| getUserInfo | http://knightwars.local/api/?method=getUserInfo&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| getClasses | http://knightwars.local/api/?method=getClasses |
+| getUserOwnedClasses | http://knightwars.local/api/?method=getUserOwnedClasses&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| buyClass | http://knightwars.local/api/?method=buyClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
+| selectClass | http://knightwars.local/api/?method=selectClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
+| buyItem | http://knightwars.local/api/?method=buyItem&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&itemId=1 |
+| spawnBot | http://knightwars.local/api/?method=spawnBot&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botType=PAULALLEN&botData={"hp":100,"x":5,"y":10} |
+| getBots | http://knightwars.local/api/?method=getBots&roomId=1 |
+| updateBot | http://knightwars.local/api/?method=updateBot&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botId=1&botData={"hp":80,"x":5,"y":10} |
+| removeBot | http://knightwars.local/api/?method=removeBot&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botId=1 |
 
 
 ## 4. Подробно
