@@ -55,9 +55,9 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
         if (canvasRef.current && gameRef.current && backgroundImageRef.current) {
             canvasRef.current.clearImage(backgroundImageRef.current);
             const scene = gameRef.current.getScene();
-            const { Heroes, Walls } = scene;
+            const { heroes, walls } = scene;
 
-            const hero = scene.Heroes[0];
+            const hero = scene.heroes[0];
 
             if (hero.rect.x > 814 && hero.rect.x < 1105 &&
                 hero.rect.y > 685 && hero.rect.y < 770) {
@@ -74,7 +74,7 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
             }
 
             // Рисуем стены
-            Walls.forEach(wall => {
+            walls.forEach(wall => {
                 printGameObject(canvasRef.current!, {
                     x: wall.x,
                     y: wall.y,
@@ -84,7 +84,7 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
             });
 
             // Рисуем всех героев
-            Heroes.forEach((hero, index) => {
+            heroes.forEach((hero, index) => {
                 // Основной герой игрока - синий, остальные - другие цвета
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvasRef.current!, hero.rect, color);
@@ -113,8 +113,8 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
         // Получаем сцену и устанавливаем движение для основного героя
         if (gameRef.current) {
             const scene = gameRef.current.getScene();
-            scene.Heroes[0].movement.dx = dx;
-            scene.Heroes[0].movement.dy = dy;
+            scene.heroes[0].movement.dx = dx;
+            scene.heroes[0].movement.dy = dy;
         }
     }, []);
 
@@ -123,8 +123,8 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
         gameRef.current = new MenuGame(server);
 
         const scene = gameRef.current.getScene();
-        scene.Heroes[0].rect.x = 740;
-        scene.Heroes[0].rect.y = 800;
+        scene.heroes[0].rect.x = 740;
+        scene.heroes[0].rect.y = 800;
 
         // Инициализация канваса
         canvasRef.current = CanvasComponent({

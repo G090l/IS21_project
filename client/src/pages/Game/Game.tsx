@@ -22,7 +22,6 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const gameRef = useRef<Game | null>(null);
     const canvasRef = useRef<Canvas | null>(null);
     const animationFrameRef = useRef<number>(0);
-    const isAttackingRef = useRef(false);
 
     const keysPressedRef = useRef({
         w: false,
@@ -45,10 +44,10 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         if (canvasRef.current && gameRef.current) {
             canvasRef.current.clear();
             const scene = gameRef.current.getScene();
-            const { Heroes, Walls, Swords, Arrows, Enemies } = scene;
+            const { heroes, walls, arrows, enemies } = scene;
 
             // Рисуем стены
-            Walls.forEach(wall => {
+            walls.forEach(wall => {
                 printGameObject(canvasRef.current!, {
                     x: wall.x,
                     y: wall.y,
@@ -58,25 +57,18 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             });
 
             // Рисуем всех героев
-            Heroes.forEach((hero, index) => {
+            heroes.forEach((hero, index) => {
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvasRef.current!, hero.rect, color);
             });
 
             // Рисуем врагов
-            Enemies.forEach(enemy => {
+            enemies.forEach(enemy => {
                 printGameObject(canvasRef.current!, enemy.rect, 'red'); // Враги красного цвета
             });
 
-            // Рисуем мечи
-            if (isAttackingRef.current) {
-                Swords.forEach(sword => {
-                    printGameObject(canvasRef.current!, sword.rect, 'red');
-                });
-            }
-
             // Рисуем стрелы
-            Arrows.forEach(arrow => {
+            arrows.forEach(arrow => {
                 printGameObject(canvasRef.current!, {
                     x: arrow.rect.x,
                     y: arrow.rect.y,
@@ -99,10 +91,6 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     };
 
     const mouseClick = () => {
-        isAttackingRef.current = true;
-        setTimeout(() => {
-            isAttackingRef.current = false;
-        }, 500);
     };
 
     const mouseRightClick = () => {
@@ -124,8 +112,8 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         // Получаем сцену и устанавливаем движение для основного героя
         if (gameRef.current) {
             const scene = gameRef.current.getScene();
-            scene.Heroes[0].movement.dx = dx;
-            scene.Heroes[0].movement.dy = dy;
+            scene.heroes[0].movement.dx = dx;
+            scene.heroes[0].movement.dy = dy;
         }
     }, []);
 
@@ -150,10 +138,6 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         const gameLoop = () => {
             handleMovement();
 
-            // Передаем состояние атаки в обновление сцены
-            if (gameRef.current) {
-                gameRef.current.Heroes[0].isAttacking = isAttackingRef.current;
-            }
 
             animationFrameRef.current = requestAnimationFrame(gameLoop);
         };

@@ -39,25 +39,31 @@ class Enemy extends Unit {
         const normalizedDy = dy / distance;
 
         // Рассчитываем новую позицию
-        const newX = this.rect.x + normalizedDx * this.speed;
-        const newY = this.rect.y + normalizedDy * this.speed;
+        const newX = normalizedDx * this.speed;
+        const newY = normalizedDy * this.speed;
 
-        // Проверяем возможность движения
-        if (this.canMove({ x: newX, y: newY, width: this.rect.width, height: this.rect.height }, walls)) {
-            this.move(normalizedDx * this.speed, normalizedDy * this.speed)
+        // Сохраняем оригинальную позицию для отката при столкновении
+        const originalX = this.rect.x;
+        const originalY = this.rect.y;
 
-            // Обновляем направление
-            if (normalizedDx !== 0) {
-                this.direction = normalizedDx > 0 ? EDIRECTION.RIGHT : EDIRECTION.LEFT;
+        // Пытаемся переместиться
+        this.move(newX, newY);
+
+        // Проверяем столкновения со стенами
+        const hasCollision = this.checkCollisionsWithArray(
+            walls,
+            (wall, enemyRect) => {
+                // При столкновении откатываем позицию
+                this.rect.x = originalX;
+                this.rect.y = originalY;
+                return false;
             }
+        );
+
+        // Обновляем направление
+        if (normalizedDx !== 0) {
+            this.direction = normalizedDx > 0 ? EDIRECTION.RIGHT : EDIRECTION.LEFT;
         }
-
-        this.movement.dx = normalizedDx;
-        this.movement.dy = normalizedDy;
-    }
-
-    private canMove(newRect: TRect, walls: TRect[]): boolean {
-        return !walls.some(wall => this.checkRectCollision(newRect, wall));
     }
 
     getAttackPosition(): TRect {
