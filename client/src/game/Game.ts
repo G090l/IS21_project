@@ -58,8 +58,7 @@ class Game {
 
         this.enemies.forEach(enemy => {
             if (enemy.isAlive() && hero.checkRectCollision(swordPosition, enemy.rect)) {
-                enemy.health -= hero.damage;
-                console.log(enemy.health);
+                enemy.takeDamage(hero.damage);
             }
         });
 
@@ -160,8 +159,7 @@ class Game {
                     );
 
                     if (enemy) {
-                        // Наносим урон врагу
-                        enemy.health -= arrow.damage;
+                        enemy.takeDamage(arrow.damage);
                         shouldRemoveArrow = true;
                     }
 

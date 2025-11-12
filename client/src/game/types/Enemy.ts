@@ -66,6 +66,14 @@ class Enemy extends Unit {
         }
     }
 
+    takeDamage(damage: number): void {
+        this.health -= damage;
+
+        if (this.health < 0) {
+            this.health = 0;
+        }
+    }
+
     getAttackPosition(): TRect {
         const swordOffset = 80;
         const swordSize = 80;
