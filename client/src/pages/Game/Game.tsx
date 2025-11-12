@@ -9,6 +9,7 @@ import useCanvas from '../../services/canvas/useCanvas';
 import Store from '../../services/store/Store';
 import Server from '../../services/server/Server';
 import Chat from '../../components/Chat/Chat';
+import Shop from '../../components/Shop/Shop';
 
 const GAME_FIELD = 'game-field';
 const GREEN = '#00e81c';
@@ -99,14 +100,6 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         setPage(PAGES.MENU);
     };
 
-    const shopClickHandler = () => {
-        setIsShopOpen(true);
-    };
-
-    const closeShopHandler = () => {
-        setIsShopOpen(false);
-    };
-
     const mouseClick = () => {
         isAttackingRef.current = true;
         setTimeout(() => {
@@ -137,6 +130,11 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             scene.Heroes[0].movement.dy = dy;
         }
     }, []);
+
+    // Функция для переключения магазина
+    const toggleShop = () => {
+        setIsShopOpen(prev => !prev);
+    };
 
     useEffect(() => {
         // Инициализация игры
@@ -196,6 +194,9 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
                 case 83: // s
                     keysPressedRef.current.s = true;
                     break;
+                case 77: // m 
+                    toggleShop();
+                    break;
                 default:
                     break;
             }
@@ -236,59 +237,18 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             <h1>Игра</h1>
             <div className="game-controls">
                 <Button onClick={backClickHandler} text='Назад' />
-                <Button onClick={shopClickHandler} text='Магазин' />
             </div>
             <div className="debug-info">
-                <p>Управление: WASD - движение, ЛКМ - атака мечом, ПКМ - выстрел из лука</p>
+                <p>Управление: WASD - движение, ЛКМ - атака мечом, ПКМ - выстрел из лука, M - магазин</p>
             </div>
-            <div id={GAME_FIELD} className={GAME_FIELD}></div>
-            
-            {/* Окно магазина */}
-            {isShopOpen && (
-                <div className="shop-overlay">
-                    <div className="shop-modal">
-                        <h2>Магазин</h2>
-                        <div className="shop-categories">
-                            <Button 
-                                onClick= {() => {}} 
-                                text='Шлем' 
-                            />
-                            <Button 
-                                onClick= {() => {}}
-                                text='Броня' 
-                            />
-                            <Button 
-                                onClick= {() => {}} 
-                                text='Низ' 
-                            />
-                            <Button 
-                                onClick= {() => {}} 
-                                text='Мечи' 
-                            />
-                            <Button 
-                                onClick= {() => {}}
-                                text='Луки' 
-                            />
-                            <Button 
-                                onClick= {() => {}} 
-                                text='Купить стрелы' 
-                            />
-                            <Button 
-                                onClick= {() => {}}
-                                text='Купить зелья' 
-                            />
-                        </div>
-                        <Button 
-                            onClick={closeShopHandler} 
-                            text='Выйти из магазина' 
-                        />
-                    </div>
-                </div>
-            )}
-            
+            <div id={GAME_FIELD} className={GAME_FIELD}></div>     
             <Chat
                 isOpen={isChatOpen}
                 onToggle={setIsChatOpen}
+            />
+            <Shop
+                isOpen={isShopOpen}
+                onToggle={setIsShopOpen}
             />
         </div>
     );
