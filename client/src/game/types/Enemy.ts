@@ -17,47 +17,80 @@ class Enemy extends Unit {
         this.direction = EDIRECTION.RIGHT;
     }
 
-    update(targetHero: Unit, walls: TRect[]): void {
-        this.moveTowardsTarget(targetHero, walls);
+    update(heroRects: TRect[], walls: TRect[]): void {
+        this.moveTowardsTarget(heroRects, walls);
         //attack()
     }
 
-    private moveTowardsTarget(targetHero: Unit, walls: TRect[]): void {
-        const dx = targetHero.rect.x - this.rect.x;
-        const dy = targetHero.rect.y - this.rect.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+    private moveTowardsTarget(heroRects: TRect[], walls: TRect[]): void {
+        const nearestHeroRect = this.findNearestHeroRect(heroRects);
 
-        // Если цель слишком далеко, не двигаться
-        if (distance > this.detectionRange) {
+        if (!nearestHeroRect) {
             this.movement.dx = 0;
             this.movement.dy = 0;
             return;
         }
+
+        const dx = nearestHeroRect.x - this.rect.x;
+        const dy = nearestHeroRect.y - this.rect.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
         // Нормализуем направление
         const normalizedDx = dx / distance;
         const normalizedDy = dy / distance;
 
         // Рассчитываем новую позицию
-        const newX = this.rect.x + normalizedDx * this.speed;
-        const newY = this.rect.y + normalizedDy * this.speed;
+        const newX = normalizedDx * this.speed;
+        const newY = normalizedDy * this.speed;
 
-        // Проверяем возможность движения
-        if (this.canMove({ x: newX, y: newY, width: this.rect.width, height: this.rect.height }, walls)) {
-            this.move(normalizedDx * this.speed, normalizedDy * this.speed)
+        // Сохраняем оригинальную позицию для отката при столкновении
+        const originalX = this.rect.x;
+        const originalY = this.rect.y;
 
-            // Обновляем направление
-            if (normalizedDx !== 0) {
-                this.direction = normalizedDx > 0 ? EDIRECTION.RIGHT : EDIRECTION.LEFT;
+        // Пытаемся переместиться
+        this.move(newX, newY);
+
+        // Проверяем столкновения со стенами
+        const hasCollision = this.checkCollisionsWithArray(
+            walls,
+            (wall, enemyRect) => {
+                // При столкновении откатываем позицию
+                this.rect.x = originalX;
+                this.rect.y = originalY;
+                return false;
+            }
+        );
+
+        // Обновляем направление
+        if (normalizedDx !== 0) {
+            this.direction = normalizedDx > 0 ? EDIRECTION.RIGHT : EDIRECTION.LEFT;
+        }
+    }
+
+    private findNearestHeroRect(heroRects: TRect[]): TRect | null {
+        let nearestHeroRect: TRect | null = null;
+        let minDistance = this.detectionRange;
+
+        for (const heroRect of heroRects) {
+            const dx = heroRect.x - this.rect.x;
+            const dy = heroRect.y - this.rect.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance <= this.detectionRange && distance < minDistance) {
+                minDistance = distance;
+                nearestHeroRect = heroRect;
             }
         }
 
-        this.movement.dx = normalizedDx;
-        this.movement.dy = normalizedDy;
+        return nearestHeroRect;
     }
 
-    private canMove(newRect: TRect, walls: TRect[]): boolean {
-        return !walls.some(wall => this.checkRectCollision(newRect, wall));
+    takeDamage(damage: number): void {
+        this.health -= damage;
+
+        if (this.health < 0) {
+            this.health = 0;
+        }
     }
 
     getAttackPosition(): TRect {

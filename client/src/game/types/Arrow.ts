@@ -7,7 +7,7 @@ interface IAttack {
     rect: TRect;
 }
 
-type TProjectileOptions = {
+type TArrowOptions = {
     direction?: EDIRECTION;
     x?: number;
     y?: number;
@@ -17,10 +17,10 @@ type TProjectileOptions = {
     height?: number;
 }
 
-export class Projectile extends Movement implements IAttack {
+export class Arrow extends Movement implements IAttack {
     public damage: number;
 
-    constructor(options: TProjectileOptions = {}) {
+    constructor(options: TArrowOptions = {}) {
         const {
             direction = EDIRECTION.RIGHT,
             x = 0,
@@ -44,4 +44,4 @@ export class Projectile extends Movement implements IAttack {
     }
 }
 
-export default Projectile;
+export default Arrow;

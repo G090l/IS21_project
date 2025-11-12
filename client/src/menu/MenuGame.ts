@@ -8,7 +8,7 @@ class MenuGame extends Game {
 
         const menuMap = new MenuMap();
         // @ts-ignore
-        this.Walls = menuMap.walls;
+        this.walls = menuMap.walls;
         // @ts-ignore
         this.gameMap.walls = menuMap.walls;
     }

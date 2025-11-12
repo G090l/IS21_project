@@ -3,7 +3,7 @@ import Map from "../game/types/Map";
 class MenuMap extends Map {
     constructor() {
         super();
-        
+
         this.walls = [
             { x: 0, y: 0, width: 1920, height: 685 },
             { x: 62, y: 685, width: 426, height: 359 },
