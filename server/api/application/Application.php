@@ -4,9 +4,10 @@ require_once ('user/User.php');
 require_once ('chat/Chat.php');
 require_once ('math/Math.php');
 require_once ('lobby/Lobby.php');
-require_once('menu/Menu.php');
-require_once('shop/Shop.php');
+require_once('classes/Classes.php');
+require_once('item/Item.php');
 require_once('bots/Bots.php');
+require_once('arrows/Arrows.php');
 
 class Application {
     function __construct() {
@@ -14,10 +15,11 @@ class Application {
         $this->user = new User($db);
         $this->math = new Math();
         $this->lobby = new Lobby($db);
-        $this->menu = new Menu($db);
+        $this->classes = new Classes($db);
         $this->chat = new Chat($db);
-        $this->shop = new Shop($db);
+        $this->item = new Item($db);
         $this->bots = new Bots($db);
+        $this->arrows = new Arrows($db);
     }
 
     public function login($params) {
@@ -45,6 +47,20 @@ class Application {
         return ['error' => 242];
     }
 
+    public function getUserInfo($params) {
+        if (!empty($params['token'])) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) return $this->user->getUserInfo($user->id);
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function getClasses($params) {
+        return $this->classes->getClasses();
+    }
+
+
     public function math($params) {
         $a = (float) ($params['a'] ?? 0);
         $b = (float) ($params['b'] ?? 0);
@@ -58,7 +74,7 @@ class Application {
         return ['error' => 8001];
     }
 
-    
+    // chat
     public function sendMessage($params) {
         if ($params['token'] && $params['message']) {
             $user = $this->user->getUser($params['token']);
@@ -81,7 +97,7 @@ class Application {
         return ['error' => 242];
     }
 
-    //lobby
+    // lobby
     public function createRoom($params) {
         if ($params['token'] && $params['roomName'] && $params['roomSize']) {
             $user = $this->user->getUser($params['token']);
@@ -170,24 +186,12 @@ class Application {
         }
         return ['error' => 242];
     }
-    //menu
-    public function getUserInfo($params) {
-        if (!empty($params['token'])) {
-            $user = $this->user->getUser($params['token']);
-            if ($user) return $this->menu->getUserInfo($user->id);
-            return ['error' => 705];
-        }
-        return ['error' => 242];
-    }
 
-    public function getClasses($params) {
-        return $this->menu->getClasses();
-    }
-
+    // classes
     public function getUserOwnedClasses($params) {
         if (!empty($params['token'])) {
             $user = $this->user->getUser($params['token']);
-            if ($user) return $this->menu->getUserOwnedClasses($user->id);
+            if ($user) return $this->classes->getUserOwnedClasses($user->id);
             return ['error' => 705];
         }
         return ['error' => 242];
@@ -196,7 +200,7 @@ class Application {
     public function buyClass($params) {
         if (!empty($params['token']) && !empty($params['classId'])) {
             $user = $this->user->getUser($params['token']);
-            if ($user) return $this->menu->buyClass($user->id, $params['classId']);
+            if ($user) return $this->classes->buyClass($user->id, $params['classId']);
             return ['error' => 705];
         }
         return ['error' => 242];
@@ -205,18 +209,18 @@ class Application {
     public function selectClass($params) {
         if (!empty($params['token']) && !empty($params['classId'])) {
             $user = $this->user->getUser($params['token']);
-            if ($user) return $this->menu->selectClass($user->id, $params['classId']);
+            if ($user) return $this->classes->selectClass($user->id, $params['classId']);
             return ['error' => 705];
         }
         return ['error' => 242];
     }
 
-    //shop
+    // item
     public function buyItem($params) {
         if ($params['token'] && $params['itemId']) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                return $this->shop->buyItem($user->id, $params['itemId']);
+                return $this->item->buyItem($user->id, $params['itemId']);
             }
             return ['error' => 705];
         }
@@ -227,14 +231,14 @@ class Application {
         if ($params['token'] && $params['itemId']) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                return $this->shop->sellItem($user->id, $params['itemId']);
+                return $this->item->sellItem($user->id, $params['itemId']);
             }
             return ['error' => 705];
         }
         return ['error' => 242];
     }
 
-    //bots
+    // bots
     public function spawnBot($params) {
         if ($params['token'] && $params['botType'] && $params['botData']) {
             $user = $this->user->getUser($params['token']);
@@ -279,6 +283,51 @@ class Application {
                 return $this->bots->removeBot($user->id, $params['botId']);
             }
             return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    //arrow
+    public function spawnArrow($params) {
+    if ($params['token'] && $params['x'] && $params['y'] && $params['creatorToken']) {
+        $user = $this->user->getUser($params['token']);
+        if ($user) {
+            $x = (int)$params['x'];
+            $y = (int)$params['y'];
+            return $this->arrows->spawnArrow($user->id, $x, $y, $params['creatorToken']);
+        }
+        return ['error' => 705];
+    }
+    return ['error' => 242];
+    }
+
+    public function updateArrow($params) {
+        if ($params['token'] && $params['arrowId'] && $params['x'] && $params['y']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                $x = (int)$params['x'];
+                $y = (int)$params['y'];
+                return $this->arrows->updateArrow($user->id, $params['arrowId'], $x, $y);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function removeArrow($params) {
+        if ($params['token'] && $params['arrowId']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->arrows->removeArrow($user->id, $params['arrowId']);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function getArrows($params) {
+        if ($params['roomId']) {
+            return $this->arrows->getArrows($params['roomId']);
         }
         return ['error' => 242];
     }

@@ -18,6 +18,7 @@ function result($params) {
             case 'logout': return $app->logout($params);
             case 'registration': return $app->registration($params);
             case 'deleteUser': return $app->deleteUser($params); // для тестеров
+            case 'getUserInfo': return $app->getUserInfo($params);
             //math
             case 'math': return $app->math($params);
             // chat
@@ -31,12 +32,11 @@ function result($params) {
             case 'startGame': return $app->startGame($params);
             case 'renameRoom': return $app->renameRoom($params);
             case 'getRooms': return $app->getRooms($params);
-            //menu
-            case 'getUserInfo': return $app->getUserInfo($params);
+            //classes
             case 'getClasses': return $app->getClasses($params);
             case 'buyClass': return $app->buyClass($params);
             case 'selectClass': return $app->selectClass($params);
-            //shop
+            //item
             case 'buyItem': return $app->buyItem($params);
             case 'sellItem': return $app->sellItem($params);
             //bots
@@ -44,6 +44,11 @@ function result($params) {
             case 'getBots': return $app->getBots($params);
             case 'updateBot': return $app->updateBot($params);
             case 'removeBot': return $app->removeBot($params);
+            //arrows
+            case 'spawnArrow': return $app->spawnArrow($params);
+            case 'getArrows': return $app->getArrows($params);
+            case 'updateArrow': return $app->updateArrow($params);
+            case 'removeArrow': return $app->removeArrow($params);
 
             default: return ['error' => 102];
         }
