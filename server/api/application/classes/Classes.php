@@ -1,21 +1,9 @@
 <?php
-class Menu {
+class Classes {
     private $db;
 
     public function __construct($db) {
         $this->db = $db;
-    }
-
-    public function getUserInfo($userId) {
-        $user = $this->db->getUserById($userId);
-        if (!$user) return ['error' => 705];
-
-        return [
-            'id' => $user->id,
-            'login' => $user->login,
-            'nickname' => $user->nickname,
-            'money' => $user->money
-        ];
     }
 
     public function getClasses() {

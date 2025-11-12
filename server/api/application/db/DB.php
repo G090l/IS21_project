@@ -35,6 +35,7 @@ class DB {
         return $sth->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // user
     public function getUserByLogin($login) {
         return $this->query("SELECT * FROM users WHERE login=?", [$login]);
     }
@@ -47,6 +48,15 @@ class DB {
         return $this->query("SELECT * FROM users WHERE id = ?", [$id]);
     }
 
+    public function updateToken($userId, $token) {
+        $this->execute("UPDATE users SET token=? WHERE id=?", [$token, $userId]);
+    }
+
+    public function registration($login, $password, $nickname) {
+        $this->execute("INSERT INTO users (login, password, nickname) VALUES (?, ?, ?)", [$login, $password, $nickname]);
+    }
+
+    // character
     public function getCharacterByUserId($userId) {
         return $this->query("SELECT * FROM characters WHERE user_id = ?", [$userId]);
     }
@@ -56,14 +66,26 @@ class DB {
         return $character ? $character->id : null;
     }
 
-    public function updateToken($userId, $token) {
-        $this->execute("UPDATE users SET token=? WHERE id=?", [$token, $userId]);
+    public function createCharacter($userId) {
+        return $this->execute(
+            "INSERT INTO characters (user_id, hp, defense, money, died) VALUES (?, 100, 0, 1000, 0)",
+            [$userId]
+        );
     }
 
-    public function registration($login, $password, $nickname) {
-        $this->execute("INSERT INTO users (login, password, nickname) VALUES (?, ?, ?)", [$login, $password, $nickname]);
+    public function deleteCharacter($userId) {
+        return $this->execute("DELETE FROM characters WHERE user_id = ?", [$userId]);
     }
 
+    public function updateCharacterMoneyAdd($characterId, $amount) {
+        return $this->execute("UPDATE characters SET money = money + ? WHERE id = ?", [$amount, $characterId]);
+    }
+
+    public function updateCharacterMoneySubtract($characterId, $amount) {
+        return $this->execute("UPDATE characters SET money = money - ? WHERE id = ?", [$amount, $characterId]);
+    }
+
+    // chat
     public function getChatHash() {
         return $this->query("SELECT * FROM hashes WHERE id=1");
     }
@@ -77,14 +99,20 @@ class DB {
     }
 
     public function getMessages() {
-        return $this->queryAll("SELECT u.nickname AS author, m.message AS message,
-                            DATE_FORMAT(m.created, '%Y-%m-%d %H:%i:%s') AS created 
-                            FROM messages as m 
-                            LEFT JOIN users as u on u.id = m.user_id 
-                            ORDER BY m.created DESC"
-        );
+        return $this->queryAll("
+            SELECT u.nickname AS author, m.message AS message,
+                   DATE_FORMAT(m.created, '%Y-%m-%d %H:%i:%s') AS created 
+            FROM messages as m 
+            LEFT JOIN users as u on u.id = m.user_id 
+            ORDER BY m.created DESC
+        ");
     }
 
+    public function deleteUserMessages($userId) {
+        return $this->execute("DELETE FROM messages WHERE user_id = ?", [$userId]);
+    }
+
+    // lobby
     public function isUserPlaying($userId) {
         $character = $this->getCharacterByUserId($userId);
         if (!$character) return false;
@@ -106,7 +134,6 @@ class DB {
     public function createRoom($userId, $roomName, $roomSize) {
         $character = $this->getCharacterByUserId($userId);
         if (!$character) return false;
-        
         $this->execute("INSERT INTO rooms (name, room_size) VALUES (?, ?)", [$roomName, $roomSize]);
         $roomId = $this->pdo->lastInsertId();
         $this->addRoomMember($roomId, $character->id, 'owner');
@@ -142,44 +169,16 @@ class DB {
         return $this->query("SELECT * FROM room_members WHERE character_id=?", [$character->id]);
     }
 
+    public function getAllRoomMembers($roomId) {
+        return $this->queryAll("SELECT * FROM room_members WHERE room_id=?", [$roomId]);
+    }
+
     public function deleteAllRoomMembers($roomId) {
         $this->execute("DELETE FROM room_members WHERE room_id=?", [$roomId]);
     }
 
     public function deleteRoom($roomId) {
         $this->execute("DELETE FROM rooms WHERE id=?", [$roomId]);
-    }
-
-    public function deleteUser($userId) {
-        return $this->execute("DELETE FROM users WHERE id=?", [$userId]);
-    }
-
-    public function deleteAllCharacterItems($characterId) {
-        return $this->execute("DELETE FROM character_items WHERE character_id = ?", [$characterId]);
-    }
-
-    public function deleteAllCharacterClasses($characterId) {
-        return $this->execute("DELETE FROM characters_classes WHERE character_id = ?", [$characterId]);
-    }
-
-    public function deleteCharacter($userId) {
-        return $this->execute("DELETE FROM characters WHERE user_id = ?", [$userId]);
-    }
-
-    public function deleteUserMessages($userId) {
-        return $this->execute("DELETE FROM messages WHERE user_id = ?", [$userId]);
-    }
-
-    public function getAllRoomMembers($roomId) {
-        return $this->queryAll("SELECT * FROM room_members WHERE room_id=?", [$roomId]);
-    }
-
-    public function updateRoomStatus($roomId, $status) {
-        $this->execute("UPDATE rooms SET status=? WHERE id=?", [$status, $roomId]);
-    }
-
-    public function updateAllRoomMembersStatus($roomId, $status) {
-        $this->execute("UPDATE room_members SET status=? WHERE room_id=?", [$status, $roomId]);
     }
 
     public function getOpenRooms() {
@@ -192,6 +191,19 @@ class DB {
         ");
     }
 
+    public function updateRoomStatus($roomId, $status) {
+        $this->execute("UPDATE rooms SET status=? WHERE id=?", [$status, $roomId]);
+    }
+
+    public function updateAllRoomMembersStatus($roomId, $status) {
+        $this->execute("UPDATE room_members SET status=? WHERE room_id=?", [$status, $roomId]);
+    }
+
+    public function updateRoomName($roomId, $newRoomName) {
+        return $this->execute("UPDATE rooms SET name = ? WHERE id = ?", [$newRoomName, $roomId]);
+    }
+
+    // classes
     public function getPersonClassByType($type) {
         return $this->query("SELECT * FROM classes WHERE type = ?", [$type]);
     }
@@ -216,12 +228,11 @@ class DB {
     public function getUserOwnedClasses($userId) {
         $character = $this->getCharacterByUserId($userId);
         if (!$character) return [];
-        return $this->queryAll(
-            "SELECT c.*, cc.selected FROM classes c
-             JOIN characters_classes cc ON cc.class_id = c.id
-             WHERE cc.character_id = ?",
-            [$character->id]
-        );
+        return $this->queryAll("
+            SELECT c.*, cc.selected FROM classes c
+            JOIN characters_classes cc ON cc.class_id = c.id
+            WHERE cc.character_id = ?
+        ", [$character->id]);
     }
 
     public function addUserPersonClass($userId, $classId) {
@@ -251,26 +262,7 @@ class DB {
         );
     }
 
-    public function updateUserMoneySubtract($userId, $amount) {
-        return $this->execute("UPDATE users SET money = money - ? WHERE id = ?", [$amount, $userId]);
-    }
-
-    public function updateCharacterMoneySubtract($characterId, $amount) {
-        return $this->execute("UPDATE characters SET money = money - ? WHERE id = ?", [$amount, $characterId]);
-    }
-
-    public function beginTransaction() {
-        return $this->pdo->beginTransaction();
-    }
-
-    public function commit() {
-        return $this->pdo->commit();
-    }
-
-    public function rollBack() {
-        return $this->pdo->rollBack();
-    }
-
+    // item
     public function getItemById($itemId) {
         return $this->query("SELECT * FROM items WHERE id = ?", [$itemId]);
     }
@@ -289,13 +281,6 @@ class DB {
         );
     }
 
-    public function createCharacter($userId) {
-        return $this->execute(
-            "INSERT INTO characters (user_id, hp, defense, money, died) VALUES (?, 100, 0, 1000, 0)",
-            [$userId]
-        );
-    }
-
     public function updateUserItemQuantity($characterId, $itemId, $quantity) {
         return $this->execute(
             "UPDATE character_items SET quantity = ? WHERE character_id = ? AND item_id = ?",
@@ -310,13 +295,11 @@ class DB {
         );
     }
 
-    public function updateCharacterMoneyAdd($characterId, $amount) {
-        return $this->execute(
-            "UPDATE characters SET money = money + ? WHERE id = ?",
-            [$amount, $characterId]
-        );
+    public function deleteAllCharacterItems($characterId) {
+        return $this->execute("DELETE FROM character_items WHERE character_id = ?", [$characterId]);
     }
 
+    // bots
     public function getBotByName($botName) {
         return $this->query("SELECT * FROM bots WHERE name = ?", [$botName]);
     }
@@ -338,13 +321,12 @@ class DB {
     }
 
     public function getBotsByRoomId($roomId) {
-        return $this->queryAll(
-            "SELECT br.*, b.name, b.hp, b.damage, b.attack_speed, b.attack_distance, b.money 
+        return $this->queryAll("
+            SELECT br.*, b.name, b.hp, b.damage, b.attack_speed, b.attack_distance, b.money 
             FROM bots_rooms br 
             JOIN bots b ON br.type = b.id 
-            WHERE br.room_id = ?",
-            [$roomId]
-        );
+            WHERE br.room_id = ?
+        ", [$roomId]);
     }
 
     public function updateBotData($botId, $botData) {
@@ -359,8 +341,25 @@ class DB {
         return $this->execute("DELETE FROM bots_rooms WHERE id = ?", [$botId]);
     }
 
-    public function updateRoomName($roomId, $newRoomName) {
-        return $this->execute("UPDATE rooms SET name = ? WHERE id = ?", [$newRoomName, $roomId]);
+    // transactions
+    public function beginTransaction() {
+        return $this->pdo->beginTransaction();
+    }
+
+    public function commit() {
+        return $this->pdo->commit();
+    }
+
+    public function rollBack() {
+        return $this->pdo->rollBack();
+    }
+
+    // test
+    public function deleteUser($userId) {
+        return $this->execute("DELETE FROM users WHERE id=?", [$userId]);
+    }
+
+    public function deleteAllCharacterClasses($characterId) {
+        return $this->execute("DELETE FROM characters_classes WHERE character_id = ?", [$characterId]);
     }
 }
-
