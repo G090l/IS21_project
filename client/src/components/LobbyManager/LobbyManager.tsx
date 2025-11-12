@@ -30,10 +30,6 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
         }
     }
 
-    const dropFromRoomClickHandler = async (targetToken: string) => {
-        await server.dropFromRoom(targetToken);
-    }
-
     const deleteUserClickHandler = async () => {
         const success = await server.deleteUser();
         if (success) {
@@ -65,7 +61,6 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
         {isOpen && (
             <div className="lobby-manager-window">
                 <Button onClick={leaveRoomClickHandler} text='Покинуть комнату' />
-                <Button onClick={dropFromRoomClickHandler} text='Выгнать из комнаты' />
                 <Button onClick={deleteUserClickHandler} text='Удалить аккаунт' />
                 <Button onClick={startGameClickHandler} text='Начать игру' />
                 <Button onClick={exitAccountClickHandler} text='Выйти из аккаунта' />

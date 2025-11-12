@@ -77,6 +77,10 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
         const success = await server.joinToRoom(roomId);
         if (success) {
             setCurrentRoom(roomId);
+            const room = rooms.find(r => r.id === roomId);
+            if (room) {
+                store.setCurrentRoom(room);
+            }
             setPage(PAGES.LOBBY);
         }
     }
@@ -123,7 +127,7 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
                 return (
                     <div className="right-section">
                         <div className="room-section">
-                            {rooms.map(room => (
+                            {rooms.filter(room => room.status === 'open').map(room => (
                                 <Button
                                     key={room.id}
                                     onClick={() => joinToRoomClickHandler(room.id)}

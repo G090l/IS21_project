@@ -1,4 +1,4 @@
-import { TMessages, TRooms, TUser } from "../server/types";
+import { TMessages, TRoom, TRoomMembers, TRooms, TUser } from "../server/types";
 
 const TOKEN = 'token';
 const REMEMBER_ME = 'rememberMe';
@@ -8,7 +8,10 @@ class Store {
     messages: TMessages = [];
     chatHash: string = 'empty chat hash';
     rooms: TRooms = [];
-    roomHash: string  = 'empty room  hash'; 
+    roomHash: string = 'empty room  hash';
+    currentRoom: TRoom | null = null;
+    roomMembers: TRoomMembers = [];
+    roomMembersHash: string = 'empty room members hash';
 
     rememberMe: boolean = false;
 
@@ -100,6 +103,45 @@ class Store {
             this.roomHash = hash;
         }
     }
+
+    updateRoomName(newName: string): void {
+        const currentRoom = this.getCurrentRoom();
+        if (currentRoom) {
+            currentRoom.name = newName;
+        }
+    }
+
+    setCurrentRoom(room: TRoom): void {
+        this.currentRoom = room;
+    };
+
+    getCurrentRoom(): TRoom | null {
+        return this.currentRoom;
+    };
+
+    addRoomMembers(members: TRoomMembers): void {
+        if (members?.length) {
+            this.roomMembers = members;
+        }
+    }
+
+    getRoomMembers(): TRoomMembers {
+        return this.roomMembers || [];
+    };
+
+    getRoomMembersHash(): string {
+        return this.roomMembersHash;
+    }
+
+    setRoomMembersHash(hash: string | undefined): void {
+        if (hash) {
+            this.roomMembersHash = hash;
+        }
+    }
+
+    setRoomMembers(members: TRoomMembers | undefined): void {
+        this.roomMembers = members || [];
+    };
 }
 
 export default Store;

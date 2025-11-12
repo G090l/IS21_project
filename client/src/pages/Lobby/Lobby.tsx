@@ -11,6 +11,7 @@ import background from '../../assets/img/lobby/background.png';
 import LobbyManager from '../../components/LobbyManager/LobbyManager';
 import StartingGameMenu from '../../components/StartingGameMenu/StartingGameMenu';
 import './Lobby.scss'
+import RoomInfo from '../../components/RoomInfo/RoomInfo';
 
 const LOBBY_FIELD = 'lobby-field';
 
@@ -262,6 +263,7 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                 isOpen={isChatOpen}
                 onToggle={setIsChatOpen}
             />
+            <RoomInfo />
         </div>
     </div>)
 }
