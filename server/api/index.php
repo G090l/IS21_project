@@ -44,6 +44,11 @@ function result($params) {
             case 'getBots': return $app->getBots($params);
             case 'updateBot': return $app->updateBot($params);
             case 'removeBot': return $app->removeBot($params);
+            //arrows
+            case 'spawnArrow': return $app->spawnArrow($params);
+            case 'getArrows': return $app->getArrows($params);
+            case 'updateArrow': return $app->updateArrow($params);
+            case 'removeArrow': return $app->removeArrow($params);
 
             default: return ['error' => 102];
         }

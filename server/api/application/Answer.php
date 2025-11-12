@@ -56,7 +56,16 @@ class Answer {
         '5005' => 'There are no bots in the room',
         '5006' => 'Attacker-user not found', 
         '5007' => 'Attacker-user not in room', 
-        '5008' => 'Error adding money reward', 
+        '5008' => 'Error adding money reward',
+        //arrows
+        '6001' => 'Arrow creator not found',
+        '6002' => 'Arrow creator not in room', 
+        '6003' => 'Invalid arrow coordinates',
+        '6004' => 'Arrow not found in room',
+        '6005' => 'Creator direction not set',
+        '6006' => 'No bow equipped',
+        '6007' => 'No arrows equipped',
+        '6008' => 'No arrows in room', 
         //math
         '8001' => 'Enter at least one value',
         '8002' => 'The discriminant cannot be less than zero',

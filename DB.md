@@ -94,11 +94,10 @@
 | - | - | - |
 | id | integer | primary key |
 | room_id | integer | not null |
+| creator_id | integer | not null |
 | x | integer | position by X |
 | y | integer | position by Y |
 | direction | enum | 'left'/'right' |
-| speed | integer | |
-| damage | integer | |
 
 ## Система ботов
 
