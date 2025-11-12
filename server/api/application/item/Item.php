@@ -1,6 +1,6 @@
 <?php
 
-class Shop {
+class Item {
     function __construct($db) { 
         $this->db = $db;
     }

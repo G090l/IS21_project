@@ -12,8 +12,10 @@
     * 2.3. Сообщение
     * 2.4. Комната (лобби)
     * 2.5. Боты
+    * 2.6. Стрелы
 3. Список запросов
     * 3.1. Список ошибок
+    * 3.2. Примеры запросов
 4. Подробно
     * 4.1. login
     * 4.2. logout
@@ -38,6 +40,10 @@
     * 4.21. getBots
     * 4.22. updateBot
     * 4.23. removeBot
+    * 4.24. spawnArrow
+    * 4.25. getArrows
+    * 4.26. updateArrow
+    * 4.27. removeArrow
 
 
 
@@ -122,6 +128,18 @@ BotsInRooms: {
 }
 ```
 
+### 2.6. Стрелы
+```
+Arrow: {
+    id: number,
+    room_id: number,
+    creator_id: number,
+    x: number,
+    y: number,
+    direction: 'left' | 'right'
+}
+```
+
 ## 3. Список запросов
 | Название | О чем |
 | - | - |
@@ -148,6 +166,10 @@ BotsInRooms: {
 | getBots | Получение списка ботов в комнате |
 | updateBot | Обновление данных бота в комнате |
 | removeBot | Удаление бота из комнаты |
+| spawnArrow | Создание стрелы в комнате |
+| getArrows | Получение списка стрел в комнате |
+| updateArrow | Обновление данных стрелы в комнате |
+| removeArrow | Удаление стрелы из комнаты |
 
 
 
@@ -203,10 +225,47 @@ BotsInRooms: {
 * `5006` - атакующий пользователь не найден
 * `5007` - атакующий пользователь не в комнате
 * `5008` - ошибка начисления денежной награды
+* `6001` - создатель стрелы не найден
+* `6002` - создатель стрелы не в комнат
+* `6003` - неверные координаты стрелы
+* `6004` - стрела не найдена в комнате
+* `6005` - направление создателя не установлено
+* `6006` - лук не экипирован
+* `6007` - стрелы не экипированы
+* `6008` - в комнате нет стрел
 * `8001` - не передан ни один коэффициент
 * `8002` - дискриминант < 0 (нет действительных корней)
 * `8003` - нет действительных корней
 * `9000` - неизвестная ошибка
+
+### 3.2. Примеры запросов
+| Название | URL |
+| - | - |
+| login | http://knightwars.local/api/?method=login&login=abdul1&passwordHash=123456 |
+| logout | http://knightwars.local/api/?method=logout&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| registration | http://knightwars.local/api/?method=registration&login=abdul1&passwordHash=123456&nickname=Muhammad |
+| math | http://knightwars.local/api/?method=math&equation=2x^2-4x+2=0 |
+| createRoom | http://knightwars.local/api/?method=createRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| joinToRoom | http://knightwars.local/api/?method=joinToRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&roomId=1 |
+| leaveRoom | http://knightwars.local/api/?method=leaveRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| dropFromRoom | http://knightwars.local/api/?method=dropFromRoom&token=ТОКЕН_ВЛАДЕЛЬЦА&targetToken=ТОКЕН_ЦЕЛИ |
+| deleteUser | http://knightwars.local/api/?method=deleteUser&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| startGame | http://knightwars.local/api/?method=startGame&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| getRooms | http://knightwars.local/api/?method=getRooms&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| getUserInfo | http://knightwars.local/api/?method=getUserInfo&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| getClasses | http://knightwars.local/api/?method=getClasses |
+| getUserOwnedClasses | http://knightwars.local/api/?method=getUserOwnedClasses&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| buyClass | http://knightwars.local/api/?method=buyClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
+| selectClass | http://knightwars.local/api/?method=selectClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
+| buyItem | http://knightwars.local/api/?method=buyItem&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&itemId=1 |
+| spawnBot | http://knightwars.local/api/?method=spawnBot&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botType=skelet&botData={"hp":100,"x":5,"y":10} |
+| getBots | http://knightwars.local/api/?method=getBots&roomId=1 |
+| updateBot | http://knightwars.local/api/?method=updateBot&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botId=1&botData={"hp":80,"x":5,"y":10} |
+| removeBot | http://knightwars.local/api/?method=removeBot&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botId=1 |
+| spawnArrow | http://knightwars.local/api/?method=spawnArrow&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&x=100&y=200&creatorToken=ТОКЕН_СТРЕЛКА |
+| getArrows | http://knightwars.local/api/?method=getArrows&roomId=1 |
+| updateArrow | http://knightwars.local/api/?method=updateArrow&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&arrowId=5&x=120&y=250 |
+| removeArrow | http://knightwars.local/api/?method=removeArrow&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&arrowId=5 |
 
 
 ## 4. Подробно
@@ -728,4 +787,108 @@ BotsInRooms: {
 * `2006` - пользователь отсутствует в комнате
 * `2010` - вы не владелец комнаты
 * `5004` - бот не найден в комнате
+
+
+### 4.24. spawnArrow
+Создание стрелы в комнате
+
+**Параметры**
+```
+{
+    token: string, - токен владельца комнаты
+    x: number, - координата X стрелы
+    y: number, - координата Y стрелы  
+    creatorToken: string - токен создателя стрелы
+}
+```
+**Успешный ответ**
+```
+  Answer<true>
+```
+
+**Ошибки**
+* `242` - не переданы все необходимые параметры
+* `705` - пользователь не найден
+* `2006` - пользователь отсутствует в комнате
+* `2010` - вы не владелец комнаты
+* `2011` - комната не найдена или игра не начата
+* `6001` - создатель стрелы не найден
+* `6002` - создатель стрелы не в комнате
+* `6003` - неверные координаты стрелы
+* `6005` - направление создателя не установлено
+* `6006` - лук не экипирован
+* `6007` - стрелы не экипированы
+
+
+### 4.25. getArrows
+Получение списка стрел в комнате
+
+**Параметры**
+```
+{
+    roomId: number - ID комнаты
+}
+```
+**Успешный ответ**
+```
+  Answer<Arrow[]>
+```
+
+**Ошибки**
+* `242` - не переданы все необходимые параметры
+* `2003` - комната не найдена
+* `6008` - в комнате нет стрел
+
+
+### 4.26. updateArrow
+Обновление данных стрелы в комнате
+
+**Параметры**
+```
+{
+    token: string, - токен владельца комнаты
+    arrowId: number, - ID стрелы
+    x: number, - новая координата X стрелы
+    y: number - новая координата Y стрелы
+}
+```
+**Успешный ответ**
+```
+  Answer<true>
+```
+
+**Ошибки**
+* `242` - не переданы все необходимые параметры
+* `705` - пользователь не найден
+* `2006` - пользователь отсутствует в комнате
+* `2010` - вы не владелец комнаты
+* `6003` - неверные координаты стрелы
+* `6004` - стрела не найдена в комнате
+
+
+### 4.27. removeArrow
+Удаление стрелы из комнаты
+
+**Параметры**
+```
+{
+    token: string, - токен владельца комнаты
+    arrowId: number - ID стрелы
+}
+```
+**Успешный ответ**
+```
+  Answer<true>
+```
+
+**Ошибки**
+* `242` - не переданы все необходимые параметры
+* `705` - пользователь не найден
+* `2006` - пользователь отсутствует в комнате
+* `2010` - вы не владелец комнаты
+* `6004` - стрела не найдена в комнате
+
+
+
+
 

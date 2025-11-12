@@ -8,6 +8,18 @@ class User {
     public function getUser($token) {
         return $this->db->getUserByToken($token);
     }
+    
+    public function getUserInfo($userId) {
+        $user = $this->db->getUserById($userId);
+        if (!$user) return ['error' => 705];
+
+        return [
+            'id' => $user->id,
+            'login' => $user->login,
+            'nickname' => $user->nickname,
+            'money' => $user->money
+        ];
+    }
 
     public function login($login, $password, $rnd) {
         $user = $this->db->getUserByLogin($login);

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: MySQL-8.0
--- Время создания: Ноя 07 2025 г., 16:27
+-- Время создания: Ноя 12 2025 г., 18:23
 -- Версия сервера: 8.0.41
 -- Версия PHP: 8.3.14
 
@@ -32,11 +32,10 @@ USE `knightwars`;
 CREATE TABLE `arrows` (
   `id` int NOT NULL,
   `room_id` int NOT NULL,
+  `creator_id` int NOT NULL,
   `x` int DEFAULT NULL,
   `y` int DEFAULT NULL,
-  `direction` enum('left','right') DEFAULT NULL,
-  `speed` int DEFAULT NULL,
-  `damage` int DEFAULT NULL
+  `direction` enum('left','right') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -90,15 +89,6 @@ CREATE TABLE `characters` (
   `died` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Дамп данных таблицы `characters`
---
-
-INSERT INTO `characters` (`id`, `user_id`, `hp`, `defense`, `money`, `died`) VALUES
-(4, 48, 100, 0, 1303.0, 0),
-(5, 49, 100, 0, 1000.0, 0),
-(6, 50, 100, 0, 1000.0, 0);
-
 -- --------------------------------------------------------
 
 --
@@ -112,15 +102,6 @@ CREATE TABLE `characters_classes` (
   `selected` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Дамп данных таблицы `characters_classes`
---
-
-INSERT INTO `characters_classes` (`id`, `character_id`, `class_id`, `selected`) VALUES
-(2, 4, 1, 1),
-(3, 5, 1, 1),
-(4, 6, 1, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -133,13 +114,6 @@ CREATE TABLE `character_items` (
   `character_id` int DEFAULT NULL,
   `quantity` int DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Дамп данных таблицы `character_items`
---
-
-INSERT INTO `character_items` (`id`, `item_id`, `character_id`, `quantity`) VALUES
-(10, 1, 4, 1);
 
 -- --------------------------------------------------------
 
@@ -180,7 +154,7 @@ CREATE TABLE `hashes` (
 --
 
 INSERT INTO `hashes` (`id`, `chat_hash`, `room_hash`) VALUES
-(1, 'default chat_hash', '54af023e409107c4487e990531aab012');
+(1, 'default chat_hash', 'c38ce2e8f43e745c4a77ab9bd5978af4');
 
 -- --------------------------------------------------------
 
@@ -208,7 +182,8 @@ CREATE TABLE `items` (
 INSERT INTO `items` (`id`, `name`, `item_type`, `weapon_type`, `damage`, `attack_speed`, `attack_distance`, `bonus_defense`, `bonus_hp`, `cost`) VALUES
 (1, 'Test sword', 'weapon', 'sword', 10, 2, 1, 0, 0, 15),
 (2, 'arrow', 'arrow', NULL, 10, 1, 1, 0, 0, 3),
-(3, 'potion', 'potion', NULL, 0, 0, 0, 0, 0, 5);
+(3, 'potion', 'potion', NULL, 0, 0, 0, 0, 0, 5),
+(4, 'test bow', 'weapon', 'bow', 10, 1, 1, 0, 0, 33);
 
 -- --------------------------------------------------------
 
@@ -236,13 +211,6 @@ CREATE TABLE `rooms` (
   `room_size` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Дамп данных таблицы `rooms`
---
-
-INSERT INTO `rooms` (`id`, `status`, `name`, `room_size`) VALUES
-(33, 'started', 'КомнатаДАДАДА', 1);
-
 -- --------------------------------------------------------
 
 --
@@ -261,13 +229,6 @@ CREATE TABLE `room_members` (
   `hp` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Дамп данных таблицы `room_members`
---
-
-INSERT INTO `room_members` (`id`, `room_id`, `character_id`, `type`, `status`, `x`, `y`, `direction`, `hp`) VALUES
-(22, 33, 4, 'owner', 'started', NULL, NULL, 'right', NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -281,15 +242,6 @@ CREATE TABLE `users` (
   `nickname` varchar(255) NOT NULL,
   `token` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Дамп данных таблицы `users`
---
-
-INSERT INTO `users` (`id`, `login`, `password`, `nickname`, `token`) VALUES
-(48, 'kloddef1', '123456', 'KloddeF', 'fc16a4797b37f74de6945ae78b30c6cb'),
-(49, 'anton2', '123456', 'Anton2', '7f20dd4163ce0c825509230a852c70ba'),
-(50, 'vadim3', '123456', 'Vadim3', 'a4474291d7ac6826fff890cbc2cb61cb');
 
 --
 -- Индексы сохранённых таблиц
@@ -395,7 +347,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `arrows`
 --
 ALTER TABLE `arrows`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT для таблицы `bots`
@@ -413,19 +365,19 @@ ALTER TABLE `bots_rooms`
 -- AUTO_INCREMENT для таблицы `characters`
 --
 ALTER TABLE `characters`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT для таблицы `characters_classes`
 --
 ALTER TABLE `characters_classes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT для таблицы `character_items`
 --
 ALTER TABLE `character_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT для таблицы `classes`
@@ -437,7 +389,7 @@ ALTER TABLE `classes`
 -- AUTO_INCREMENT для таблицы `items`
 --
 ALTER TABLE `items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT для таблицы `messages`
@@ -449,19 +401,19 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT для таблицы `rooms`
 --
 ALTER TABLE `rooms`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT для таблицы `room_members`
 --
 ALTER TABLE `room_members`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
