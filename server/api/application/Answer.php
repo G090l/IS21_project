@@ -32,7 +32,7 @@ class Answer {
         '2012' => 'Room is not full (need all players ready)',
         '2013' => 'Invalid room size (must be between 1 and 6)',
         '2014' => 'Error renaming room',
-         //menu
+         //classes
         '3001' => 'No classes found',
         '3002' => 'Class not found',
         '3003' => 'User not found',
@@ -40,7 +40,7 @@ class Answer {
         '3005' => 'Error during purchase',
         '3006' => 'Class not owned',
         '3007' => 'Class already purchased',
-        //shop
+        //item
         '4001' => 'Item not found',
         '4002' => 'Not enough money to buy',
         '4003' => 'Item already owned',
