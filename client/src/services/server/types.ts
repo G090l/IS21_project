@@ -23,6 +23,7 @@ export type TRoom = {
     status: 'open' | 'closed' | 'started';
     name: string;
     players_count: number;
+    room_size: number;
 }
 
 export type TRoomsResponse = {

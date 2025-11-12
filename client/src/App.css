@@ -3,6 +3,12 @@
   src: url(../src/assets/fonts/metanart-big.ttf);
 }
 
+@font-face {
+  font-family: 'vcrosd';
+  src: url(../src/assets/fonts/vcrosdmonorusbyd.ttf);
+}
+
+
 .App {
   text-align: center;
 }

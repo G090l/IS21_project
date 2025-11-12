@@ -17,7 +17,6 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
     const server = useContext(ServerContext);
     const store = useContext(StoreContext);
     const [currentRoom, setCurrentRoom] = useState<number | null>(null);
-    const [rooms, setRooms] = useState<TRoom[]>([]);
 
     const toggleLobbyManager = () => {
         onToggle(!isOpen);

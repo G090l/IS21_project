@@ -113,7 +113,7 @@ class Server {
         const result = await this.request<TRoomsResponse>('getRooms', { room_hash });
         if (result) {
             this.store.setRoomHash(result.hash);
-            this.store.addRooms(result.rooms); 
+            this.store.addRooms(result.rooms);
             return result;
         }
         return null;
@@ -138,8 +138,8 @@ class Server {
         }
     }
 
-    createRoom(roomName: string): Promise<boolean | null> {
-        return this.request<boolean>('createRoom', { roomName });
+    createRoom(roomName: string, roomSize: number): Promise<boolean | null> {
+        return this.request<boolean>('createRoom', { roomName, roomSize });
     }
 
     joinToRoom(roomId: number): Promise<boolean | null> {

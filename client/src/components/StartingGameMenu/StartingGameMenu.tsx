@@ -19,17 +19,17 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
     const [activeSection, setActiveSection] = useState<'create' | 'join'>('create');
     const [error, setError] = useState<string | null>(null);
     const [roomName, setRoomName] = useState('');
-    const [playersCount, setPlayersCount] = useState(1);
+    const [roomSize, setRoomSize] = useState(1);
     const [rooms, setRooms] = useState<TRooms>([]);
 
 
     useEffect(() => {
         server.showError((err: TError) => {
-            if (err.code === 2004 || err.code === 2005) {
+            if (err.code === 2004 || err.code === 2002) {
                 setError('Вы участвуете в другом лобби.');
-            } else if (err.code === 2006) {
+            } else if (err.code === 2001) {
                 setError('Действие недоступно во время активной игры.');
-            } else if (err.code === 2007) {
+            } else if (err.code === 2005) {
                 setError('Лобби переполнено.');
             } else if (err.code === 2003) {
                 setError('Лобби Этого лобби не существует.');
@@ -59,7 +59,7 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
     }, [activeSection, isOpen]);
 
     const createRoomClickHandler = async () => {
-        const success = await server.createRoom(roomName);
+        const success = await server.createRoom(roomName, roomSize);
         if (success) {
             setPage(PAGES.LOBBY);
             onToggle(false);
@@ -69,8 +69,8 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
     const handleRoomNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setRoomName(e.target.value);
     }
-    const handlePlayersCountClick = (count: number) => {
-        setPlayersCount(count);
+    const roomSizeClickHandler = (count: number) => {
+        setRoomSize(count);
     }
 
     const joinToRoomClickHandler = async (roomId: number) => {
@@ -96,14 +96,14 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
                             value={roomName}
                             onChange={handleRoomNameChange}
                         />
-                        <div className='playersCount-buttons'>
+                        <div className='roomSize-buttons'>
                             {[1, 2, 3, 4, 5, 6].map(count => (
                                 <Button
                                     key={count}
-                                    onClick={() => handlePlayersCountClick(count)}
-                                    className={cn('playerCount-button',
+                                    onClick={() => roomSizeClickHandler(count)}
+                                    className={cn('roomSize-button',
                                         `btn-${count}`,
-                                        { 'active': playersCount === count }
+                                        { 'active': roomSize === count }
                                     )}
                                 />
                             ))}
@@ -128,7 +128,7 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
                                     key={room.id}
                                     onClick={() => joinToRoomClickHandler(room.id)}
                                     className="room-item"
-                                    text={`Комната ${room.name}\nИгроков: ${room.players_count}/${playersCount}`}
+                                    text={`Комната ${room.name}\nИгроков: ${room.players_count}/${room.room_size}`}
                                 />
                             ))}
                         </div>
