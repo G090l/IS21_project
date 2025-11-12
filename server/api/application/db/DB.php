@@ -299,6 +299,15 @@ class DB {
         return $this->execute("DELETE FROM character_items WHERE character_id = ?", [$characterId]);
     }
 
+    public function hasCharacterWeaponType($characterId, $weaponType) {
+        return $this->query(
+            "SELECT ci.* FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.weapon_type = ?",
+            [$characterId, $weaponType]
+        );
+    }
+
     // bots
     public function getBotByName($botName) {
         return $this->query("SELECT * FROM bots WHERE name = ?", [$botName]);
@@ -352,6 +361,71 @@ class DB {
 
     public function rollBack() {
         return $this->pdo->rollBack();
+    }
+
+    //arrows
+    public function addArrowToRoom($roomId, $creatorCharacterId, $x, $y, $direction) {
+        return $this->execute(
+            "INSERT INTO arrows (room_id, creator_id, x, y, direction) VALUES (?, ?, ?, ?, ?)",
+            [$roomId, $creatorCharacterId, $x, $y, $direction]
+        );
+    }
+
+    public function getArrowById($arrowId) {
+        return $this->query("SELECT * FROM arrows WHERE id = ?", [$arrowId]);
+    }
+
+    public function updateArrowData($arrowId, $x, $y) {
+        return $this->execute(
+            "UPDATE arrows SET x = ?, y = ? WHERE id = ?",
+            [$x, $y, $arrowId]
+        );
+    }
+
+    public function removeArrowFromRoom($arrowId) {
+        return $this->execute("DELETE FROM arrows WHERE id = ?", [$arrowId]);
+    }
+
+    public function getArrowsByRoomId($roomId) {
+        return $this->queryAll("SELECT * FROM arrows WHERE room_id = ?", [$roomId]);
+    }
+
+    public function hasCharacterArrows($characterId) {
+        $arrowItem = $this->query(
+            "SELECT ci.* FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.item_type = 'arrow' AND ci.quantity > 0",
+            [$characterId]
+        );
+        return $arrowItem && $arrowItem->quantity > 0;
+    }
+
+    //трата стрел
+    public function consumeCharacterArrow($characterId) {
+        $arrowItem = $this->query(
+            "SELECT ci.* FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.item_type = 'arrow'",
+            [$characterId]
+        );
+        
+        if (!$arrowItem) {
+            return false;
+        }
+        
+        if ($arrowItem->quantity > 1) {
+            // уменьшаем количество стрел
+            return $this->execute(
+                "UPDATE character_items SET quantity = quantity - 1 WHERE id = ?",
+                [$arrowItem->id]
+            );
+        } else {
+            // удаляем запись, если стрел больше нет
+            return $this->execute(
+                "DELETE FROM character_items WHERE id = ?",
+                [$arrowItem->id]
+            );
+        }
     }
 
     // test
