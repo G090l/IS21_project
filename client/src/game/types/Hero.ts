@@ -7,6 +7,7 @@ class Hero extends Unit {
     private characterClass: CharacterClass = KNIGHT;
     private equipment: string[] = [];
     private inventory: string[] = [...KNIGHT.inventory];
+    public isAttacking: boolean = false;
 
     constructor() {
         super();
@@ -30,7 +31,10 @@ class Hero extends Unit {
         return [...this.inventory];
     }
 
-    getAttackPosition(): TRect {
+    getAttackPosition(): TRect | null {
+        if (!this.isAttacking) {
+            return null;
+        }
 
         const swordWidth = 100;
         const swordHeight = 100;

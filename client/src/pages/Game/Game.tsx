@@ -11,8 +11,6 @@ import Server from '../../services/server/Server';
 import Chat from '../../components/Chat/Chat';
 
 const GAME_FIELD = 'game-field';
-const GREEN = '#00e81c';
-const WALL_COLOR = '#8B4513';
 
 const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const server = useContext(ServerContext);
@@ -53,18 +51,26 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
                     y: wall.y,
                     width: wall.width,
                     height: wall.height
-                }, WALL_COLOR);
+                }, 'brown');
             });
 
             // Рисуем всех героев
             heroes.forEach((hero, index) => {
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvasRef.current!, hero.rect, color);
+
+                // Рисуем меч
+                if (hero.isAttacking) {
+                    const attackPosition = hero.getAttackPosition();
+                    if (attackPosition) {
+                        printGameObject(canvasRef.current!, attackPosition, 'red');
+                    }
+                }
             });
 
             // Рисуем врагов
             enemies.forEach(enemy => {
-                printGameObject(canvasRef.current!, enemy.rect, 'red'); // Враги красного цвета
+                printGameObject(canvasRef.current!, enemy.rect, 'red');
             });
 
             // Рисуем стрелы
@@ -78,7 +84,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             });
 
             // Рисуем FPS
-            canvasRef.current.text(WINDOW.LEFT + 20, WINDOW.TOP + 50, String(FPS), GREEN);
+            canvasRef.current.text(WINDOW.LEFT + 20, WINDOW.TOP + 50, String(FPS), 'green');
 
             canvasRef.current.render();
         }
@@ -91,10 +97,10 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     };
 
     const mouseClick = () => {
+        gameRef.current?.handleSwordAttack(0)
     };
 
     const mouseRightClick = () => {
-        // Добавляем стрелу для основного героя (индекс 0)
         gameRef.current?.addArrow(0);
     };
 
@@ -109,7 +115,6 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         if (w) dy -= 1;
         if (s) dy += 1;
 
-        // Получаем сцену и устанавливаем движение для основного героя
         if (gameRef.current) {
             const scene = gameRef.current.getScene();
             scene.heroes[0].movement.dx = dx;

@@ -47,6 +47,27 @@ class Game {
         this.arrows.push(arrow);
     }
 
+    handleSwordAttack(heroIndex: number = 0): void {
+        if (heroIndex >= this.heroes.length) return;
+
+        const hero = this.heroes[heroIndex];
+        hero.isAttacking = true;
+
+        const swordPosition = hero.getAttackPosition();
+        if (!swordPosition) return;
+
+        this.enemies.forEach(enemy => {
+            if (enemy.isAlive() && hero.checkRectCollision(swordPosition, enemy.rect)) {
+                enemy.health -= hero.damage;
+                console.log(enemy.health);
+            }
+        });
+
+        setTimeout(() => {
+            hero.isAttacking = false;
+        }, 300);
+    }
+
     private userIsOwner() {
     }
 
