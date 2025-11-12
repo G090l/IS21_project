@@ -7,6 +7,7 @@ require_once ('lobby/Lobby.php');
 require_once('classes/Classes.php');
 require_once('item/Item.php');
 require_once('bots/Bots.php');
+require_once('arrows/Arrows.php');
 
 class Application {
     function __construct() {
@@ -18,6 +19,7 @@ class Application {
         $this->chat = new Chat($db);
         $this->item = new Item($db);
         $this->bots = new Bots($db);
+        $this->arrows = new Arrows($db);
     }
 
     public function login($params) {
@@ -281,6 +283,51 @@ class Application {
                 return $this->bots->removeBot($user->id, $params['botId']);
             }
             return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    //arrow
+    public function spawnArrow($params) {
+    if ($params['token'] && $params['x'] && $params['y'] && $params['creatorToken']) {
+        $user = $this->user->getUser($params['token']);
+        if ($user) {
+            $x = (int)$params['x'];
+            $y = (int)$params['y'];
+            return $this->arrows->spawnArrow($user->id, $x, $y, $params['creatorToken']);
+        }
+        return ['error' => 705];
+    }
+    return ['error' => 242];
+    }
+
+    public function updateArrow($params) {
+        if ($params['token'] && $params['arrowId'] && $params['x'] && $params['y']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                $x = (int)$params['x'];
+                $y = (int)$params['y'];
+                return $this->arrows->updateArrow($user->id, $params['arrowId'], $x, $y);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function removeArrow($params) {
+        if ($params['token'] && $params['arrowId']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->arrows->removeArrow($user->id, $params['arrowId']);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function getArrows($params) {
+        if ($params['roomId']) {
+            return $this->arrows->getArrows($params['roomId']);
         }
         return ['error' => 242];
     }
