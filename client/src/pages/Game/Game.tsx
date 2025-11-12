@@ -6,8 +6,6 @@ import { IBasePage, PAGES } from '../PageManager';
 import Game from '../../game/Game';
 import Canvas from '../../services/canvas/Canvas';
 import useCanvas from '../../services/canvas/useCanvas';
-import Store from '../../services/store/Store';
-import Server from '../../services/server/Server';
 import Chat from '../../components/Chat/Chat';
 
 const GAME_FIELD = 'game-field';
@@ -43,6 +41,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             canvasRef.current.clear();
             const scene = gameRef.current.getScene();
             const { heroes, walls, arrows, enemies } = scene;
+            const user = server.store.getUser();
 
             // Рисуем стены
             walls.forEach(wall => {
@@ -58,6 +57,9 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             heroes.forEach((hero, index) => {
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvasRef.current!, hero.rect, color);
+
+                // Подписываем имя героя
+                canvasRef.current!.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');
 
                 // Рисуем меч
                 if (hero.isAttacking) {
@@ -97,11 +99,11 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     };
 
     const mouseClick = () => {
-        gameRef.current?.handleSwordAttack(0)
+        gameRef.current?.handleSwordAttack();
     };
 
     const mouseRightClick = () => {
-        gameRef.current?.addArrow(0);
+        gameRef.current?.addArrow();
     };
 
     const handleMovement = useCallback(() => {
@@ -116,9 +118,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         if (s) dy += 1;
 
         if (gameRef.current) {
-            const scene = gameRef.current.getScene();
-            scene.heroes[0].movement.dx = dx;
-            scene.heroes[0].movement.dy = dy;
+            gameRef.current.updateCurrentUserMovement(dx, dy);
         }
     }, []);
 
@@ -142,8 +142,6 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         // Игровой цикл
         const gameLoop = () => {
             handleMovement();
-
-
             animationFrameRef.current = requestAnimationFrame(gameLoop);
         };
 

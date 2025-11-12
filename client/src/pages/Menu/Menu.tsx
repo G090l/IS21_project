@@ -13,8 +13,6 @@ import StartingGameMenu from '../../components/StartingGameMenu/StartingGameMenu
 import './Menu.scss'
 
 const MENU_FIELD = 'menu-field';
-const GREEN = '#00e81c';
-const WALL_COLOR = 'transparent';
 
 const Menu: React.FC<IBasePage> = (props: IBasePage) => {
     const { setPage } = props;
@@ -56,22 +54,21 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
             canvasRef.current.clearImage(backgroundImageRef.current);
             const scene = gameRef.current.getScene();
             const { heroes, walls } = scene;
+            scene.heroes.forEach(hero => {
+                if (hero.rect.x > 814 && hero.rect.x < 1105 &&
+                    hero.rect.y > 685 && hero.rect.y < 770) {
+                    setShowStartButton(true);
+                } else {
+                    setShowStartButton(false);
+                }
 
-            const hero = scene.heroes[0];
-
-            if (hero.rect.x > 814 && hero.rect.x < 1105 &&
-                hero.rect.y > 685 && hero.rect.y < 770) {
-                setShowStartButton(true);
-            } else {
-                setShowStartButton(false);
-            }
-
-            if (hero.rect.x > 1455 && hero.rect.x < 1821 &&
-                hero.rect.y > 866 && hero.rect.y < 951) {
-                setShowShopButton(true);
-            } else {
-                setShowShopButton(false);
-            }
+                if (hero.rect.x > 1455 && hero.rect.x < 1821 &&
+                    hero.rect.y > 866 && hero.rect.y < 951) {
+                    setShowShopButton(true);
+                } else {
+                    setShowShopButton(false);
+                }
+            });
 
             // Рисуем стены
             walls.forEach(wall => {
@@ -80,18 +77,20 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
                     y: wall.y,
                     width: wall.width,
                     height: wall.height
-                }, WALL_COLOR);
+                }, 'transparent');
             });
 
             // Рисуем всех героев
             heroes.forEach((hero, index) => {
-                // Основной герой игрока - синий, остальные - другие цвета
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvasRef.current!, hero.rect, color);
+
+                // Подписываем имя героя
+                canvasRef.current!.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');
             });
 
             // Рисуем FPS
-            canvasRef.current.text(WINDOW.LEFT + 20, WINDOW.TOP + 50, String(FPS), GREEN);
+            canvasRef.current.text(WINDOW.LEFT + 20, WINDOW.TOP + 50, String(FPS), 'green');
 
             canvasRef.current.render();
         }
@@ -110,11 +109,8 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
         if (w) dy -= 1;
         if (s) dy += 1;
 
-        // Получаем сцену и устанавливаем движение для основного героя
         if (gameRef.current) {
-            const scene = gameRef.current.getScene();
-            scene.heroes[0].movement.dx = dx;
-            scene.heroes[0].movement.dy = dy;
+            gameRef.current.updateCurrentUserMovement(dx, dy);
         }
     }, []);
 
@@ -123,8 +119,10 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
         gameRef.current = new MenuGame(server);
 
         const scene = gameRef.current.getScene();
-        scene.heroes[0].rect.x = 740;
-        scene.heroes[0].rect.y = 800;
+        scene.heroes.forEach(hero => {
+            hero.rect.x = 740;
+            hero.rect.y = 800;
+        });
 
         // Инициализация канваса
         canvasRef.current = CanvasComponent({

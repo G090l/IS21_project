@@ -16,13 +16,35 @@ class Game {
 
     constructor(server: Server) {
         this.server = server;
-        this.heroes = [new Hero(), new Hero()];
+        this.heroes = [new Hero()];
         this.gameMap = new Map();
         this.walls = this.gameMap.walls;
         this.arrows = [];
         this.enemies = [new Enemy()];
+        this.createHeroWithUserNickname();
+
         //this.server.startGetScene(() => this.getSceneFromBackend());
         this.startUpdateScene();
+    }
+
+    private createHeroWithUserNickname(): void {
+        const user = this.server.store.getUser();
+        if (user && user.nickname) {
+            const hero = new Hero();
+            hero.name = user.nickname;
+            this.heroes.push(hero);
+        } else {
+            const hero = new Hero();
+            hero.name = "Player";
+            this.heroes.push(hero);
+        }
+    }
+
+    private getCurrentUserHero(): Hero | null {
+        const user = this.server.store.getUser();
+        if (!user || !user.nickname) return null;
+
+        return this.heroes.find(hero => hero.name === user.nickname) || null;
     }
 
     destructor() {
@@ -39,18 +61,18 @@ class Game {
         };
     }
 
-    addArrow(heroIndex: number = 0): void {
-        if (heroIndex >= this.heroes.length) return;
+    addArrow(): void {
+        const hero = this.getCurrentUserHero();
+        if (!hero) return;
 
-        const hero = this.heroes[heroIndex];
         const arrow = hero.createProjectile();
         this.arrows.push(arrow);
     }
 
-    handleSwordAttack(heroIndex: number = 0): void {
-        if (heroIndex >= this.heroes.length) return;
+    handleSwordAttack(): void {
+        const hero = this.getCurrentUserHero();
+        if (!hero) return;
 
-        const hero = this.heroes[heroIndex];
         hero.isAttacking = true;
 
         const swordPosition = hero.getAttackPosition();
@@ -65,6 +87,14 @@ class Game {
         setTimeout(() => {
             hero.isAttacking = false;
         }, 300);
+    }
+
+    updateCurrentUserMovement(dx: number, dy: number): void {
+        const hero = this.getCurrentUserHero();
+        if (hero) {
+            hero.movement.dx = dx;
+            hero.movement.dy = dy;
+        }
     }
 
     private userIsOwner() {
@@ -95,9 +125,11 @@ class Game {
     }
 
     private updateEnemies(): void {
+        const heroRects = this.heroes.map(hero => hero.rect);
+
         this.enemies.forEach(enemy => {
             if (enemy.isAlive()) {
-                enemy.update(this.heroes[0], this.walls);
+                enemy.update(heroRects, this.walls);
             }
         });
 
@@ -107,22 +139,24 @@ class Game {
 
     private updateHeroes(): void {
         this.heroes.forEach(hero => {
-            const dx = hero.movement.dx * hero.speed;
-            const dy = hero.movement.dy * hero.speed;
+            if (!hero.isAttacking) {
+                const dx = hero.movement.dx * hero.speed;
+                const dy = hero.movement.dy * hero.speed;
 
-            const originalX = hero.rect.x;
-            const originalY = hero.rect.y;
+                const originalX = hero.rect.x;
+                const originalY = hero.rect.y;
 
-            hero.move(dx, dy);
+                hero.move(dx, dy);
 
-            const hasCollision = hero.checkCollisionsWithArray(
-                this.walls,
-                (wall, heroRect) => {
-                    hero.rect.x = originalX;
-                    hero.rect.y = originalY;
-                    return false;
-                }
-            );
+                const hasCollision = hero.checkCollisionsWithArray(
+                    this.walls,
+                    (wall, heroRect) => {
+                        hero.rect.x = originalX;
+                        hero.rect.y = originalY;
+                        return false;
+                    }
+                );
+            }
         });
     }
 

@@ -17,22 +17,23 @@ class Enemy extends Unit {
         this.direction = EDIRECTION.RIGHT;
     }
 
-    update(targetHero: Unit, walls: TRect[]): void {
-        this.moveTowardsTarget(targetHero, walls);
+    update(heroRects: TRect[], walls: TRect[]): void {
+        this.moveTowardsTarget(heroRects, walls);
         //attack()
     }
 
-    private moveTowardsTarget(targetHero: Unit, walls: TRect[]): void {
-        const dx = targetHero.rect.x - this.rect.x;
-        const dy = targetHero.rect.y - this.rect.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+    private moveTowardsTarget(heroRects: TRect[], walls: TRect[]): void {
+        const nearestHeroRect = this.findNearestHeroRect(heroRects);
 
-        // Если цель слишком далеко, не двигаться
-        if (distance > this.detectionRange) {
+        if (!nearestHeroRect) {
             this.movement.dx = 0;
             this.movement.dy = 0;
             return;
         }
+
+        const dx = nearestHeroRect.x - this.rect.x;
+        const dy = nearestHeroRect.y - this.rect.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
         // Нормализуем направление
         const normalizedDx = dx / distance;
@@ -64,6 +65,24 @@ class Enemy extends Unit {
         if (normalizedDx !== 0) {
             this.direction = normalizedDx > 0 ? EDIRECTION.RIGHT : EDIRECTION.LEFT;
         }
+    }
+
+    private findNearestHeroRect(heroRects: TRect[]): TRect | null {
+        let nearestHeroRect: TRect | null = null;
+        let minDistance = this.detectionRange;
+
+        for (const heroRect of heroRects) {
+            const dx = heroRect.x - this.rect.x;
+            const dy = heroRect.y - this.rect.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance <= this.detectionRange && distance < minDistance) {
+                minDistance = distance;
+                nearestHeroRect = heroRect;
+            }
+        }
+
+        return nearestHeroRect;
     }
 
     takeDamage(damage: number): void {
