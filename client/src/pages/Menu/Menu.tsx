@@ -11,6 +11,7 @@ import background from '../../assets/img/menu/background.png';
 import LobbyManager from '../../components/LobbyManager/LobbyManager';
 import StartingGameMenu from '../../components/StartingGameMenu/StartingGameMenu';
 import './Menu.scss'
+import RoomInfo from '../../components/RoomInfo/RoomInfo';
 
 const MENU_FIELD = 'menu-field';
 
@@ -262,6 +263,7 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
                 isOpen={isChatOpen}
                 onToggle={setIsChatOpen}
             />
+            <RoomInfo />
         </div>
     </div>)
 }

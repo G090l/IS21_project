@@ -13,6 +13,8 @@
         width: 400px;
 
         .chat-messages {
+            height: 40vh;
+            overflow-y: auto;
             white-space: pre-line;
             overflow-wrap: break-word;
             padding: 10px;

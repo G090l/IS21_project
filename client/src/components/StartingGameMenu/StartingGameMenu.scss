@@ -66,6 +66,7 @@
                     top: 50%;
                     left: 29.47%;
                     width: 19.06%;
+                    font-family: vcrosd;
                 }
             }
         }
@@ -83,12 +84,14 @@
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
                 background-color: transparent;
-                padding: 0 50px;
+                padding: 0 26px;
                 margin: 10px;
                 box-sizing: border-box;
+                font-family: vcrosd;
+                font-size: 14px;
             }
 
-            .playersCount-buttons {
+            .roomSize-buttons {
                 position: absolute;
                 top: 34.44%;
                 left: 50.88%;
@@ -96,14 +99,14 @@
                 aspect-ratio: 400/440;
                 border: none;
                 outline: none;
-                background-image: url('../../assets/img/startingGameMenu/playersCount-bg.png');
+                background-image: url('../../assets/img/startingGameMenu/roomSize-bg.png');
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
                 background-color: transparent;
                 padding: 0;
                 margin: 10px;
 
-                .playerCount-button {
+                .roomSize-button {
                     position: absolute;
                     width: 18.25%;
                     aspect-ratio: 73/78;
@@ -200,18 +203,21 @@
                 top: 27.31%;
                 left: 51.45%;
                 width: 20.62%;
+                max-height: 45%;
+                overflow-y: auto;
 
                 .room-item {
-                    width: 100%;
                     aspect-ratio: 396/138;
                     border: none;
                     outline: none;
                     white-space: pre-line;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
                     background-image: url('../../assets/img/startingGameMenu/room-item.png');
                     background-size: 100% 100%;
                     background-repeat: no-repeat;
                     background-color: transparent;
-                    padding: 0;
+                    padding: 0 10%;
                     margin: 10px;
                 }
             }

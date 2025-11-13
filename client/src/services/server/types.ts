@@ -23,12 +23,26 @@ export type TRoom = {
     status: 'open' | 'closed' | 'started';
     name: string;
     players_count: number;
+    room_size: number;
 }
 
 export type TRoomsResponse = {
     status: 'unchanged' | 'updated';
     hash?: string;
     rooms?: TRooms;
+}
+
+export type TRoomMembers = TRoomMember[];
+export type TRoomMember = {
+    id: number;
+    room_id: number;
+    character_id: number;
+    type: 'owner' | 'participant';
+}
+
+export type TRoomMembersResponse = {
+    hash?: string;
+    members?: TRoomMembers;
 }
 
 export type TMessage = {

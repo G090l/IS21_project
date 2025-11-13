@@ -106,7 +106,10 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
         const newMessages = (hash: string) => {
             const currentMessages = store.getMessages();
             if (currentMessages?.length) {
-                setMessages(currentMessages);
+                const sortedMessages = [...currentMessages].sort((a, b) =>
+                    new Date(a.created).getTime() - new Date(b.created).getTime()
+                );
+                setMessages(sortedMessages);
                 setHash(hash);
 
                 if (currentMessages.length > messages.length) {
@@ -123,6 +126,12 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
             server.stopChatMessages();
         }
     }, [user, server, store, isOpen, startAutoClose, cancelAutoClose]);
+
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     const input = useMemo(() =>
         <input
@@ -169,10 +178,14 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
                             Нет сообщений
                         </div>
                     ) : (
-                        messages.reverse().map((message, index) =>
-                            <div key={index}>
-                                {`${message.author} (${message.created}): ${message.message}`}
-                            </div>)
+                        <>
+                            {messages.map((message, index) =>
+                                <div key={index}>
+                                    {`${message.author} (${message.created}): ${message.message}`}
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
+                        </>
                     )}
                 </div>
 

@@ -1,7 +1,7 @@
 import md5 from 'md5';
 import CONFIG from "../../config";
 import Store from "../store/Store";
-import { TAnswer, TError, TMessagesResponse, TRoom, TRoomsResponse, TUser } from "./types";
+import { TAnswer, TError, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser } from "./types";
 
 const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST } = CONFIG;
 
@@ -113,7 +113,7 @@ class Server {
         const result = await this.request<TRoomsResponse>('getRooms', { room_hash });
         if (result) {
             this.store.setRoomHash(result.hash);
-            this.store.addRooms(result.rooms); 
+            this.store.addRooms(result.rooms);
             return result;
         }
         return null;
@@ -138,8 +138,8 @@ class Server {
         }
     }
 
-    createRoom(roomName: string): Promise<boolean | null> {
-        return this.request<boolean>('createRoom', { roomName });
+    createRoom(roomName: string, roomSize: number): Promise<{ room?: TRoom } | null> {
+        return this.request<{ room?: TRoom }>('createRoom', { roomName, roomSize });
     }
 
     joinToRoom(roomId: number): Promise<boolean | null> {
@@ -153,6 +153,28 @@ class Server {
     dropFromRoom(targetToken: string): Promise<boolean | null> {
         return this.request<boolean>('dropFromRoom', { targetToken });
     }
+
+    async renameRoom(newRoomName: string): Promise<boolean> {
+        const result = await this.request('renameRoom', { newRoomName });
+        if (result) {
+            this.store.updateRoomName(newRoomName);
+        }
+        return !!result;
+    }
+
+    async getRoomMembers(roomId: number): Promise<TRoomMembersResponse | null> {
+        const roomMembers_hash = this.store.getRoomMembersHash();
+        const result = await this.request<TRoomMembersResponse>('getRoomMembers', { roomId, roomMembers_hash });
+        if (result) {
+            this.store.setRoomMembersHash(result.hash);
+            this.store.addRoomMembers(result.members || []);
+            return result;
+        }
+        return null;
+    };
+    
+    startGettingRoomMembers(roomId: number): void { };
+    stopGettingRoomMembers(): void { };
 
     async deleteUser(): Promise<boolean> {
         const result = await this.request<boolean>('deleteUser');
