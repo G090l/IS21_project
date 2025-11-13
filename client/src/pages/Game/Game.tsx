@@ -7,6 +7,7 @@ import Game from '../../game/Game';
 import Canvas from '../../services/canvas/Canvas';
 import useCanvas from '../../services/canvas/useCanvas';
 import Chat from '../../components/Chat/Chat';
+import Shop from '../../components/Shop/Shop';
 
 const GAME_FIELD = 'game-field';
 
@@ -15,6 +16,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const { WINDOW } = CONFIG;
     const { setPage } = props;
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [isShopOpen, setIsShopOpen] = useState(false);
     const gameRef = useRef<Game | null>(null);
     const canvasRef = useRef<Canvas | null>(null);
     const animationFrameRef = useRef<number>(0);
@@ -122,6 +124,11 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         }
     }, []);
 
+    // Функция для переключения магазина
+    const toggleShop = () => {
+        setIsShopOpen(prev => !prev);
+    };
+
     useEffect(() => {
         // Инициализация игры
         gameRef.current = new Game(server);
@@ -174,6 +181,9 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
                 case 83: // s
                     keysPressedRef.current.s = true;
                     break;
+                case 77: // m 
+                    toggleShop();
+                    break;
                 default:
                     break;
             }
@@ -212,14 +222,20 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     return (
         <div className='game'>
             <h1>Игра</h1>
-            <Button onClick={backClickHandler} text='Назад' />
-            <div className="debug-info">
-                <p>Управление: WASD - движение, ЛКМ - атака мечом, ПКМ - выстрел из лука</p>
+            <div className="game-controls">
+                <Button onClick={backClickHandler} text='Назад' />
             </div>
-            <div id={GAME_FIELD} className={GAME_FIELD}></div>
+            <div className="debug-info">
+                <p>Управление: WASD - движение, ЛКМ - атака мечом, ПКМ - выстрел из лука, M - магазин</p>
+            </div>
+            <div id={GAME_FIELD} className={GAME_FIELD}></div>     
             <Chat
                 isOpen={isChatOpen}
                 onToggle={setIsChatOpen}
+            />
+            <Shop
+                isOpen={isShopOpen}
+                onToggle={setIsShopOpen}
             />
         </div>
     );
