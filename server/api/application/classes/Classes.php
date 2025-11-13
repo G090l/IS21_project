@@ -18,29 +18,33 @@ class Classes {
         return $classes;
     }
 
-    public function buyClass($userId, $classId) {
-        $class = $this->db->getPersonClassById($classId);
-        $user = $this->db->getUserById($userId);
+public function buyClass($userId, $classId) {
+    $class = $this->db->getPersonClassById($classId);
+    $user = $this->db->getUserById($userId);
 
-        if (!$class) return ['error' => 3002];
-        if (!$user) return ['error' => 3003];
+    if (!$class) return ['error' => 3002];
+    if (!$user) return ['error' => 3003];
 
-        $owned = $this->db->getUserPersonClass($userId, $classId);
-        if ($owned) return ['error' => 3007];
+    $owned = $this->db->getUserPersonClass($userId, $classId);
+    if ($owned) return ['error' => 3007];
 
-        if ($user->money < $class->cost) return ['error' => 3004];
+    $character = $this->db->getCharacterByUserId($userId);
+    if (!$character) return ['error' => 3008];
+    if ($character->money < $class->cost) return ['error' => 3004];
 
-        try {
-            $this->db->beginTransaction();
-            $this->db->updateUserMoneySubtract($userId, $class->cost);
-            $this->db->addUserPersonClass($userId, $classId);
-            $this->db->commit();
-            return ['success' => true];
-        } catch (Exception $e) {
-            $this->db->rollBack();
-            return ['error' => 3005];
-        }
+    try {
+        $this->db->beginTransaction();
+        $this->db->updateCharacterMoneySubtract($character->id, $class->cost);
+        $this->db->addUserPersonClass($userId, $classId);
+
+        $this->db->commit();
+        return ['success' => true];
+    } catch (Exception $e) {
+        $this->db->rollBack();
+        return ['error' => 3005];
     }
+}
+
 
 
     public function selectClass($userId, $classId) {
