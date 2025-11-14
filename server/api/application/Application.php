@@ -48,9 +48,11 @@ class Application {
     }
 
     public function getUserInfo($params) {
-        if (!empty($params['token'])) {
+        if ($params['token']) {
             $user = $this->user->getUser($params['token']);
-            if ($user) return $this->user->getUserInfo($user->id);
+            if ($user) {
+                return $this->user->getUserInfo($user->id);
+            }
             return ['error' => 705];
         }
         return ['error' => 242];
@@ -59,7 +61,6 @@ class Application {
     public function getClasses($params) {
         return $this->classes->getClasses();
     }
-
 
     public function math($params) {
         $a = (float) ($params['a'] ?? 0);
@@ -183,6 +184,13 @@ class Application {
                 return $this->lobby->getRooms($params['room_hash']);
             }
             return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function getRoomMembers($params) {
+        if ($params['roomId']) {
+            return $this->lobby->getRoomMembers($params['roomId']);
         }
         return ['error' => 242];
     }

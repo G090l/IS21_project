@@ -32,6 +32,7 @@ function result($params) {
             case 'startGame': return $app->startGame($params);
             case 'renameRoom': return $app->renameRoom($params);
             case 'getRooms': return $app->getRooms($params);
+            case 'getRoomMembers': return $app->getRoomMembers($params);
             //classes
             case 'getClasses': return $app->getClasses($params);
             case 'buyClass': return $app->buyClass($params);

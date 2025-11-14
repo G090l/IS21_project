@@ -28,7 +28,7 @@ class Answer {
         '2008' => 'Only the owner can kick out participants of the room.',
         '2009' => 'User to kick not found in room',
         '2010' => 'You are not the owner of the room',
-        '2011' => 'Room not found or not open',
+        '2011' => 'Room not closed',
         '2012' => 'Room is not full (need all players ready)',
         '2013' => 'Invalid room size (must be between 1 and 6)',
         '2014' => 'Error renaming room',
