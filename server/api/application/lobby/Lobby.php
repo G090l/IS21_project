@@ -50,7 +50,13 @@ class Lobby {
         }
 
         //создаем комнату
-        $this->db->createRoom($userId, $roomName, $roomSize);
+        $roomId = $this->db->createRoom($userId, $roomName, $roomSize);
+        
+        //если комната на 1 игрока - сразу закрываем её
+        if ($roomSize == 1) {
+            $this->db->updateRoomStatus($roomId, 'closed');
+        }
+        
         $this->db->updateRoomHash(md5(rand()));
         return true;
     }
@@ -95,6 +101,13 @@ class Lobby {
         
         //добавляем перса в комнату
         $this->db->addRoomMember($roomId, $character->id, 'participant');
+        
+        //проверяем, заполнилась ли комната
+        $roomMembers = $this->db->getAllRoomMembers($roomId);
+        if (count($roomMembers) >= $room->room_size) {
+            $this->db->updateRoomStatus($roomId, 'closed');
+        }
+        
         $this->db->updateRoomHash(md5(rand()));
         return true;
     }
@@ -107,9 +120,14 @@ class Lobby {
             return ['error' => 2006];
         }
         
+        //получаем информацию о комнате пользователя
+        $roomMember = $this->db->getRoomMemberByUserId($userId);
+        if (!$roomMember) {
+            return ['error' => 2006];
+        }
+        
         //если юзер === 'owner', то комната распускается, а если юзер НЕ 'owner', то он удалется из комнаты
         if ($userType === 'owner') {
-            $roomMember = $this->db->getRoomMemberByUserId($userId);
             if ($roomMember) {
                 //удаляем всех участников комнаты и саму комнату
                 $this->db->deleteAllRoomMembers($roomMember->room_id);
@@ -117,6 +135,9 @@ class Lobby {
             }
         } else {
             $this->leaveParticipantFromRoom($userId);
+            
+            //открываем комнату после выхода участника
+            $this->db->updateRoomStatus($roomMember->room_id, 'open');
         }
         
         $this->db->updateRoomHash(md5(rand()));
@@ -156,6 +177,10 @@ class Lobby {
         
         // кикаем участника
         $this->db->leaveParticipantFromRoom($targetId);
+        
+        //открываем комнату после кика участника
+        $this->db->updateRoomStatus($roomMember->room_id, 'open');
+        
         $this->db->updateRoomHash(md5(rand()));
         return true;
     }
@@ -169,10 +194,10 @@ class Lobby {
             return ['error' => 2010];
         }
         
-        //есть ли такая комната и открыта ли она
+        //есть ли такая комната и закрыта ли она
         $room = $this->db->getRoomById($roomMember->room_id);
-        if (!$room || $room->status != 'open') {
-            return ['error' => 2011];
+        if (!$room || $room->status != 'closed') {
+            return ['error' => 2011]; 
         }
         
         //получаем всех участников комнаты
@@ -239,6 +264,22 @@ class Lobby {
             'status' => 'updated',
             'hash' => $currentHash,
             'rooms' => $rooms
+        ];
+    }
+
+    public function getRoomMembers($roomId) {
+        //проверка, есть ли такая комната
+        $room = $this->db->getRoomById($roomId);
+        if (!$room) {
+            return ['error' => 2003];
+        }
+        
+        //получаем всех участников комнаты с полной информацией о пользователях
+        $members = $this->db->getAllRoomMembersWithUserInfo($roomId);
+        
+        return [
+            'room_status' => $room->status,
+            'members' => $members
         ];
     }
 }

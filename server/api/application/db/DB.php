@@ -137,6 +137,7 @@ class DB {
         $this->execute("INSERT INTO rooms (name, room_size) VALUES (?, ?)", [$roomName, $roomSize]);
         $roomId = $this->pdo->lastInsertId();
         $this->addRoomMember($roomId, $character->id, 'owner');
+        return $roomId;
     }
 
     public function addRoomMember($roomId, $characterId, $type, $status = 'ready') {
@@ -201,6 +202,23 @@ class DB {
 
     public function updateRoomName($roomId, $newRoomName) {
         return $this->execute("UPDATE rooms SET name = ? WHERE id = ?", [$newRoomName, $roomId]);
+    }
+
+    public function getAllRoomMembersWithUserInfo($roomId) {
+        return $this->queryAll("
+            SELECT 
+                rm.character_id,
+                rm.type,
+                rm.status,
+                u.id as user_id,
+                u.login,
+                u.nickname,
+                c.money
+            FROM room_members rm 
+            JOIN characters c ON rm.character_id = c.id 
+            JOIN users u ON c.user_id = u.id 
+            WHERE rm.room_id = ?
+        ", [$roomId]);
     }
 
     // classes

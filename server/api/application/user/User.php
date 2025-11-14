@@ -13,11 +13,15 @@ class User {
         $user = $this->db->getUserById($userId);
         if (!$user) return ['error' => 705];
 
+        $character = $this->db->getCharacterByUserId($userId);
+        if (!$character) return ['error' => 706];
+
         return [
-            'id' => $user->id,
+            'character_id' => $character->id,
+            'user_id' => $user->id,
             'login' => $user->login,
             'nickname' => $user->nickname,
-            'money' => $user->money
+            'money' => $character->money
         ];
     }
 
