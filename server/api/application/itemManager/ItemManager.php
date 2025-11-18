@@ -1,6 +1,6 @@
 <?php
 
-class Item {
+class ItemManager {
     function __construct($db) { 
         $this->db = $db;
     }
@@ -154,6 +154,64 @@ class Item {
             $this->db->rollBack();
             return ['error' => 4007];
         }
+    }
+
+    //проверка на наличие лука и стрел
+    public function checkBowAndArrows($userId) {
+        // Проверка, существует ли юзер
+        $user = $this->db->getUserById($userId);
+        if (!$user) {
+            return ['error' => 705];
+        }
+
+        // Получаем персонажа
+        $character = $this->db->getCharacterByUserId($userId);
+        if (!$character) {
+            return ['error' => 706];
+        }
+
+        // Проверка лука
+        $hasBow = $this->db->hasCharacterWeaponType($character->id, 'bow');
+        if (!$hasBow) {
+            return ['error' => 6006];
+        }
+
+        // Проверка стрел
+        $hasArrows = $this->db->hasCharacterArrows($character->id);
+        if (!$hasArrows) {
+            return ['error' => 6007];
+        }
+
+        return ['hasBow' => true, 'hasArrows' => true];
+    }
+
+    //вычитание стрелы из инвентаря
+    public function consumeArrow($userId) {
+        // Проверка, существует ли юзер
+        $user = $this->db->getUserById($userId);
+        if (!$user) {
+            return ['error' => 705];
+        }
+
+        // Получаем персонажа
+        $character = $this->db->getCharacterByUserId($userId);
+        if (!$character) {
+            return ['error' => 706];
+        }
+
+        // Вычитаем стрелу
+        $arrowConsumed = $this->db->consumeCharacterArrow($character->id);
+        if (!$arrowConsumed) {
+            return ['error' => 6007];
+        }
+
+        // Проверка стрел
+        $hasArrows = $this->db->hasCharacterArrows($character->id);
+        if (!$hasArrows) {
+            return ['error' => 6007];
+        }
+
+        return true;
     }
 
 }

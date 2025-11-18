@@ -61,11 +61,6 @@ class DB {
         return $this->query("SELECT * FROM characters WHERE user_id = ?", [$userId]);
     }
 
-    public function getCharacterIdByUserId($userId) {
-        $character = $this->query("SELECT id FROM characters WHERE user_id = ?", [$userId]);
-        return $character ? $character->id : null;
-    }
-
     public function createCharacter($userId) {
         return $this->execute(
             "INSERT INTO characters (user_id, hp, defense, money, died) VALUES (?, 100, 0, 1000, 0)",
@@ -151,10 +146,6 @@ class DB {
         return $this->query("SELECT id, status, name, room_size FROM rooms WHERE id=?", [$roomId]);
     }
 
-    public function getRoomMember($roomId, $characterId) {
-        return $this->query("SELECT * FROM room_members WHERE room_id=? AND character_id=?", [$roomId, $characterId]);
-    }
-
     public function updateRoomHash($hash) {
         $this->execute("UPDATE hashes SET room_hash = ? WHERE id = 1", [$hash]);
     }
@@ -222,10 +213,6 @@ class DB {
     }
 
     // classes
-    public function getPersonClassByType($type) {
-        return $this->query("SELECT * FROM classes WHERE type = ?", [$type]);
-    }
-
     public function getPersonClassById($id) {
         return $this->query("SELECT * FROM classes WHERE id = ?", [$id]);
     }
@@ -327,10 +314,6 @@ class DB {
     }
 
     // bots
-    public function getBotByName($botName) {
-        return $this->query("SELECT * FROM bots WHERE name = ?", [$botName]);
-    }
-
     public function getBotById($botId) {
         return $this->query("SELECT * FROM bots_rooms WHERE id = ?", [$botId]);
     }
@@ -339,33 +322,17 @@ class DB {
         return $this->query("SELECT * FROM bots WHERE id = ?", [$botTypeId]);
     }
 
-    public function addBotToRoom($roomId, $botType, $botData) {
-        $jsonData = json_encode($botData);
-        return $this->execute(
-            "INSERT INTO bots_rooms (room_id, type, data) VALUES (?, ?, ?)",
-            [$roomId, $botType, $jsonData]
-        );
-    }
-
     public function getBotsByRoomId($roomId) {
         return $this->queryAll("
-            SELECT br.*, b.name, b.hp, b.damage, b.attack_speed, b.attack_distance, b.money 
-            FROM bots_rooms br 
-            JOIN bots b ON br.type = b.id 
-            WHERE br.room_id = ?
+            SELECT id, room_id, data
+            FROM bots_rooms 
+            WHERE room_id = ?
         ", [$roomId]);
     }
 
-    public function updateBotData($botId, $botData) {
-        $jsonData = json_encode($botData);
-        return $this->execute(
-            "UPDATE bots_rooms SET data = ? WHERE id = ?",
-            [$jsonData, $botId]
-        );
-    }
 
-    public function removeBotFromRoom($botId) {
-        return $this->execute("DELETE FROM bots_rooms WHERE id = ?", [$botId]);
+    public function getAllBotsData() {
+        return $this->queryAll("SELECT * FROM bots");
     }
 
     // transactions
@@ -382,30 +349,12 @@ class DB {
     }
 
     //arrows
-    public function addArrowToRoom($roomId, $creatorCharacterId, $x, $y, $direction) {
-        return $this->execute(
-            "INSERT INTO arrows (room_id, creator_id, x, y, direction) VALUES (?, ?, ?, ?, ?)",
-            [$roomId, $creatorCharacterId, $x, $y, $direction]
-        );
-    }
-
-    public function getArrowById($arrowId) {
-        return $this->query("SELECT * FROM arrows WHERE id = ?", [$arrowId]);
-    }
-
-    public function updateArrowData($arrowId, $x, $y) {
-        return $this->execute(
-            "UPDATE arrows SET x = ?, y = ? WHERE id = ?",
-            [$x, $y, $arrowId]
-        );
-    }
-
-    public function removeArrowFromRoom($arrowId) {
-        return $this->execute("DELETE FROM arrows WHERE id = ?", [$arrowId]);
-    }
-
     public function getArrowsByRoomId($roomId) {
-        return $this->queryAll("SELECT * FROM arrows WHERE room_id = ?", [$roomId]);
+        return $this->queryAll("
+            SELECT id, room_id, data
+            FROM arrows 
+            WHERE room_id = ?
+        ", [$roomId]);
     }
 
     public function hasCharacterArrows($characterId) {
@@ -444,6 +393,85 @@ class DB {
                 [$arrowItem->id]
             );
         }
+    }
+
+    //hashes
+    public function getCharacterHash() {
+        $result = $this->query("SELECT character_hash FROM hashes WHERE id = 1");
+        return $result ? $result->character_hash : null;
+    }
+
+    public function getBotHash() {
+        $result = $this->query("SELECT bot_hash FROM hashes WHERE id = 1");
+        return $result ? $result->bot_hash : null;
+    }
+
+    public function getArrowHash() {
+        $result = $this->query("SELECT arrow_hash FROM hashes WHERE id = 1");
+        return $result ? $result->arrow_hash : null;
+    }
+
+    public function updateCharacterHash($hash) {
+        $this->execute("UPDATE hashes SET character_hash = ? WHERE id = 1", [$hash]);
+    }
+
+    public function updateBotHash($hash) {
+        $this->execute("UPDATE hashes SET bot_hash = ? WHERE id = 1", [$hash]);
+    }
+
+    public function updateArrowHash($hash) {
+        $this->execute("UPDATE hashes SET arrow_hash = ? WHERE id = 1", [$hash]);
+    }
+
+    //game
+    public function getAllRoomMembersWithData($roomId) {
+        return $this->queryAll("
+            SELECT 
+                rm.id,
+                rm.character_id,
+                rm.type,
+                rm.status,
+                rm.data,
+                u.id as user_id,
+                u.login,
+                u.nickname,
+                c.money
+            FROM room_members rm 
+            JOIN characters c ON rm.character_id = c.id 
+            JOIN users u ON c.user_id = u.id 
+            WHERE rm.room_id = ?
+        ", [$roomId]);
+    }
+
+    public function updateAllBotsInRoom($roomId, $botsData) {
+        return $this->execute(
+            "UPDATE bots_rooms SET data = ? WHERE room_id = ?",
+            [$botsData, $roomId]
+        );
+    }
+
+    public function updateAllArrowsInRoom($roomId, $arrowsData) {
+        return $this->execute(
+            "UPDATE arrows SET data = ? WHERE room_id = ?",
+            [$arrowsData, $roomId]
+        );
+    }
+
+    public function updateRoomMemberData($roomMemberId, $data) {
+        return $this->execute(
+            "UPDATE room_members SET data = ? WHERE id = ?",
+            [$data, $roomMemberId]
+        );
+    }
+
+    public function getBotsDataByRoomId($roomId) {
+        $result = $this->query("SELECT data FROM bots_rooms WHERE room_id = ?", [$roomId]);
+        return $result ? $result->data : null;
+    }
+
+    public function getArrowsDataByRoomId($roomId) {
+        $result = $this->query("SELECT data FROM arrows WHERE room_id = ?", [$roomId]);
+        return $result ? $result->data : null;
     }
 
     // test

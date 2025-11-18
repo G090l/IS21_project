@@ -65,7 +65,12 @@ class Answer {
         '6005' => 'Creator direction not set',
         '6006' => 'No bow equipped',
         '6007' => 'No arrows equipped',
-        '6008' => 'No arrows in room', 
+        '6008' => 'No arrows in room',
+        '6009' => 'Invalid arrows data format', 
+        '6010' => 'Error updating arrows data',
+        //game
+        '7001' => 'Invalid character data format',
+        '7002' => 'Error updating character data',
         //math
         '8001' => 'Enter at least one value',
         '8002' => 'The discriminant cannot be less than zero',

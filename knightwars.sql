@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: MySQL-8.0
--- Время создания: Ноя 12 2025 г., 18:23
+-- Время создания: Ноя 18 2025 г., 18:49
 -- Версия сервера: 8.0.41
 -- Версия PHP: 8.3.14
 
@@ -32,11 +32,15 @@ USE `knightwars`;
 CREATE TABLE `arrows` (
   `id` int NOT NULL,
   `room_id` int NOT NULL,
-  `creator_id` int NOT NULL,
-  `x` int DEFAULT NULL,
-  `y` int DEFAULT NULL,
-  `direction` enum('left','right') DEFAULT NULL
+  `data` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `arrows`
+--
+
+INSERT INTO `arrows` (`id`, `room_id`, `data`) VALUES
+(8, 42, '[{\"id\":1,\"x\":120,\"y\":180},{\"id\":2,\"x\":180,\"y\":220}]');
 
 -- --------------------------------------------------------
 
@@ -59,7 +63,8 @@ CREATE TABLE `bots` (
 --
 
 INSERT INTO `bots` (`id`, `name`, `hp`, `damage`, `attack_speed`, `attack_distance`, `money`) VALUES
-(4, 'skelet', 50, 10, 1, 1, 333.0);
+(4, 'skelet', 50, 10, 1, 1, 333.0),
+(5, 'goblin', 111, 11, 2, 3, 10.0);
 
 -- --------------------------------------------------------
 
@@ -70,9 +75,15 @@ INSERT INTO `bots` (`id`, `name`, `hp`, `damage`, `attack_speed`, `attack_distan
 CREATE TABLE `bots_rooms` (
   `id` int NOT NULL,
   `room_id` int NOT NULL,
-  `type` int NOT NULL,
   `data` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `bots_rooms`
+--
+
+INSERT INTO `bots_rooms` (`id`, `room_id`, `data`) VALUES
+(11, 42, '[{\"id\":1,\"x\":150,\"y\":300},{\"id\":2,\"x\":200,\"y\":250}]');
 
 -- --------------------------------------------------------
 
@@ -89,6 +100,14 @@ CREATE TABLE `characters` (
   `died` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `characters`
+--
+
+INSERT INTO `characters` (`id`, `user_id`, `hp`, `defense`, `money`, `died`) VALUES
+(8, 52, 100, 0, 2602.0, 0),
+(9, 53, 100, 0, 1000.0, 0);
+
 -- --------------------------------------------------------
 
 --
@@ -102,6 +121,15 @@ CREATE TABLE `characters_classes` (
   `selected` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `characters_classes`
+--
+
+INSERT INTO `characters_classes` (`id`, `character_id`, `class_id`, `selected`) VALUES
+(6, 8, 1, 0),
+(7, 8, 2, 1),
+(8, 9, 1, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -114,6 +142,13 @@ CREATE TABLE `character_items` (
   `character_id` int DEFAULT NULL,
   `quantity` int DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `character_items`
+--
+
+INSERT INTO `character_items` (`id`, `item_id`, `character_id`, `quantity`) VALUES
+(14, 4, 8, 1);
 
 -- --------------------------------------------------------
 
@@ -135,7 +170,8 @@ CREATE TABLE `classes` (
 --
 
 INSERT INTO `classes` (`id`, `name`, `type`, `cost`, `hp`, `defense`) VALUES
-(1, 'Воин', 'warrior', 100, 100, 100);
+(1, 'Воин', 'warrior', 100, 100, 100),
+(2, 'Маг', 'mage', 333, 33, 33);
 
 -- --------------------------------------------------------
 
@@ -146,15 +182,18 @@ INSERT INTO `classes` (`id`, `name`, `type`, `cost`, `hp`, `defense`) VALUES
 CREATE TABLE `hashes` (
   `id` int NOT NULL DEFAULT '1',
   `chat_hash` varchar(255) DEFAULT NULL,
-  `room_hash` varchar(255) DEFAULT NULL
+  `room_hash` varchar(255) DEFAULT NULL,
+  `character_hash` varchar(255) DEFAULT NULL,
+  `bot_hash` varchar(255) DEFAULT NULL,
+  `arrow_hash` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Дамп данных таблицы `hashes`
 --
 
-INSERT INTO `hashes` (`id`, `chat_hash`, `room_hash`) VALUES
-(1, 'default chat_hash', 'c38ce2e8f43e745c4a77ab9bd5978af4');
+INSERT INTO `hashes` (`id`, `chat_hash`, `room_hash`, `character_hash`, `bot_hash`, `arrow_hash`) VALUES
+(1, 'default chat_hash', '7656867852731bf7292c60066846bfdc', '2f4f0e4d171cad29c33dc3cfb2550145', '3b36f98ebd4bb754e9db93108e89be74', '3ee71f9a5ff16873e314a439998ac8db');
 
 -- --------------------------------------------------------
 
@@ -211,6 +250,13 @@ CREATE TABLE `rooms` (
   `room_size` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `rooms`
+--
+
+INSERT INTO `rooms` (`id`, `status`, `name`, `room_size`) VALUES
+(42, 'started', 'МояКомната', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -223,11 +269,15 @@ CREATE TABLE `room_members` (
   `character_id` int NOT NULL,
   `type` enum('owner','participant') NOT NULL DEFAULT 'participant',
   `status` enum('ready','started') NOT NULL DEFAULT 'ready',
-  `x` int DEFAULT NULL,
-  `y` int DEFAULT NULL,
-  `direction` enum('left','right') DEFAULT 'right',
-  `hp` int DEFAULT NULL
+  `data` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `room_members`
+--
+
+INSERT INTO `room_members` (`id`, `room_id`, `character_id`, `type`, `status`, `data`) VALUES
+(34, 42, 8, 'owner', 'ready', '{\"x\":149,\"y\":250,\"hp\":75,\"direction\":\"left\"}');
 
 -- --------------------------------------------------------
 
@@ -242,6 +292,14 @@ CREATE TABLE `users` (
   `nickname` varchar(255) NOT NULL,
   `token` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `users`
+--
+
+INSERT INTO `users` (`id`, `login`, `password`, `nickname`, `token`) VALUES
+(52, 'kloddef1', '123456', 'KloddeF', 'd8aa7cd06c54d51948270ad9dfdfd3e1'),
+(53, 'anton2', '123456', 'Anton2', '6c2abb66b4262363819d068255c38e38');
 
 --
 -- Индексы сохранённых таблиц
@@ -265,8 +323,7 @@ ALTER TABLE `bots`
 --
 ALTER TABLE `bots_rooms`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `room_id` (`room_id`),
-  ADD KEY `bots_rooms_ibfk_bot_type` (`type`);
+  ADD KEY `room_id` (`room_id`);
 
 --
 -- Индексы таблицы `characters`
@@ -347,43 +404,43 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `arrows`
 --
 ALTER TABLE `arrows`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT для таблицы `bots`
 --
 ALTER TABLE `bots`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT для таблицы `bots_rooms`
 --
 ALTER TABLE `bots_rooms`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT для таблицы `characters`
 --
 ALTER TABLE `characters`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT для таблицы `characters_classes`
 --
 ALTER TABLE `characters_classes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT для таблицы `character_items`
 --
 ALTER TABLE `character_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT для таблицы `classes`
 --
 ALTER TABLE `classes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT для таблицы `items`
@@ -401,19 +458,19 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT для таблицы `rooms`
 --
 ALTER TABLE `rooms`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT для таблицы `room_members`
 --
 ALTER TABLE `room_members`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
@@ -429,8 +486,7 @@ ALTER TABLE `arrows`
 -- Ограничения внешнего ключа таблицы `bots_rooms`
 --
 ALTER TABLE `bots_rooms`
-  ADD CONSTRAINT `bots_rooms_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `bots_rooms_ibfk_bot_type` FOREIGN KEY (`type`) REFERENCES `bots` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `bots_rooms_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `characters`
