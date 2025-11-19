@@ -18,8 +18,8 @@
 | user_id | integer | not null, unique |
 | hp | integer | 100 by default |
 | defense | integer | 10 by default |
-| money | decimal(10,1) | 1000.0 by default |
-| died | boolean | false by default |
+| money | integer | 100 by default |
+| died | boolean | true by default |
 
 ## Система классов
 
@@ -61,8 +61,8 @@
 | name | type | comment |
 | - | - | - |
 | id | integer | primary key |
-| item_id | integer | not null |
-| character_id | integer | nullable |
+| item_id | integer | |
+| character_id | integer | |
 | quantity | integer | 1 by default |
 
 ## Лобби и комнаты
@@ -73,6 +73,7 @@
 | id | integer | primary key |
 | status | enum | 'open'/'closed'/'started' |
 | name | string | not null |
+| room_size | integer | |
 
 **room_members**
 | name | type | comment |
@@ -82,10 +83,7 @@
 | character_id | integer | not null |
 | type | enum | 'owner'/'participant' |
 | status | enum | 'ready'/'started' |
-| x | integer |  |
-| y | integer |  |
-| direction | enum | 'left'/'right' |
-| hp | integer |  |
+| data | text | JSON |
 
 ## Игровые объекты
 
@@ -94,10 +92,7 @@
 | - | - | - |
 | id | integer | primary key |
 | room_id | integer | not null |
-| creator_id | integer | not null |
-| x | integer | position by X |
-| y | integer | position by Y |
-| direction | enum | 'left'/'right' |
+| data | text | JSON |
 
 ## Система ботов
 
@@ -110,15 +105,14 @@
 | damage | integer | 10 by default |
 | attack_speed | integer | 1 by default |
 | attack_distance | integer | 1 by default |
-| money | decimal(10,1) | 0.0 by default |
+| money | integer | 0 by default |
 
 **bots_rooms**
 | name | type | comment |
 | - | - | - |
 | id | integer | primary key |
 | room_id | integer | not null |
-| type | integer | not null |
-| data | text | JSON, format: (hp, x, y) |
+| data | text | JSON |
 
 ## Вспомогательные таблицы
 
@@ -128,6 +122,9 @@
 | id | integer | primary key |
 | chat_hash | string | |
 | room_hash | string | |
+| character_hash | string | |
+| bot_hash | string | |
+| arrow_hash | string | |
 
 **messages**
 | name | type | comment |

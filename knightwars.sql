@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: MySQL-8.0
--- Время создания: Ноя 18 2025 г., 18:49
+-- Время создания: Ноя 19 2025 г., 09:39
 -- Версия сервера: 8.0.41
 -- Версия PHP: 8.3.14
 
@@ -35,13 +35,6 @@ CREATE TABLE `arrows` (
   `data` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Дамп данных таблицы `arrows`
---
-
-INSERT INTO `arrows` (`id`, `room_id`, `data`) VALUES
-(8, 42, '[{\"id\":1,\"x\":120,\"y\":180},{\"id\":2,\"x\":180,\"y\":220}]');
-
 -- --------------------------------------------------------
 
 --
@@ -55,7 +48,7 @@ CREATE TABLE `bots` (
   `damage` int DEFAULT '10',
   `attack_speed` int DEFAULT '1',
   `attack_distance` int DEFAULT '1',
-  `money` decimal(10,1) DEFAULT '0.0'
+  `money` int DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -63,8 +56,8 @@ CREATE TABLE `bots` (
 --
 
 INSERT INTO `bots` (`id`, `name`, `hp`, `damage`, `attack_speed`, `attack_distance`, `money`) VALUES
-(4, 'skelet', 50, 10, 1, 1, 333.0),
-(5, 'goblin', 111, 11, 2, 3, 10.0);
+(4, 'skelet', 50, 10, 1, 1, 100),
+(5, 'goblin', 111, 11, 2, 3, 10);
 
 -- --------------------------------------------------------
 
@@ -78,13 +71,6 @@ CREATE TABLE `bots_rooms` (
   `data` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Дамп данных таблицы `bots_rooms`
---
-
-INSERT INTO `bots_rooms` (`id`, `room_id`, `data`) VALUES
-(11, 42, '[{\"id\":1,\"x\":150,\"y\":300},{\"id\":2,\"x\":200,\"y\":250}]');
-
 -- --------------------------------------------------------
 
 --
@@ -96,17 +82,9 @@ CREATE TABLE `characters` (
   `user_id` int NOT NULL,
   `hp` int DEFAULT '100',
   `defense` int DEFAULT '10',
-  `money` decimal(10,1) DEFAULT '100.0',
+  `money` int DEFAULT '100',
   `died` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Дамп данных таблицы `characters`
---
-
-INSERT INTO `characters` (`id`, `user_id`, `hp`, `defense`, `money`, `died`) VALUES
-(8, 52, 100, 0, 2602.0, 0),
-(9, 53, 100, 0, 1000.0, 0);
 
 -- --------------------------------------------------------
 
@@ -121,15 +99,6 @@ CREATE TABLE `characters_classes` (
   `selected` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Дамп данных таблицы `characters_classes`
---
-
-INSERT INTO `characters_classes` (`id`, `character_id`, `class_id`, `selected`) VALUES
-(6, 8, 1, 0),
-(7, 8, 2, 1),
-(8, 9, 1, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -142,13 +111,6 @@ CREATE TABLE `character_items` (
   `character_id` int DEFAULT NULL,
   `quantity` int DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Дамп данных таблицы `character_items`
---
-
-INSERT INTO `character_items` (`id`, `item_id`, `character_id`, `quantity`) VALUES
-(14, 4, 8, 1);
 
 -- --------------------------------------------------------
 
@@ -193,7 +155,7 @@ CREATE TABLE `hashes` (
 --
 
 INSERT INTO `hashes` (`id`, `chat_hash`, `room_hash`, `character_hash`, `bot_hash`, `arrow_hash`) VALUES
-(1, 'default chat_hash', '7656867852731bf7292c60066846bfdc', '2f4f0e4d171cad29c33dc3cfb2550145', '3b36f98ebd4bb754e9db93108e89be74', '3ee71f9a5ff16873e314a439998ac8db');
+(1, 'default chat_hash', 'c8f26c4751ebf37533e2359493a3ee52', '2f4f0e4d171cad29c33dc3cfb2550145', '3b36f98ebd4bb754e9db93108e89be74', '3ee71f9a5ff16873e314a439998ac8db');
 
 -- --------------------------------------------------------
 
@@ -219,10 +181,10 @@ CREATE TABLE `items` (
 --
 
 INSERT INTO `items` (`id`, `name`, `item_type`, `weapon_type`, `damage`, `attack_speed`, `attack_distance`, `bonus_defense`, `bonus_hp`, `cost`) VALUES
-(1, 'Test sword', 'weapon', 'sword', 10, 2, 1, 0, 0, 15),
-(2, 'arrow', 'arrow', NULL, 10, 1, 1, 0, 0, 3),
-(3, 'potion', 'potion', NULL, 0, 0, 0, 0, 0, 5),
-(4, 'test bow', 'weapon', 'bow', 10, 1, 1, 0, 0, 33);
+(1, 'Test sword', 'weapon', 'sword', 10, 2, 1, 0, 0, 20),
+(2, 'arrow', 'arrow', NULL, 10, 1, 1, 0, 0, 4),
+(3, 'potion', 'potion', NULL, 0, 0, 0, 0, 0, 8),
+(4, 'test bow', 'weapon', 'bow', 10, 1, 1, 0, 0, 24);
 
 -- --------------------------------------------------------
 
@@ -250,13 +212,6 @@ CREATE TABLE `rooms` (
   `room_size` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Дамп данных таблицы `rooms`
---
-
-INSERT INTO `rooms` (`id`, `status`, `name`, `room_size`) VALUES
-(42, 'started', 'МояКомната', 1);
-
 -- --------------------------------------------------------
 
 --
@@ -272,13 +227,6 @@ CREATE TABLE `room_members` (
   `data` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Дамп данных таблицы `room_members`
---
-
-INSERT INTO `room_members` (`id`, `room_id`, `character_id`, `type`, `status`, `data`) VALUES
-(34, 42, 8, 'owner', 'ready', '{\"x\":149,\"y\":250,\"hp\":75,\"direction\":\"left\"}');
-
 -- --------------------------------------------------------
 
 --
@@ -292,14 +240,6 @@ CREATE TABLE `users` (
   `nickname` varchar(255) NOT NULL,
   `token` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Дамп данных таблицы `users`
---
-
-INSERT INTO `users` (`id`, `login`, `password`, `nickname`, `token`) VALUES
-(52, 'kloddef1', '123456', 'KloddeF', 'd8aa7cd06c54d51948270ad9dfdfd3e1'),
-(53, 'anton2', '123456', 'Anton2', '6c2abb66b4262363819d068255c38e38');
 
 --
 -- Индексы сохранённых таблиц
@@ -446,7 +386,7 @@ ALTER TABLE `classes`
 -- AUTO_INCREMENT для таблицы `items`
 --
 ALTER TABLE `items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT для таблицы `messages`

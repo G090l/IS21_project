@@ -76,13 +76,13 @@ class Game {
         }
 
         //получаем данные ботов
-        $bots = $this->db->getBotsByRoomId($roomId);
+        $bots = $this->db->getBotsByRoomId($roomId); 
         
         //проверка, есть ли боты в комнате
         if (!$bots) {
-            return ['error' => 5005];
+            return ['error' => 5002];
         }
-        
+
         return $bots;
     }
 
@@ -102,10 +102,10 @@ class Game {
 
         //получаем все стрелы в комнате (массив объектов)
         $arrows = $this->db->getArrowsByRoomId($roomId);
-        
+
         //проверка, есть ли стрелы в комнате
         if (!$arrows) {
-            return ['error' => 6008];
+            return ['error' => 5003];
         }
         
         return $arrows;
@@ -167,49 +167,49 @@ class Game {
 
     //получение денег за убийство бота
     public function addMoneyForKill($userId, $killerToken, $botTypeId) {
-        // Проверка, существует ли овнер
-        $owner = $this->db->getUserById($userId);
-        if (!$owner) {
+        //проверка, существует ли юзер
+        $user = $this->db->getUserById($userId);
+        if (!$user) {
             return ['error' => 705];
         }
 
-        // Проверка, является ли овнером комнаты
+        //проверка, является ли юзер овнером
         $roomMember = $this->db->getRoomMemberByUserId($userId);
         if (!$roomMember || $roomMember->type !== 'owner') {
             return ['error' => 2010];
         }
 
-        // Проверка, что комната уже started
+        //проверка, что комната уже started
         $room = $this->db->getRoomById($roomMember->room_id);
         if (!$room || $room->status != 'started') {
             return ['error' => 2011];
         }
 
-        // Проверка убийцы
+        //проверка существования убийцы
         $killerUser = $this->db->getUserByToken($killerToken);
         if (!$killerUser) {
             return ['error' => 705];
         }
 
-        // Проверка, что убийца в комнате
+        //проверка, что убийца в комнате
         $killerRoomMember = $this->db->getRoomMemberByUserId($killerUser->id);
         if (!$killerRoomMember || $killerRoomMember->room_id != $roomMember->room_id) {
             return ['error' => 2006];
         }
 
-        // Получаем данные типа бота для награды
+        //получаем данные типа бота для награды
         $botType = $this->db->getBotTypeById($botTypeId);
         if (!$botType) {
             return ['error' => 5001];
         }
 
-        // Получаем персонажа убийцы
+        //получаем персонажа убийцы
         $killerCharacter = $this->db->getCharacterByUserId($killerUser->id);
         if (!$killerCharacter) {
             return ['error' => 706];
         }
 
-        // Начисляем деньги 
+        //начисляем деньгу
         $reward = $botType->money;
         if ($reward > 0) {
             $this->db->updateCharacterMoneyAdd($killerCharacter->id, $reward);
