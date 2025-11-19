@@ -1,6 +1,6 @@
 import CONFIG from '../../../config';
 
-
+import sprites from '../../../assets/img/sprites64x64.png';
 
 // взять спрайт для обычной анимации
 const getSpritesFromFrame = (frame: number[]) => {
@@ -27,7 +27,7 @@ const getSpritesFromFrame = (frame: number[]) => {
 const useSprites = (): [HTMLImageElement[], (spriteNo: number) => number[], Array<() => number>] => {
     const { SPRITE_SIZE, LINE_OF_SPRITES } = CONFIG;
     const spritesImage = new Image();
-
+    spritesImage.src = sprites;
 
     const getSprite = (spriteNo: number): number[] => {
         const y = Math.trunc(spriteNo / LINE_OF_SPRITES) * SPRITE_SIZE;

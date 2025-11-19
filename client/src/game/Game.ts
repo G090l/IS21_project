@@ -130,12 +130,29 @@ class Game {
         this.enemies.forEach(enemy => {
             if (enemy.isAlive()) {
                 enemy.update(heroRects, this.walls);
+
+                // Обработка атак врагов
+                if (enemy.getIsAttacking()) {
+                    this.handleEnemyAttack(enemy);
+                }
             }
         });
 
         // Удаляем мертвых врагов
         this.enemies = this.enemies.filter(enemy => enemy.isAlive());
     }
+
+    private handleEnemyAttack(enemy: Enemy): void {
+        const attackPosition = enemy.getAttackPosition();
+
+        this.heroes.forEach(hero => {
+            if (hero.isAlive() && enemy.checkRectCollision(attackPosition, hero.rect)) {
+                hero.takeDamage(enemy.damage);
+                console.log(`Враг атаковал героя ${hero.name}! Здоровье: ${hero.health}`);
+            }
+        });
+    }
+
 
     private updateHeroes(): void {
         this.heroes.forEach(hero => {

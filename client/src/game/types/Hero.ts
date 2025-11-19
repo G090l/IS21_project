@@ -17,6 +17,7 @@ class Hero extends Unit {
         this.rect.width = 100;
         this.rect.height = 100;
         this.damage = this.characterClass.damage;
+        this.health = 100;
     };
 
     getCharacterClass(): CharacterClass {
@@ -82,6 +83,18 @@ class Hero extends Unit {
         if (index > -1) {
             this.equipment.splice(index, 1);
         }
+    }
+
+    takeDamage(damage: number): void {
+        this.health -= damage;
+
+        if (this.health < 0) {
+            this.health = 0;
+        }
+    }
+
+    isAlive(): boolean {
+        return this.health > 0;
     }
 }
 

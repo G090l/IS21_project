@@ -8,18 +8,25 @@ import Canvas from '../../services/canvas/Canvas';
 import useCanvas from '../../services/canvas/useCanvas';
 import Chat from '../../components/Chat/Chat';
 import Shop from '../../components/Shop/Shop';
+import useSprites from './hooks/useSprites';
 
 const GAME_FIELD = 'game-field';
 
 const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const server = useContext(ServerContext);
-    const { WINDOW } = CONFIG;
+    const { WINDOW, SPRITE_SIZE } = CONFIG;
     const { setPage } = props;
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isShopOpen, setIsShopOpen] = useState(false);
     const gameRef = useRef<Game | null>(null);
     const canvasRef = useRef<Canvas | null>(null);
     const animationFrameRef = useRef<number>(0);
+
+    // инициализация карты спрайтов
+    const [
+        [spritesImage],
+        getSprite,
+    ] = useSprites();
 
     const keysPressedRef = useRef({
         w: false,
@@ -37,13 +44,19 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         canvas.rectangle(x, y, width, height, color);
     }
 
+    function printFillSprite(image: HTMLImageElement, canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
+        canvas.spriteFull(image, x, y, points[0], points[1], points[2]);
+    }
+    function printSprite(canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
+        printFillSprite(spritesImage, canvas, { x, y }, points);
+    }
+
     // Использование функции render:
     const render = (FPS: number): void => {
         if (canvasRef.current && gameRef.current) {
             canvasRef.current.clear();
             const scene = gameRef.current.getScene();
             const { heroes, walls, arrows, enemies } = scene;
-            const user = server.store.getUser();
 
             // Рисуем стены
             walls.forEach(wall => {
@@ -59,6 +72,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             heroes.forEach((hero, index) => {
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvasRef.current!, hero.rect, color);
+                printSprite(canvasRef.current!, { x: hero.rect.x, y: hero.rect.y }, getSprite(1));
 
                 // Подписываем имя героя
                 canvasRef.current!.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');
@@ -68,6 +82,8 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
                     const attackPosition = hero.getAttackPosition();
                     if (attackPosition) {
                         printGameObject(canvasRef.current!, attackPosition, 'red');
+                        printSprite(canvasRef.current!, { x: attackPosition.x, y: attackPosition.y }, getSprite(1));
+
                     }
                 }
             });
@@ -75,6 +91,17 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             // Рисуем врагов
             enemies.forEach(enemy => {
                 printGameObject(canvasRef.current!, enemy.rect, 'red');
+                printSprite(canvasRef.current!, { x: enemy.rect.x, y: enemy.rect.y }, getSprite(1));
+
+                // Рисуем атаку врага
+                if (enemy.getIsAttacking()) {
+                    const attackPosition = enemy.getAttackPosition();
+                    if (attackPosition) {
+                        printGameObject(canvasRef.current!, attackPosition, 'orange');
+                        printSprite(canvasRef.current!, { x: attackPosition.x, y: attackPosition.y }, getSprite(1));
+
+                    }
+                }
             });
 
             // Рисуем стрелы
@@ -228,7 +255,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             <div className="debug-info">
                 <p>Управление: WASD - движение, ЛКМ - атака мечом, ПКМ - выстрел из лука, M - магазин</p>
             </div>
-            <div id={GAME_FIELD} className={GAME_FIELD}></div>     
+            <div id={GAME_FIELD} className={GAME_FIELD}></div>
             <Chat
                 isOpen={isChatOpen}
                 onToggle={setIsChatOpen}
