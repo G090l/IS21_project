@@ -5,9 +5,8 @@ require_once ('chat/Chat.php');
 require_once ('math/Math.php');
 require_once ('lobby/Lobby.php');
 require_once('classes/Classes.php');
-require_once('item/Item.php');
-require_once('bots/Bots.php');
-require_once('arrows/Arrows.php');
+require_once('itemManager/ItemManager.php');
+require_once('game/Game.php');
 
 class Application {
     function __construct() {
@@ -17,9 +16,8 @@ class Application {
         $this->lobby = new Lobby($db);
         $this->classes = new Classes($db);
         $this->chat = new Chat($db);
-        $this->item = new Item($db);
-        $this->bots = new Bots($db);
-        $this->arrows = new Arrows($db);
+        $this->itemManager = new ItemManager($db);
+        $this->game = new Game($db);
     }
 
     public function login($params) {
@@ -75,7 +73,7 @@ class Application {
         return ['error' => 8001];
     }
 
-    // chat
+    //Chat
     public function sendMessage($params) {
         if ($params['token'] && $params['message']) {
             $user = $this->user->getUser($params['token']);
@@ -98,7 +96,7 @@ class Application {
         return ['error' => 242];
     }
 
-    // lobby
+    //Lobby
     public function createRoom($params) {
         if ($params['token'] && $params['roomName'] && $params['roomSize']) {
             $user = $this->user->getUser($params['token']);
@@ -195,7 +193,7 @@ class Application {
         return ['error' => 242];
     }
 
-    // classes
+    //Classes
     public function getUserOwnedClasses($params) {
         if (!empty($params['token'])) {
             $user = $this->user->getUser($params['token']);
@@ -223,12 +221,12 @@ class Application {
         return ['error' => 242];
     }
 
-    // item
+    //ItemManager
     public function buyItem($params) {
         if ($params['token'] && $params['itemId']) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                return $this->item->buyItem($user->id, $params['itemId']);
+                return $this->itemManager->buyItem($user->id, $params['itemId']);
             }
             return ['error' => 705];
         }
@@ -239,103 +237,101 @@ class Application {
         if ($params['token'] && $params['itemId']) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                return $this->item->sellItem($user->id, $params['itemId']);
+                return $this->itemManager->sellItem($user->id, $params['itemId']);
             }
             return ['error' => 705];
         }
         return ['error' => 242];
     }
 
-    // bots
-    public function spawnBot($params) {
-        if ($params['token'] && $params['botType'] && $params['botData']) {
+    public function checkBowAndArrows($params) {
+        if ($params['token']) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                $botData = json_decode($params['botData'], true);
-                if (!$botData) {
-                    return ['error' => 5003];
-                }
-                return $this->bots->spawnBot($user->id, $params['botType'], $botData);
+                return $this->itemManager->checkBowAndArrows($user->id);
             }
             return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function consumeArrow($params) {
+        if ($params['token']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->itemManager->consumeArrow($user->id);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    //Game
+    public function getScene($params) {
+        if ($params['roomId'] && $params['characterHash'] && $params['botHash'] && $params['arrowHash']) {
+            return $this->game->getScene($params['roomId'], $params['characterHash'], $params['botHash'], $params['arrowHash']);
         }
         return ['error' => 242];
     }
 
     public function getBots($params) {
         if ($params['roomId']) {
-            return $this->bots->getBots($params['roomId']);
+            return $this->game->getBots($params['roomId']);
         }
         return ['error' => 242];
     }
 
-    public function updateBot($params) {
-        if ($params['token'] && $params['botId'] && $params['botData']) {
-            $user = $this->user->getUser($params['token']);
-            if ($user) {
-                $botData = json_decode($params['botData'], true);
-                if (!$botData) {
-                    return ['error' => 5003];
-                }
-                return $this->bots->updateBot($user->id, $params['botId'], $botData);
-            }
-            return ['error' => 705];
-        }
-        return ['error' => 242];
-    }
-
-    public function removeBot($params) {
-        if ($params['token'] && $params['botId']) {
-            $user = $this->user->getUser($params['token']);
-            if ($user) {
-                return $this->bots->removeBot($user->id, $params['botId']);
-            }
-            return ['error' => 705];
-        }
-        return ['error' => 242];
-    }
-
-    //arrow
-    public function spawnArrow($params) {
-    if ($params['token'] && $params['x'] && $params['y'] && $params['creatorToken']) {
-        $user = $this->user->getUser($params['token']);
-        if ($user) {
-            $x = (int)$params['x'];
-            $y = (int)$params['y'];
-            return $this->arrows->spawnArrow($user->id, $x, $y, $params['creatorToken']);
-        }
-        return ['error' => 705];
-    }
-    return ['error' => 242];
-    }
-
-    public function updateArrow($params) {
-        if ($params['token'] && $params['arrowId'] && $params['x'] && $params['y']) {
-            $user = $this->user->getUser($params['token']);
-            if ($user) {
-                $x = (int)$params['x'];
-                $y = (int)$params['y'];
-                return $this->arrows->updateArrow($user->id, $params['arrowId'], $x, $y);
-            }
-            return ['error' => 705];
-        }
-        return ['error' => 242];
-    }
-
-    public function removeArrow($params) {
-        if ($params['token'] && $params['arrowId']) {
-            $user = $this->user->getUser($params['token']);
-            if ($user) {
-                return $this->arrows->removeArrow($user->id, $params['arrowId']);
-            }
-            return ['error' => 705];
-        }
-        return ['error' => 242];
+    public function getBotsData($params) {
+        return $this->game->getBotsData();
     }
 
     public function getArrows($params) {
         if ($params['roomId']) {
-            return $this->arrows->getArrows($params['roomId']);
+            return $this->game->getArrows($params['roomId']);
+        }
+        return ['error' => 242];
+    }
+
+    public function updateCharacter($params) {
+        if ($params['token'] && $params['characterData']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->game->updateCharacter($user->id, $params['characterData']);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function updateBots($params) {
+        if ($params['token'] && $params['botsData']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->game->updateBots($user->id, $params['botsData']);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function updateArrows($params) {
+        if ($params['token'] && $params['arrowsData']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->game->updateArrows($user->id, $params['arrowsData']);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function addMoneyForKill($params) {
+        if ($params['token'] && $params['killerToken'] && $params['botTypeId']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->game->addMoneyForKill($user->id, $params['killerToken'], $params['botTypeId']);
+            }
+            return ['error' => 705];
         }
         return ['error' => 242];
     }

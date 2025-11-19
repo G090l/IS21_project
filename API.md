@@ -14,47 +14,24 @@
     * 2.5. Чат
     * 2.6. Боты
     * 2.7. Стрелы
+    * 2.8. Сцена игры
 3. Список запросов
-    * 3.1. Список ошибок
-    * 3.2. Примеры запросов
+    * 3.1. Описание запросов
+    * 3.2. Список ошибок
+    * 3.3. Примеры запросов
 4. Подробно
-    * 4.1. login
-    * 4.2. logout
-    * 4.3. registration
-    * 4.4. deleteUser
-    * 4.5. getUserInfo
-    * 4.6. math
-    * 4.7. sendMessage
-    * 4.8. getMessages
-    * 4.9. createRoom
-    * 4.10. renameRoom
-    * 4.11. joinToRoom
-    * 4.12. leaveRoom
-    * 4.13. dropFromRoom
-    * 4.14. startGame
-    * 4.15. getRooms
-    * 4.16. getRoomMembers
-    * 4.17. getClasses
-    * 4.18. buyClass
-    * 4.19. selectClass
-    * 4.20. buyItem
-    * 4.21. sellItem
-    * 4.22. spawnBot
-    * 4.23. getBots
-    * 4.24. updateBot
-    * 4.25. removeBot
-    * 4.26. spawnArrow
-    * 4.27. getArrows
-    * 4.28. updateArrow
-    * 4.29. removeArrow
-
-
+    * 4.1. User
+    * 4.2. Math
+    * 4.3. Chat
+    * 4.4. Lobby
+    * 4.5. Classes
+    * 4.6. ItemManager
+    * 4.7. Game
 
 
 ## 1. Общее
 ### 1.1. Адрес сервера
-`http://knightwars.local/api`
-`http://knightwars:81/api`
+`http://server/api`
 
 ### 1.2. Используемый протокол
 API полностью реализовано на http(s). 
@@ -151,11 +128,8 @@ ChatResponse: {
 
 ### 2.6. Боты
 ```
-BotsInRooms: {
+Bot: {
     id: number,
-    room_id: number,
-    type: number,
-    data: string(JSON),
     name: string,
     hp: number,
     damage: number,
@@ -163,68 +137,112 @@ BotsInRooms: {
     attack_distance: number,
     money: number
 }
+
+BotInRoom: {
+    id: number,
+    room_id: number,
+    data: string
+}
 ```
 
 ### 2.7. Стрелы
 ```
-Arrow: {
+ArrowInRoom: {
     id: number,
     room_id: number,
-    creator_id: number,
-    x: number,
-    y: number,
-    direction: 'left' | 'right'
+    data: string
+}
+```
+
+### 2.8. Сцена игры
+```
+SceneResponse: {
+    status: 'unchanged' | 'updated';
+    game_status: 'open' | 'closed' | 'started';
+    character_hash?: string;
+    bot_hash?: string;
+    arrow_hash?: string;
+    characters?: RoomMember[];
+    bots?: BotInRoom[];
+    arrows?: ArrowInRoom[];
 }
 ```
 
 ## 3. Список запросов
-| Название | О чем |
+### 3.1. Описание запросов
+#### 3.1.1. User
+| Название | Описание |
 | - | - |
 | login | Авторизация пользователя |
 | logout | Логаут пользователя |
 | registration | Регистрация пользователя |
 | deleteUser | Удаление пользователя |
 | getUserInfo | Получение информации о пользователе |
+
+#### 3.1.2. Math
+| Название | Описание |
+| - | - |
 | math | Решение уравнения (1–4 степени) |
+
+#### 3.1.3. Chat
+| Название | Описание |
+| - | - |
 | sendMessage | Отправка сообщения в чат |
 | getMessages | Получение сообщений чата |
+
+#### 3.1.4. Lobby
+| Название | Описание |
+| - | - |
 | createRoom | Создание комнаты |
-| renameRoom | Переименование комнаты |
 | joinToRoom | Присоединение к комнате |
 | leaveRoom | Выход из комнаты |
 | dropFromRoom | Исключение участника из комнаты |
 | startGame | Начало игры в комнате |
+| renameRoom | Переименование комнаты |
 | getRooms | Получение списка комнат |
 | getRoomMembers | Получение списка игроков в комнате |
+
+#### 3.1.5.Classes
+| Название | Описание |
+| - | - |
 | getClasses | Получение списка всех доступных классов |
 | buyClass | Покупка класса пользователем |
 | selectClass | Выбор активного класса пользователем |
+
+#### 3.1.6. ItemManager
+| Название | Описание |
+| - | - |
 | buyItem | Покупка предмета |
 | sellItem | Продажа предмета |
-| spawnBot | Создание бота в комнате |
+| checkBowAndArrows | Проверка наличия лука и стрел |
+| consumeArrow | Использование стрелы |
+
+#### 3.1.7. Game
+| Название | Описание |
+| - | - |
+| getScene | Получение игровой сцены |
 | getBots | Получение списка ботов в комнате |
-| updateBot | Обновление данных бота в комнате |
-| removeBot | Удаление бота из комнаты |
-| spawnArrow | Создание стрелы в комнате |
+| getBotsData | Получение данных всех типов ботов |
 | getArrows | Получение списка стрел в комнате |
-| updateArrow | Обновление данных стрелы в комнате |
-| removeArrow | Удаление стрелы из комнаты |
+| updateCharacter | Обновление данных персонажа |
+| updateBots | Обновление данных ботов |
+| updateArrows | Обновление данных стрел |
+| addMoneyForKill | Начисление денег за убийство бота |
 
 
-
-### 3.1. Список ошибок
+### 3.2. Список ошибок
 * `101` - параметр method не передан
 * `102` - метод не найден
 * `242` - не переданы все необходимые параметры
 * `404` - Not found
 * `705` - пользователь не найден
 * `706` - персонаж не найден
-* `1001` - логин уже существует
+* `1001` - параметры логин или пароль не установлены
 * `1002` - неверный логин или пароль
-* `1003` - ошибка выхода из системы
+* `1003` - ошибка выхода пользователя
 * `1004` - ошибка регистрации пользователя
 * `1005` - пользователь не существует
-* `1006` - пользователь с этим адресом электронной почты уже зарегистрирован
+* `1006` - пользователь с этим email уже зарегистрирован
 * `1007` - персонаж не создан
 * `1008` - класс не назначен
 * `1009` - класс не выбран
@@ -236,17 +254,17 @@ Arrow: {
 * `2006` - пользователь отсутствует в комнате
 * `2007` - владелец не может сам себя выгнать
 * `2008` - только владелец может выгнать участников комнаты
-* `2009` - пользователь, которого нужно выгнать, не найден в комнате
+* `2009` - пользователь для исключения не найден в комнате
 * `2010` - вы не владелец комнаты
 * `2011` - комната не закрыта
-* `2012` - недостаточно игроков для начала игры
+* `2012` - комната не заполнена (нужны все игроки готовы)
 * `2013` - неверный размер комнаты (должен быть от 1 до 6)
 * `2014` - ошибка переименования комнаты
-* `3001` - пользователь не купил ни одного класса
+* `3001` - классы не найдены
 * `3002` - класс не найден
 * `3003` - пользователь не найден
-* `3004` - недостаточно средств для покупки класса
-* `3005` - ошибка при покупке класса
+* `3004` - недостаточно средств
+* `3005` - ошибка при покупке
 * `3006` - класс не куплен
 * `3007` - класс уже куплен
 * `4001` - предмет не найден
@@ -256,72 +274,65 @@ Arrow: {
 * `4005` - достигнут лимит количества для этого типа предмета
 * `4006` - предмет не найден в инвентаре
 * `4007` - ошибка продажи предмета
+* `4008` - лук не экипирован
+* `4009` - стрелы не экипированы
 * `5001` - тип бота не найден
-* `5002` - ошибка создания бота
-* `5003` - неверный формат данных бота
-* `5004` - бот не найден в комнате
-* `5005` - в комнате нет ботов
-* `5006` - атакующий пользователь не найден
-* `5007` - атакующий пользователь не в комнате
-* `5008` - ошибка начисления денежной награды
-* `6001` - создатель стрелы не найден
-* `6002` - создатель стрелы не в комнат
-* `6003` - неверные координаты стрелы
-* `6004` - стрела не найдена в комнате
-* `6005` - направление создателя не установлено
-* `6006` - лук не экипирован
-* `6007` - стрелы не экипированы
-* `6008` - в комнате нет стрел
-* `8001` - не передан ни один коэффициент
-* `8002` - дискриминант < 0 (нет действительных корней)
-* `8003` - нет действительных корней
+* `5002` - в комнате нет ботов
+* `5003` - в комнате нет стрел
+* `8001` - введите хотя бы одно значение
+* `8002` - дискриминант не может быть меньше нуля
+* `8003` - действительные корни не найдены
 * `9000` - неизвестная ошибка
 
-### 3.2. Примеры запросов
+
+### 3.3. Примеры запросов
 | Название | URL |
 | - | - |
-| login | http://knightwars.local/api/?method=login&login=abdul1&passwordHash=123456 |
-| logout | http://knightwars.local/api/?method=logout&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
-| registration | http://knightwars.local/api/?method=registration&login=abdul1&passwordHash=123456&nickname=Muhammad |
-| deleteUser | http://knightwars.local/api/?method=deleteUser&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
-| getUserInfo | http://knightwars.local/api/?method=getUserInfo&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
-| math | http://knightwars.local/api/?method=math&equation=2x^2-4x+2=0 |
-| sendMessage | http://knightwars.local/api/?method=sendMessage&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&message=Привет |
-| getMessages | http://knightwars.local/api/?method=getMessages&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&hash=ТЕКУЩИЙ_ХЭШ |
-| createRoom | http://knightwars.local/api/?method=createRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
-| joinToRoom | http://knightwars.local/api/?method=joinToRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&roomId=1 |
-| leaveRoom | http://knightwars.local/api/?method=leaveRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
-| dropFromRoom | http://knightwars.local/api/?method=dropFromRoom&token=ТОКЕН_ВЛАДЕЛЬЦА&targetToken=ТОКЕН_ЦЕЛИ |
-| startGame | http://knightwars.local/api/?method=startGame&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
-| renameRoom | http://knightwars.local/api/?method=renameRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&newRoomName=НовоеНазвание |
-| getRooms | http://knightwars.local/api/?method=getRooms&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
-| getRoomMembers | http://knightwars.local/api/?method=getRoomMembers&roomId=1 |
-| getClasses | http://knightwars.local/api/?method=getClasses |
-| buyClass | http://knightwars.local/api/?method=buyClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
-| selectClass | http://knightwars.local/api/?method=selectClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
-| buyItem | http://knightwars.local/api/?method=buyItem&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&itemId=1 |
-| sellItem | http://knightwars.local/api/?method=sellItem&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&itemId=1 |
-| spawnBot | http://knightwars.local/api/?method=spawnBot&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botType=skelet&botData={"hp":100,"x":5,"y":10} |
-| getBots | http://knightwars.local/api/?method=getBots&roomId=1 |
-| updateBot | http://knightwars.local/api/?method=updateBot&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botId=1&botData={"hp":80,"x":5,"y":10, "lastHitToken":ТОКЕН_ПОЛЬЗОВАТЕЛЯ} |
-| removeBot | http://knightwars.local/api/?method=removeBot&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botId=1 |
-| spawnArrow | http://knightwars.local/api/?method=spawnArrow&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&x=100&y=200&creatorToken=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
-| getArrows | http://knightwars.local/api/?method=getArrows&roomId=1 |
-| updateArrow | http://knightwars.local/api/?method=updateArrow&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&arrowId=5&x=120&y=250 |
-| removeArrow | http://knightwars.local/api/?method=removeArrow&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&arrowId=5 |
+| login | http://server/api/?method=login&login=user1&passwordHash=123456&rnd=12345 |
+| logout | http://server/api/?method=logout&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| registration | http://server/api/?method=registration&login=user1&passwordHash=123456&nickname=User1 |
+| deleteUser | http://server/api/?method=deleteUser&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| getUserInfo | http://server/api/?method=getUserInfo&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| math | http://server/api/?method=math&a=1&b=0&c=-4 |
+| sendMessage | http://server/api/?method=sendMessage&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&message=Привет |
+| getMessages | http://server/api/?method=getMessages&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&hash=ТЕКУЩИЙ_ХЭШ |
+| createRoom | http://server/api/?method=createRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&roomName=Комната1&roomSize=4 |
+| joinToRoom | http://server/api/?method=joinToRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&roomId=1 |
+| leaveRoom | http://server/api/?method=leaveRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| dropFromRoom | http://server/api/?method=dropFromRoom&token=ТОКЕН_ВЛАДЕЛЬЦА&targetToken=ТОКЕН_ЦЕЛИ |
+| startGame | http://server/api/?method=startGame&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| renameRoom | http://server/api/?method=renameRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&newRoomName=НовоеНазвание |
+| getRooms | http://server/api/?method=getRooms&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&room_hash=ТЕКУЩИЙ_ХЭШ |
+| getRoomMembers | http://server/api/?method=getRoomMembers&roomId=1 |
+| getClasses | http://server/api/?method=getClasses |
+| buyClass | http://server/api/?method=buyClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
+| selectClass | http://server/api/?method=selectClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
+| buyItem | http://server/api/?method=buyItem&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&itemId=1 |
+| sellItem | http://server/api/?method=sellItem&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&itemId=1 |
+| checkBowAndArrows | http://server/api/?method=checkBowAndArrows&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| consumeArrow | http://server/api/?method=consumeArrow&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| getScene | http://server/api/?method=getScene&roomId=1&characterHash=ХЭШ&botHash=ХЭШ&arrowHash=ХЭШ |
+| getBots | http://server/api/?method=getBots&roomId=1 |
+| getBotsData | http://server/api/?method=getBotsData |
+| getArrows | http://server/api/?method=getArrows&roomId=1 |
+| updateCharacter | http://server/api/?method=updateCharacter&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&characterData=ДАННЫЕ_JSON |
+| updateBots | http://server/api/?method=updateBots&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botsData=ДАННЫЕ_JSON |
+| updateArrows | http://server/api/?method=updateArrows&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&arrowsData=ДАННЫЕ_JSON |
+| addMoneyForKill | http://server/api/?method=addMoneyForKill&token=ТОКЕН_ОВНЕРА&killerToken=ТОКЕН_УБИЙЦЫ&botTypeId=1 |
 
 
 ## 4. Подробно
-### 4.1. login
+### 4.1. User
+#### 4.1.1. login
 Авторизация пользователя в системе
 
 **Параметры**
 ```
 {
     "login": "string", - логин пользователя 
-    "password": "string" - пароль пользователя
+    "passwordHash": "string" - хэш пароля пользователя 
+    "rnd": "string" - случайное число для хэширования
 }
-
 ```
 **Успешный ответ**
 ```
@@ -329,11 +340,11 @@ Arrow: {
 ```
 **Ошибки**
 * `242` - не переданы все необходимые параметры
-* `1002` - неверный пароль
+* `1002` - неверный логин или пароль
 * `1005` - пользователь не существует
 
 
-### 4.2. logout
+#### 4.1.2. logout
 Вылогин пользователя из системы
 
 **Параметры**
@@ -348,20 +359,19 @@ Arrow: {
 ```
 **Ошибки**
 * `242` - не передан токен
-* `705` - пользователь не найден | не авторизован
+* `705` - пользователь не найден
 * `1003` - ошибка выхода из системы
 
 
-### 4.3. registration
-Зарегистрировать нового ползователя
+#### 4.1.3. registration
+Зарегистрировать нового пользователя
 
 **Параметры**
 ```
 {
     "login": "string", - логин пользователя 
-    "password": "string" - пароль пользователя
-    "nickname": "string", - имя пользователя
-    "email": "string" - почта пользователя 
+    "passwordHash": "string" - хэш пароля пользователя
+    "nickname": "string" - имя пользователя
 }
 ```
 **Успешный ответ**
@@ -377,7 +387,7 @@ Arrow: {
 * `1009` - класс не выбран
 
 
-### 4.4. deleteUser
+#### 4.1.4. deleteUser
 Удаление пользователя из системы
 
 **Параметры**
@@ -395,7 +405,7 @@ Arrow: {
 * `705` - пользователь не найден
 
 
-### 4.5. getUserInfo
+#### 4.1.5. getUserInfo
 Получение информации о пользователе
 
 **Параметры**
@@ -411,9 +421,11 @@ Arrow: {
 **Ошибки**
 * `242` - не передан токен
 * `705` - пользователь не найден
+* `706` - персонаж не найден
 
 
-### 4.6. math
+### 4.2. Math
+#### 4.2.1. math
 Решение уравнений 1–4 степени
 
 **Параметры**
@@ -436,7 +448,8 @@ Arrow: {
 * `8003` - нет действительных корней
 
 
-### 4.7. sendMessage
+### 4.3. Chat
+#### 4.3.1. sendMessage
 Отправка сообщения в чат
 
 **Параметры**
@@ -455,7 +468,7 @@ Arrow: {
 * `705` - пользователь не найден
 
 
-### 4.8. getMessage
+#### 4.3.2. getMessages
 Получение сообщений чата
 
 **Параметры**
@@ -495,7 +508,8 @@ Arrow: {
 * `705` - пользователь не найден
 
 
-### 4.9. createRoom
+### 4.4. Lobby
+#### 4.4.1. createRoom
 Создание новой комнаты
 
 **Параметры**
@@ -518,7 +532,7 @@ Arrow: {
 * `2013` - неверный размер комнаты
 
 
-### 4.10. joinToRoom
+#### 4.4.2. joinToRoom
 Присоединение к существующей комнате
 
 **Параметры**
@@ -543,7 +557,7 @@ Arrow: {
 * `2005` - комната недоступна
 
 
-### 4.11. leaveRoom
+#### 4.4.3. leaveRoom
 Выход из комнаты
 
 **Параметры**
@@ -562,7 +576,7 @@ Arrow: {
 * `2006` - пользователь отсутствует в комнате
 
 
-### 4.12. dropFromRoom
+#### 4.4.4. dropFromRoom
 Исключение участника из комнаты владельцем
 
 **Параметры**
@@ -584,7 +598,7 @@ Arrow: {
 * `2009` - пользователь, которого нужно выгнать, не найден в комнате
 
 
-### 4.13. startGame
+#### 4.4.5. startGame
 Старт игры в комнате (инициатор - только владелец)
 
 **Параметры**
@@ -605,7 +619,7 @@ Arrow: {
 * `2012` - недостаточно игроков для начала игры
 
 
-### 4.14. renameRoom
+#### 4.4.6. renameRoom
 Переименование комнаты
 
 **Параметры**
@@ -627,7 +641,7 @@ Arrow: {
 * `2014` - ошибка переименования комнаты
 
 
-### 4.15. getRooms
+#### 4.4.7. getRooms
 Получение списка доступных комнат
 
 **Параметры**
@@ -656,7 +670,9 @@ Arrow: {
     rooms: [
         {
         id: number,
+        name: string,
         status: 'open',
+        room_size: number,
         players_count: number
         }
     ]
@@ -668,8 +684,8 @@ Arrow: {
 * `705` - пользователь не найден
 
 
-### 4.16. getRoomMembers
-Получение информации о пользователе
+#### 4.4.8. getRoomMembers
+Получение списка участников комнаты
 
 **Параметры**
 ```
@@ -701,11 +717,12 @@ Arrow: {
 ```
 
 **Ошибки**
-* `242` - не передан токен
+* `242` - не передан ID комнаты
 * `2003` - комната не найдена
 
 
-### 4.17. getClasses
+### 4.5. Classes
+#### 4.5.1. getClasses
 Получение списка всех доступных классов
 
 **Параметры**
@@ -720,7 +737,7 @@ Arrow: {
 -
 
 
-### 4.18. buyClass
+#### 4.5.2. buyClass
 Покупка класса пользователем
 
 **Параметры**
@@ -735,7 +752,7 @@ Arrow: {
   Answer<true>
 ```
 **Ошибки**
-* `242` - не передан токен
+* `242` - не передан токен или ID класса
 * `705` - пользователь не найден
 * `3002` - класс не найден
 * `3003` - пользователь не найден
@@ -743,14 +760,15 @@ Arrow: {
 * `3005` - ошибка при покупке
 * `3007` - класс уже куплен
 
-### 4.19. selectClass
+
+#### 4.5.3. selectClass
 Выбор активного класса пользователем
 
 **Параметры**
 ```
 {
     "token": "string" - токен пользователя,
-    "classId": number - ID класса для покупки
+    "classId": number - ID класса для выбора
 }
 ```
 **Успешный ответ**
@@ -758,12 +776,13 @@ Arrow: {
   Answer<true>
 ```
 **Ошибки**
-* `242` - не передан токен
+* `242` - не передан токен или ID класса
 * `705` - пользователь не найден
 * `3006` - класс не куплен
 
 
-### 4.20. buyItem
+### 4.6. ItemManager
+#### 4.6.1. buyItem
 Покупка предмета
 
 **Параметры**
@@ -788,7 +807,7 @@ Arrow: {
 * `4005` - достигнут лимит количества для этого типа предмета
 
 
-### 4.21. sellItem
+#### 4.6.2. sellItem
 Продажа предмета
 
 **Параметры**
@@ -811,15 +830,13 @@ Arrow: {
 * `4007` - ошибка продажи предмета
 
 
-### 4.22. spawnBot
-Создание бота в комнате
+#### 4.6.3. checkBowAndArrows
+Проверка наличия лука и стрел у персонажа
 
 **Параметры**
 ```
 {
-    token: string, - токен владельца комнаты
-    botType: string, - тип бота
-    botData: string - JSON с данными бота {"hp":,"x":,"y":}
+    "token": "string" - токен пользователя
 }
 ```
 **Успешный ответ**
@@ -827,18 +844,78 @@ Arrow: {
   Answer<true>
 ```
 **Ошибки**
-* `242` - не переданы все необходимые параметры
+* `242` - не передан токен
 * `705` - пользователь не найден
 * `706` - персонаж не найден
-* `2006` - пользователь отсутствует в комнате
-* `2010` - вы не владелец комнаты
-* `2011` - комната не найдена или игра не начата
-* `5001` - тип бота не найден
-* `5002` - ошибка создания бота
-* `5003` - неверный формат данных бота
+* `4008` - лук не экипирован
+* `4009` - стрелы не экипированы
 
 
-### 4.23. getBots
+#### 4.6.4. consumeArrow
+Использование стрелы (вычитание из инвентаря)
+
+**Параметры**
+```
+{
+    "token": "string" - токен пользователя
+}
+```
+**Успешный ответ**
+```
+  Answer<true>
+```
+**Ошибки**
+* `242` - не передан токен
+* `705` - пользователь не найден
+* `706` - персонаж не найден
+* `4009` - стрелы не экипированы
+
+
+### 4.7. Game
+#### 4.7.1. getScene
+Получение игровой сцены (персонажи, боты, стрелы)
+
+**Параметры**
+```
+{
+    roomId: number, - ID комнаты
+    characterHash: string, - текущий хэш персонажей
+    botHash: string, - текущий хэш ботов
+    arrowHash: string - текущий хэш стрел
+}
+```
+**Успешный ответ**
+```
+  Answer<SceneResponse>
+```
+
+**Возможные ответы:**
+```
+{
+    status: 'unchanged',
+    game_status: 'started'
+}
+```
+
+```
+{
+    status: 'updated',
+    game_status: 'started',
+    character_hash: 'новый_хэш',
+    bot_hash: 'новый_хэш', 
+    arrow_hash: 'новый_хэш',
+    characters: RoomMember[],
+    bots: BotInRoom[],
+    arrows: ArrowInRoom[]
+}
+```
+
+**Ошибки**
+* `242` - не переданы все необходимые параметры
+* `2003` - комната не найдена
+
+
+#### 4.7.2. getBots
 Получение списка ботов в комнате
 
 **Параметры**
@@ -849,104 +926,28 @@ Arrow: {
 ```
 **Успешный ответ**
 ```
-  Answer<BotsInRooms[]>
+  Answer<BotInRoom[]>
 ```
-
 **Ошибки**
 * `242` - не переданы все необходимые параметры
 * `2003` - комната не найдена
-* `5005` - в комнате нет ботов
+* `5002` - в комнате нет ботов
 
 
-### 4.24. updateBot
-Обновление данных бота в комнате
-
-**Параметры**
-```
-{
-    token: string, - токен владельца комнаты
-    botId: number, - ID бота
-    botData: string - JSON с новыми данными бота {"hp":,"x":,"y":,"lastHitToken":"string"}
-}
-```
-**Успешный ответ**
-```
-  Answer<true>
-```
-
-**Особенности:**
-```
-    Если HP ≤ 0 и передан lastHitToken, бот умирает с начислением денег игроку с этим токеном
-    Если HP ≤ 0 без lastHitToken, бот умирает без начисления денег игрокам
-```
-
-**Ошибки**
-* `242` - не переданы все необходимые параметры
-* `705` - пользователь не найден
-* `2006` - пользователь отсутствует в комнате
-* `2010` - вы не владелец комнаты
-* `5003` - неверный формат данных бота
-* `5004` - бот не найден в комнате
-* `5006` - атакующий пользователь не найден
-* `5007` - атакующий пользователь не в комнате
-* `5008` - ошибка начисления денежной награды
-
-
-### 4.25. removeBot
-Удаление бота из комнаты
+#### 4.7.3. getBotsData
+Получение данных всех типов ботов
 
 **Параметры**
 ```
-{
-    token: string, - токен владельца комнаты
-    botId: number - ID бота
-}
+{}
 ```
 **Успешный ответ**
 ```
-  Answer<true>
+  Answer<Bot[]>
 ```
 
-**Ошибки**
-* `242` - не переданы все необходимые параметры
-* `705` - пользователь не найден
-* `2006` - пользователь отсутствует в комнате
-* `2010` - вы не владелец комнаты
-* `5004` - бот не найден в комнате
 
-
-### 4.26. spawnArrow
-Создание стрелы в комнате
-
-**Параметры**
-```
-{
-    token: string, - токен владельца комнаты
-    x: number, - координата X стрелы
-    y: number, - координата Y стрелы  
-    creatorToken: string - токен создателя стрелы
-}
-```
-**Успешный ответ**
-```
-  Answer<true>
-```
-
-**Ошибки**
-* `242` - не переданы все необходимые параметры
-* `705` - пользователь не найден
-* `2006` - пользователь отсутствует в комнате
-* `2010` - вы не владелец комнаты
-* `2011` - комната не найдена или игра не начата
-* `6001` - создатель стрелы не найден
-* `6002` - создатель стрелы не в комнате
-* `6003` - неверные координаты стрелы
-* `6005` - направление создателя не установлено
-* `6006` - лук не экипирован
-* `6007` - стрелы не экипированы
-
-
-### 4.27. getArrows
+#### 4.7.4. getArrows
 Получение списка стрел в комнате
 
 **Параметры**
@@ -957,62 +958,100 @@ Arrow: {
 ```
 **Успешный ответ**
 ```
-  Answer<Arrow[]>
+  Answer<ArrowInRoom[]>
 ```
-
 **Ошибки**
 * `242` - не переданы все необходимые параметры
 * `2003` - комната не найдена
-* `6008` - в комнате нет стрел
+* `5003` - в комнате нет стрел
 
 
-### 4.28. updateArrow
-Обновление данных стрелы в комнате
+#### 4.7.5. updateCharacter
+Обновление данных персонажа в комнате
 
 **Параметры**
 ```
 {
-    token: string, - токен владельца комнаты
-    arrowId: number, - ID стрелы
-    x: number, - новая координата X стрелы
-    y: number - новая координата Y стрелы
+    token: string, - токен пользователя
+    characterData: string - JSON с данными персонажа
 }
 ```
 **Успешный ответ**
 ```
   Answer<true>
 ```
-
 **Ошибки**
 * `242` - не переданы все необходимые параметры
 * `705` - пользователь не найден
 * `2006` - пользователь отсутствует в комнате
-* `2010` - вы не владелец комнаты
-* `6003` - неверные координаты стрелы
-* `6004` - стрела не найдена в комнате
 
 
-### 4.29. removeArrow
-Удаление стрелы из комнаты
+#### 4.7.6. updateBots
+Обновление данных ботов в комнате (только владелец)
 
 **Параметры**
 ```
 {
     token: string, - токен владельца комнаты
-    arrowId: number - ID стрелы
+    botsData: string - JSON с данными ботов
 }
 ```
 **Успешный ответ**
 ```
   Answer<true>
 ```
-
 **Ошибки**
 * `242` - не переданы все необходимые параметры
 * `705` - пользователь не найден
-* `2006` - пользователь отсутствует в комнате
 * `2010` - вы не владелец комнаты
-* `6004` - стрела не найдена в комнате
+* `2011` - комната не в состоянии started
+
+
+#### 4.7.7. updateArrows
+Обновление данных стрел в комнате (только владелец)
+
+**Параметры**
+```
+{
+    token: string, - токен владельца комнаты
+    arrowsData: string - JSON с данными стрел
+}
+```
+**Успешный ответ**
+```
+  Answer<true>
+```
+**Ошибки**
+* `242` - не переданы все необходимые параметры
+* `705` - пользователь не найден
+* `2010` - вы не владелец комнаты
+* `2011` - комната не в состоянии started
+
+
+#### 4.7.8. addMoneyForKill
+Начисление денег за убийство бота
+
+**Параметры**
+```
+{
+    token: string, - токен владельца комнаты
+    killerToken: string, - токен убийцы
+    botTypeId: number - ID типа бота
+}
+```
+**Успешный ответ**
+```
+  Answer<true>
+```
+**Ошибки**
+* `242` - не переданы все необходимые параметры
+* `705` - пользователь не найден
+* `706` - персонаж убийцы не найден
+* `2010` - вы не владелец комнаты
+* `2011` - комната не в состоянии started
+* `2006` - убийца отсутствует в комнате
+* `5001` - тип бота не найден
+
 
 
 
