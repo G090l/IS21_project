@@ -945,8 +945,6 @@ SceneResponse: {
 ```
   Answer<Bot[]>
 ```
-**Ошибки**
--
 
 
 #### 4.7.4. getArrows
