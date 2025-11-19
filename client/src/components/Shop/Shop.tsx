@@ -1,4 +1,5 @@
 import React from 'react';
+import './Shop.scss';
 
 interface ShopProps {
     isOpen: boolean;
@@ -8,17 +9,11 @@ interface ShopProps {
 const Shop: React.FC<ShopProps> = ({ isOpen, onToggle }) => {
     if (!isOpen) return null;
 
-    {/*const handleClose = () => {
-        onToggle(false);
-    };
-    */}
-
     return (
         <div className="shop-overlay">
             <div className="shop-modal">
                 <div className="shop-header">
                     <h2>Магазин</h2>
-                    {/*<button className="shop-close" onClick={handleClose}>×</button>*/}
                 </div>
                 <div className="shop-content">
                     <div className="shop-categories">
