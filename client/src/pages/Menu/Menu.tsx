@@ -12,13 +12,14 @@ import LobbyManager from '../../components/LobbyManager/LobbyManager';
 import StartingGameMenu from '../../components/StartingGameMenu/StartingGameMenu';
 import './Menu.scss'
 import RoomInfo from '../../components/RoomInfo/RoomInfo';
+import useSprites from '../../pages/Game/hooks/useSprites';
 
 const MENU_FIELD = 'menu-field';
 
 const Menu: React.FC<IBasePage> = (props: IBasePage) => {
     const { setPage } = props;
     const server = useContext(ServerContext);
-    const { WINDOW } = CONFIG;
+    const { WINDOW, SPRITE_SIZE } = CONFIG;
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isLobbyManagerOpen, setIsLobbyManagerOpen] = useState(false);
     const [isStartingGameMenuOpen, setIsStartingGameMenuOpen] = useState(false);
@@ -28,6 +29,12 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
     const backgroundImageRef = useRef<HTMLImageElement>(new Image());
     const [showStartButton, setShowStartButton] = useState(false);
     const [showShopButton, setShowShopButton] = useState(false);
+
+    // инициализация карты спрайтов
+    const [
+        [spritesImage],
+        getSprite,
+    ] = useSprites();
 
     const keysPressedRef = useRef({
         w: false,
@@ -48,6 +55,13 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
     useEffect(() => {
         backgroundImageRef.current.src = background;
     }, []);
+
+    function printFillSprite(image: HTMLImageElement, canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
+        canvas.spriteFull(image, x, y, points[0], points[1], points[2]);
+    }
+    function printSprite(canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
+        printFillSprite(spritesImage, canvas, { x, y }, points);
+    }
 
     // Использование функции render:
     const render = (FPS: number): void => {
@@ -85,6 +99,7 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
             heroes.forEach((hero, index) => {
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvasRef.current!, hero.rect, color);
+                printSprite(canvasRef.current!, { x: hero.rect.x, y: hero.rect.y }, getSprite(1));
 
                 // Подписываем имя героя
                 canvasRef.current!.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');

@@ -3,6 +3,10 @@ import Unit from "./Unit";
 
 class Enemy extends Unit {
     private detectionRange: number;
+    private attackRange: number;
+    private isAttacking: boolean;
+    private attackCooldown: number;
+    private lastAttackTime: number;
 
     constructor() {
         super();
@@ -14,12 +18,15 @@ class Enemy extends Unit {
         this.health = 100;
         this.damage = 20;
         this.detectionRange = 300;
+        this.attackRange = 80;
+        this.isAttacking = false;
+        this.attackCooldown = 1000;
+        this.lastAttackTime = 0;
         this.direction = EDIRECTION.RIGHT;
     }
 
     update(heroRects: TRect[], walls: TRect[]): void {
         this.moveTowardsTarget(heroRects, walls);
-        //attack()
     }
 
     private moveTowardsTarget(heroRects: TRect[], walls: TRect[]): void {
@@ -34,6 +41,16 @@ class Enemy extends Unit {
         const dx = nearestHeroRect.x - this.rect.x;
         const dy = nearestHeroRect.y - this.rect.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance <= this.attackRange) {
+            this.movement.dx = 0;
+            this.movement.dy = 0;
+
+            if (this.canAttack()) {
+                this.attack();
+            }
+            return;
+        }
 
         // Нормализуем направление
         const normalizedDx = dx / distance;
@@ -51,7 +68,7 @@ class Enemy extends Unit {
         this.move(newX, newY);
 
         // Проверяем столкновения со стенами
-        const hasCollision = this.checkCollisionsWithArray(
+        this.checkCollisionsWithArray(
             walls,
             (wall, enemyRect) => {
                 // При столкновении откатываем позицию
@@ -85,21 +102,26 @@ class Enemy extends Unit {
         return nearestHeroRect;
     }
 
-    takeDamage(damage: number): void {
-        this.health -= damage;
+    private canAttack(): boolean {
+        const currentTime = Date.now();
+        return currentTime - this.lastAttackTime >= this.attackCooldown;
+    }
 
-        if (this.health < 0) {
-            this.health = 0;
-        }
+    private attack(): void {
+        this.isAttacking = true;
+        this.lastAttackTime = Date.now();
+
+        setTimeout(() => {
+            this.isAttacking = false;
+        }, 300);
     }
 
     getAttackPosition(): TRect {
-        const swordOffset = 80;
         const swordSize = 80;
 
         const x = this.direction === EDIRECTION.RIGHT
-            ? this.rect.x + swordOffset
-            : this.rect.x - swordOffset;
+            ? this.rect.x + swordSize
+            : this.rect.x - swordSize;
 
         return {
             x,
@@ -109,8 +131,20 @@ class Enemy extends Unit {
         };
     }
 
+    takeDamage(damage: number): void {
+        this.health -= damage;
+
+        if (this.health < 0) {
+            this.health = 0;
+        }
+    }
+
     isAlive(): boolean {
         return this.health > 0;
+    }
+
+    getIsAttacking(): boolean {
+        return this.isAttacking;
     }
 }
 
