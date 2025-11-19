@@ -182,7 +182,7 @@ class ItemManager {
             return ['error' => 4009];
         }
 
-        return ['hasBow' => true, 'hasArrows' => true];
+        return true;
     }
 
     //вычитание стрелы из инвентаря

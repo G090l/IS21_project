@@ -841,7 +841,7 @@ SceneResponse: {
 ```
 **Успешный ответ**
 ```
-  Answer<{hasBow: boolean, hasArrows: boolean}>
+  Answer<true>
 ```
 **Ошибки**
 * `242` - не передан токен
