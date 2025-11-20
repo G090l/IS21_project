@@ -17,6 +17,14 @@ export type TUser = {
     token: string;
 }
 
+export type TUserInfoResponse = {
+    character_id: number;
+    user_id: number;
+    login: string;
+    nickname: string;
+    money: string;
+}
+
 export type TRooms = TRoom[];
 export type TRoom = {
     id: number;
@@ -32,17 +40,22 @@ export type TRoomsResponse = {
     rooms?: TRooms;
 }
 
-export type TRoomMembers = TRoomMember[];
+
 export type TRoomMember = {
-    id: number;
-    room_id: number;
-    character_id: number;
-    type: 'owner' | 'participant';
+    character_id: number,
+    type: "owner" | "participant",
+    status: "ready" | "started",
+    user_id: number,
+    login: string,
+    nickname: string,
+    money: string
+    token: string
 }
 
 export type TRoomMembersResponse = {
+    room_status: 'open' | 'closed' | 'started';
+    members?: TRoomMember[];
     hash?: string;
-    members?: TRoomMembers;
 }
 
 export type TMessage = {

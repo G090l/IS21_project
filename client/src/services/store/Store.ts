@@ -1,4 +1,4 @@
-import { TMessages, TRoom, TRoomMembers, TRooms, TUser } from "../server/types";
+import { TMessages, TRoom, TRoomMember, TRooms, TUser } from "../server/types";
 
 const TOKEN = 'token';
 const REMEMBER_ME = 'rememberMe';
@@ -10,7 +10,7 @@ class Store {
     rooms: TRooms = [];
     roomHash: string = 'empty room  hash';
     currentRoom: TRoom | null = null;
-    roomMembers: TRoomMembers = [];
+    roomMembers: TRoomMember[] = [];
     roomMembersHash: string = 'empty room members hash';
 
     rememberMe: boolean = false;
@@ -111,7 +111,7 @@ class Store {
         }
     }
 
-    setCurrentRoom(room: TRoom): void {
+    setCurrentRoom(room: TRoom | null): void {
         this.currentRoom = room;
     };
 
@@ -119,13 +119,17 @@ class Store {
         return this.currentRoom;
     };
 
-    addRoomMembers(members: TRoomMembers): void {
+    addRoomMembers(members: TRoomMember[]): void {
         if (members?.length) {
             this.roomMembers = members;
         }
     }
 
-    getRoomMembers(): TRoomMembers {
+    setRoomMembers(members: TRoomMember[] | undefined): void {
+        this.roomMembers = members || [];
+    };
+
+    getRoomMembers(): TRoomMember[] {
         return this.roomMembers || [];
     };
 
@@ -138,10 +142,6 @@ class Store {
             this.roomMembersHash = hash;
         }
     }
-
-    setRoomMembers(members: TRoomMembers | undefined): void {
-        this.roomMembers = members || [];
-    };
 }
 
 export default Store;

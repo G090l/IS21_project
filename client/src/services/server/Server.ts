@@ -3,13 +3,14 @@ import CONFIG from "../../config";
 import Store from "../store/Store";
 import { TAnswer, TError, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser } from "./types";
 
-const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST } = CONFIG;
+const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, MEMBERS_TIMESTAMP, HOST } = CONFIG;
 
 class Server {
     HOST = HOST;
     store: Store;
     chatInterval: NodeJS.Timer | null = null;
     roomInterval: NodeJS.Timer | null = null;
+    roomMembersInterval: NodeJS.Timer | null = null;
     showErrorCb: (error: TError) => void = () => { };
 
     constructor(store: Store) {
@@ -128,7 +129,6 @@ class Server {
                 hash && cb(hash);
             }
         }, ROOM_TIMESTAMP);
-
     }
 
     stopGettingRooms(): void {
@@ -138,9 +138,19 @@ class Server {
         }
     }
 
-    createRoom(roomName: string, roomSize: number): Promise<{ room?: TRoom } | null> {
-        return this.request<{ room?: TRoom }>('createRoom', { roomName, roomSize });
+    async createRoom(roomName: string, roomSize: number): Promise<{ room?: TRoom } | null> {
+        const result = await this.request<boolean>('createRoom', { roomName, roomSize });
+        if (result === true) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const userRoom = await this.getUserRoom();
+            if (userRoom?.room) {
+                this.store.setCurrentRoom(userRoom.room);
+                return userRoom;
+            }
+        }
+        return null;
     }
+
 
     joinToRoom(roomId: number): Promise<boolean | null> {
         return this.request<boolean>('joinToRoom', { roomId });
@@ -162,6 +172,12 @@ class Server {
         return !!result;
     }
 
+    async getUserRoom(): Promise<{ room?: TRoom } | null> {
+        const result = await this.request<{ room?: TRoom }>('getUserRoom');
+        console.log('User room from API:', result);
+        return result;
+    }
+
     async getRoomMembers(roomId: number): Promise<TRoomMembersResponse | null> {
         const roomMembers_hash = this.store.getRoomMembersHash();
         const result = await this.request<TRoomMembersResponse>('getRoomMembers', { roomId, roomMembers_hash });
@@ -172,9 +188,19 @@ class Server {
         }
         return null;
     };
-    
-    startGettingRoomMembers(roomId: number): void { };
-    stopGettingRoomMembers(): void { };
+
+    startGettingRoomMembers(roomId: number): void {
+        this.roomMembersInterval = setInterval(async () => {
+            await this.getRoomMembers(roomId);
+        }, MEMBERS_TIMESTAMP);
+    }
+
+    stopGettingRoomMembers(): void {
+        if (this.roomMembersInterval) {
+            clearInterval(this.roomMembersInterval);
+            this.roomMembersInterval = null;
+        }
+    }
 
     async deleteUser(): Promise<boolean> {
         const result = await this.request<boolean>('deleteUser');
@@ -188,14 +214,14 @@ class Server {
         return this.request<boolean>('startGame');
     }
 
-    async getUserInfo(): Promise<{ id: number; login: string; nickname: string; money: number } | null> {
+    async getUserInfo(): Promise<{ user_id: number; login: string; nickname: string; money: number } | null> {
         const token = this.store.getToken();
         if (!token) return null;
 
-        const userInfo = await this.request<{ id: number; login: string; nickname: string; money: number }>('getUserInfo');
+        const userInfo = await this.request<{ character_id: number; user_id: number; login: string; nickname: string; money: number; }>('getUserInfo');
         if (userInfo) {
             const user: TUser = {
-                id: userInfo.id,
+                id: userInfo.user_id,
                 login: userInfo.login,
                 nickname: userInfo.nickname,
                 money: userInfo.money,

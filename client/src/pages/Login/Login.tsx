@@ -39,7 +39,7 @@ const Login: React.FC<IBasePage> = (props: IBasePage) => {
 
         if (user) {
             server.store.setUser(user, rememberMe)
-            setPage(PAGES.MENU);
+            setPage(PAGES.LOBBY);
         }
     }
 
@@ -57,7 +57,7 @@ const Login: React.FC<IBasePage> = (props: IBasePage) => {
             if (token) {
                 const user = await server.getUserInfo();
                 if (user) {
-                    setPage(PAGES.MENU);
+                    setPage(PAGES.LOBBY);
                 } else {
                     sessionStorage.removeItem('token');
                     localStorage.removeItem('token');
