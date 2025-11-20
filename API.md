@@ -200,7 +200,6 @@ SceneResponse: {
 | startGame | Начало игры в комнате |
 | renameRoom | Переименование комнаты |
 | getRooms | Получение списка комнат |
-| getRoomMembers | Получение списка игроков в комнате |
 
 #### 3.1.5.Classes
 | Название | Описание |
@@ -221,12 +220,10 @@ SceneResponse: {
 | Название | Описание |
 | - | - |
 | getScene | Получение игровой сцены |
-| getBots | Получение списка ботов в комнате |
-| getBotsData | Получение данных всех типов ботов |
-| getArrows | Получение списка стрел в комнате |
 | updateCharacter | Обновление данных персонажа |
 | updateBots | Обновление данных ботов |
 | updateArrows | Обновление данных стрел |
+| getBotsData | Получение данных всех типов ботов |
 | addMoneyForKill | Начисление денег за убийство бота |
 
 
@@ -277,8 +274,6 @@ SceneResponse: {
 * `4008` - лук не экипирован
 * `4009` - стрелы не экипированы
 * `5001` - тип бота не найден
-* `5002` - в комнате нет ботов
-* `5003` - в комнате нет стрел
 * `8001` - введите хотя бы одно значение
 * `8002` - дискриминант не может быть меньше нуля
 * `8003` - действительные корни не найдены
@@ -303,7 +298,6 @@ SceneResponse: {
 | startGame | http://server/api/?method=startGame&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | renameRoom | http://server/api/?method=renameRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&newRoomName=НовоеНазвание |
 | getRooms | http://server/api/?method=getRooms&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&room_hash=ТЕКУЩИЙ_ХЭШ |
-| getRoomMembers | http://server/api/?method=getRoomMembers&roomId=1 |
 | getClasses | http://server/api/?method=getClasses |
 | buyClass | http://server/api/?method=buyClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
 | selectClass | http://server/api/?method=selectClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
@@ -312,12 +306,10 @@ SceneResponse: {
 | checkBowAndArrows | http://server/api/?method=checkBowAndArrows&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | consumeArrow | http://server/api/?method=consumeArrow&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | getScene | http://server/api/?method=getScene&roomId=1&characterHash=ХЭШ&botHash=ХЭШ&arrowHash=ХЭШ |
-| getBots | http://server/api/?method=getBots&roomId=1 |
-| getBotsData | http://server/api/?method=getBotsData |
-| getArrows | http://server/api/?method=getArrows&roomId=1 |
 | updateCharacter | http://server/api/?method=updateCharacter&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&characterData=ДАННЫЕ_JSON |
 | updateBots | http://server/api/?method=updateBots&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botsData=ДАННЫЕ_JSON |
 | updateArrows | http://server/api/?method=updateArrows&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&arrowsData=ДАННЫЕ_JSON |
+| getBotsData | http://server/api/?method=getBotsData |
 | addMoneyForKill | http://server/api/?method=addMoneyForKill&token=ТОКЕН_ОВНЕРА&killerToken=ТОКЕН_УБИЙЦЫ&botTypeId=1 |
 
 
@@ -669,11 +661,23 @@ SceneResponse: {
     hash: 'новый_хэш',
     rooms: [
         {
-        id: number,
-        name: string,
-        status: 'open',
-        room_size: number,
-        players_count: number
+            id: number,
+            name: string,
+            status: 'open',
+            room_size: number,
+            players_count: number,
+            members: [
+                {
+                    character_id: number,
+                    type: "owner" | "participant",
+                    status: "ready",
+                    user_id: number,
+                    login: string,
+                    nickname: string,
+                    money: number,
+                    token: string,
+                }
+            ]
         }
     ]
 }
@@ -915,58 +919,7 @@ SceneResponse: {
 * `2003` - комната не найдена
 
 
-#### 4.7.2. getBots
-Получение списка ботов в комнате
-
-**Параметры**
-```
-{
-    roomId: number - ID комнаты
-}
-```
-**Успешный ответ**
-```
-  Answer<BotInRoom[]>
-```
-**Ошибки**
-* `242` - не переданы все необходимые параметры
-* `2003` - комната не найдена
-* `5002` - в комнате нет ботов
-
-
-#### 4.7.3. getBotsData
-Получение данных всех типов ботов
-
-**Параметры**
-```
-{}
-```
-**Успешный ответ**
-```
-  Answer<Bot[]>
-```
-
-
-#### 4.7.4. getArrows
-Получение списка стрел в комнате
-
-**Параметры**
-```
-{
-    roomId: number - ID комнаты
-}
-```
-**Успешный ответ**
-```
-  Answer<ArrowInRoom[]>
-```
-**Ошибки**
-* `242` - не переданы все необходимые параметры
-* `2003` - комната не найдена
-* `5003` - в комнате нет стрел
-
-
-#### 4.7.5. updateCharacter
+#### 4.7.2. updateCharacter
 Обновление данных персонажа в комнате
 
 **Параметры**
@@ -986,7 +939,7 @@ SceneResponse: {
 * `2006` - пользователь отсутствует в комнате
 
 
-#### 4.7.6. updateBots
+#### 4.7.3. updateBots
 Обновление данных ботов в комнате (только владелец)
 
 **Параметры**
@@ -1007,7 +960,7 @@ SceneResponse: {
 * `2011` - комната не в состоянии started
 
 
-#### 4.7.7. updateArrows
+#### 4.7.4. updateArrows
 Обновление данных стрел в комнате (только владелец)
 
 **Параметры**
@@ -1027,8 +980,20 @@ SceneResponse: {
 * `2010` - вы не владелец комнаты
 * `2011` - комната не в состоянии started
 
+#### 4.7.5. getBotsData
+Получение данных всех типов ботов
 
-#### 4.7.8. addMoneyForKill
+**Параметры**
+```
+{}
+```
+**Успешный ответ**
+```
+  Answer<Bot[]>
+```
+
+
+#### 4.7.6. addMoneyForKill
 Начисление денег за убийство бота
 
 **Параметры**
