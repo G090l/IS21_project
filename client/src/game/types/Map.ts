@@ -5,10 +5,10 @@ class Map {
 
     constructor() {
         this.walls = [
-            { x: 0, y: 0, width: 10, height: 800 },
-            { x: 0, y: 0, width: 1300, height: 10 },
-            { x: 1290, y: 0, width: 10, height: 800 },
-            { x: 0, y: 790, width: 1300, height: 10 },
+            { x: 0, y: 0, width: 10, height: 1080 },
+            { x: 0, y: 0, width: 1920, height: 10 },
+            { x: 1910, y: 0, width: 10, height: 1080 },
+            { x: 0, y: 1070, width: 1920, height: 10 },
         ];
     }
 }

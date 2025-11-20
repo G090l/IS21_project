@@ -143,14 +143,9 @@ const Menu: React.FC<IBasePage> = (props: IBasePage) => {
         // Инициализация канваса
         canvasRef.current = CanvasComponent({
             parentId: MENU_FIELD,
-            WIDTH: 1920,
-            HEIGHT: 1080,
-            WINDOW: {
-                WIDTH: 1920,
-                HEIGHT: 1080,
-                LEFT: 0,
-                TOP: 0
-            },
+            WIDTH: WINDOW.WIDTH,
+            HEIGHT: WINDOW.HEIGHT,
+            WINDOW,
             callbacks: {
                 mouseMove: () => { },
                 mouseClick: () => { },
