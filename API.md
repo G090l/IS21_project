@@ -663,19 +663,19 @@ SceneResponse: {
         {
             id: number,
             name: string,
-            status: 'open' | 'closed' | 'started',
+            status: 'open',
             room_size: number,
             players_count: number,
             members: [
                 {
                     character_id: number,
                     type: "owner" | "participant",
-                    status: "ready" | "started",
+                    status: "ready",
                     user_id: number,
                     login: string,
                     nickname: string,
-                    money: number | string,
-                    token: string
+                    money: number,
+                    token: string,
                 }
             ]
         }
