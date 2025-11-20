@@ -4,7 +4,7 @@ import { ServerContext, StoreContext } from '../../App';
 import Button from '../Button/Button';
 import { IBasePage, PAGES } from '../../pages/PageManager';
 import './StartingGameMenu.scss';
-import { TError, TRooms } from '../../services/server/types';
+import { TError, TRoom } from '../../services/server/types';
 
 interface IStartingGameMenu extends IBasePage {
     isOpen: boolean;
@@ -19,7 +19,7 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
     const [error, setError] = useState<string | null>(null);
     const [roomName, setRoomName] = useState('');
     const [roomSize, setRoomSize] = useState(1);
-    const [rooms, setRooms] = useState<TRooms>([]);
+    const [rooms, setRooms] = useState<TRoom[]>([]);
 
 
     useEffect(() => {

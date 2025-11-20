@@ -25,7 +25,6 @@ export type TUserInfoResponse = {
     money: string;
 }
 
-export type TRooms = TRoom[];
 export type TRoom = {
     id: number;
     status: 'open' | 'closed' | 'started';
@@ -37,9 +36,8 @@ export type TRoom = {
 export type TRoomsResponse = {
     status: 'unchanged' | 'updated';
     hash?: string;
-    rooms?: TRooms;
+    rooms?: TRoom[];
 }
-
 
 export type TRoomMember = {
     character_id: number,
