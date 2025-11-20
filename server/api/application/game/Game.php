@@ -67,48 +67,10 @@ class Game {
         ];
     }
 
-    //получение всех ботов в комнате
-    public function getBots($roomId) {
-        //проверка, что комната существует
-        $room = $this->db->getRoomById($roomId);
-        if (!$room) {
-            return ['error' => 2003];
-        }
-
-        //получаем данные ботов
-        $bots = $this->db->getBotsByRoomId($roomId); 
-        
-        //проверка, есть ли боты в комнате
-        if (!$bots) {
-            return ['error' => 5002];
-        }
-
-        return $bots;
-    }
-
     //получение всех данных ботов из таблицы
     public function getBotsData() {
         $bots = $this->db->getAllBotsData();
         return $bots;
-    }
-
-    //получение всех стрел в комнате
-    public function getArrows($roomId) {
-        //проверка, что комната существует
-        $room = $this->db->getRoomById($roomId);
-        if (!$room) {
-            return ['error' => 2003];
-        }
-
-        //получаем все стрелы в комнате (массив объектов)
-        $arrows = $this->db->getArrowsByRoomId($roomId);
-
-        //проверка, есть ли стрелы в комнате
-        if (!$arrows) {
-            return ['error' => 5003];
-        }
-        
-        return $arrows;
     }
 
     //обновление ботов

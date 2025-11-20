@@ -186,13 +186,6 @@ class Application {
         return ['error' => 242];
     }
 
-    public function getRoomMembers($params) {
-        if ($params['roomId']) {
-            return $this->lobby->getRoomMembers($params['roomId']);
-        }
-        return ['error' => 242];
-    }
-
     //Classes
     public function getUserOwnedClasses($params) {
         if (!empty($params['token'])) {

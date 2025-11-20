@@ -204,7 +204,8 @@ class DB {
                 u.id as user_id,
                 u.login,
                 u.nickname,
-                c.money
+                c.money,
+                u.token
             FROM room_members rm 
             JOIN characters c ON rm.character_id = c.id 
             JOIN users u ON c.user_id = u.id 

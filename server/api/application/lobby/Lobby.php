@@ -260,26 +260,25 @@ class Lobby {
         //получаем все открытые комнаты
         $rooms = $this->db->getOpenRooms();
         
+        //инфа о пользователях для каждой комнаты
+        $roomsWithMembers = [];
+        foreach ($rooms as $room) {
+            $members = $this->db->getAllRoomMembersWithUserInfo($room['id']);
+            $roomsWithMembers[] = [
+                'id' => $room['id'],
+                'name' => $room['name'],
+                'status' => $room['status'],
+                'room_size' => $room['room_size'],
+                'players_count' => $room['players_count'],
+                'members' => $members
+            ];
+        }
+        
         return [
             'status' => 'updated',
             'hash' => $currentHash,
-            'rooms' => $rooms
+            'rooms' => $roomsWithMembers
         ];
     }
 
-    public function getRoomMembers($roomId) {
-        //проверка, есть ли такая комната
-        $room = $this->db->getRoomById($roomId);
-        if (!$room) {
-            return ['error' => 2003];
-        }
-        
-        //получаем всех участников комнаты с полной информацией о пользователях
-        $members = $this->db->getAllRoomMembersWithUserInfo($roomId);
-        
-        return [
-            'room_status' => $room->status,
-            'members' => $members
-        ];
-    }
 }

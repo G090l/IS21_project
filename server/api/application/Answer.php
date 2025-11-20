@@ -52,8 +52,6 @@ class Answer {
         '4009' => 'No arrows equipped',
         //Game
         '5001' => 'Bot type not found',
-        '5002' => 'No bots in room',
-        '5003' => 'No arrows in room',
         //math
         '8001' => 'Enter at least one value',
         '8002' => 'The discriminant cannot be less than zero',

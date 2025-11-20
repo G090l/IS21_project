@@ -32,7 +32,6 @@ function result($params) {
             case 'startGame': return $app->startGame($params);
             case 'renameRoom': return $app->renameRoom($params);
             case 'getRooms': return $app->getRooms($params);
-            case 'getRoomMembers': return $app->getRoomMembers($params);
             //Classes
             case 'getClasses': return $app->getClasses($params);
             case 'buyClass': return $app->buyClass($params);
@@ -44,12 +43,10 @@ function result($params) {
             case 'consumeArrow': return $app->consumeArrow($params);
             //Game
             case 'getScene': return $app->getScene($params);
-            case 'getBots': return $app->getBots($params);
-            case 'getBotsData': return $app->getBotsData($params);
-            case 'getArrows': return $app->getArrows($params);
             case 'updateCharacter': return $app->updateCharacter($params);
             case 'updateBots': return $app->updateBots($params);
             case 'updateArrows': return $app->updateArrows($params);
+            case 'getBotsData': return $app->getBotsData($params);
             case 'addMoneyForKill': return $app->addMoneyForKill($params);
 
             default: return ['error' => 102];
