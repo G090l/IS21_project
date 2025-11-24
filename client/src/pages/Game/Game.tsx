@@ -128,7 +128,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const CanvasComponent = useCanvas(render);
 
     const backClickHandler = () => {
-        setPage(PAGES.MENU);
+        setPage(PAGES.LOBBY);
     };
 
     const mouseClick = useCallback(() => {

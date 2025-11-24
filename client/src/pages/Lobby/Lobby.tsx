@@ -1,34 +1,51 @@
 import React, { useEffect, useState, useRef, useContext, useCallback } from 'react';
-import { ServerContext } from '../../App';
+import { ServerContext, StoreContext } from '../../App';
 import CONFIG from '../../config';
 import Button from '../../components/Button/Button';
 import { IBasePage, PAGES } from '../PageManager';
-import MenuGame from '../../menu/MenuGame';
+import LobbyGame from '../../lobby/LobbyGame';
 import Canvas from '../../services/canvas/Canvas';
 import useCanvas from '../../services/canvas/useCanvas';
 import Chat from '../../components/Chat/Chat';
-import background from '../../assets/img/lobby/background.png';
+import menuBackground from '../../assets/img/lobby/menu-background.png';
+import lobbyBackground from '../../assets/img/lobby/lobby-background.png';
 import LobbyManager from '../../components/LobbyManager/LobbyManager';
 import StartingGameMenu from '../../components/StartingGameMenu/StartingGameMenu';
-import './Lobby.scss'
 import RoomInfo from '../../components/RoomInfo/RoomInfo';
 import useSprites from '../../pages/Game/hooks/useSprites';
+import './Lobby.scss'
+
 
 const LOBBY_FIELD = 'lobby-field';
 
 const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     const { setPage } = props;
     const server = useContext(ServerContext);
+    const store = useContext(StoreContext);
     const { WINDOW, SPRITE_SIZE } = CONFIG;
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isLobbyManagerOpen, setIsLobbyManagerOpen] = useState(false);
     const [isStartingGameMenuOpen, setIsStartingGameMenuOpen] = useState(false);
-    const gameRef = useRef<MenuGame | null>(null);
+    const gameRef = useRef<LobbyGame | null>(null);
     const canvasRef = useRef<Canvas | null>(null);
     const animationFrameRef = useRef<number>(0);
     const backgroundImageRef = useRef<HTMLImageElement>(new Image());
     const [showStartButton, setShowStartButton] = useState(false);
     const [showShopButton, setShowShopButton] = useState(false);
+
+    useEffect(() => {
+        const initializeRoom = async () => {
+            const roomResponse = await server.getUserRoom();
+            if (roomResponse && roomResponse.room) {
+                store.setCurrentRoom(roomResponse.room);
+            } else {
+                store.setCurrentRoom(null);
+            }
+
+        };
+
+        initializeRoom();
+    }, []);
 
     // инициализация карты спрайтов
     const [
@@ -52,9 +69,12 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
         canvas.rectangle(x, y, width, height, color);
     }
 
+    const background = store.getCurrentRoom() ? lobbyBackground : menuBackground;
+
+
     useEffect(() => {
         backgroundImageRef.current.src = background;
-    }, []);
+    }, [background]);
 
     function printFillSprite(image: HTMLImageElement, canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
         canvas.spriteFull(image, x, y, points[0], points[1], points[2]);
@@ -132,7 +152,7 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
 
     useEffect(() => {
         // Инициализация игры
-        gameRef.current = new MenuGame(server);
+        gameRef.current = new LobbyGame(server);
 
         const scene = gameRef.current.getScene();
         scene.heroes.forEach(hero => {

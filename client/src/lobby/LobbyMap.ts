@@ -1,6 +1,6 @@
 import Map from "../game/types/Map";
 
-class MenuMap extends Map {
+class LobbyMap extends Map {
     constructor() {
         super();
 
@@ -16,4 +16,4 @@ class MenuMap extends Map {
     }
 }
 
-export default MenuMap;
+export default LobbyMap;

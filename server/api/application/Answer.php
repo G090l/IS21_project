@@ -40,7 +40,7 @@ class Answer {
         '3005' => 'Error during purchase',
         '3006' => 'Class not owned',
         '3007' => 'Class already purchased',
-        //item
+        //ItemManager
         '4001' => 'Item not found',
         '4002' => 'Not enough money to buy',
         '4003' => 'Item already owned',
@@ -48,24 +48,10 @@ class Answer {
         '4005' => 'Maximum quantity reached for this item type',
         '4006' => 'Item not found in inventory',
         '4007' => 'Error selling item',
-        //bots
+        '4008' => 'No bow equipped',
+        '4009' => 'No arrows equipped',
+        //Game
         '5001' => 'Bot type not found',
-        '5002' => 'Error spawning bot',
-        '5003' => 'Invalid bot data format',
-        '5004' => 'Bot not found in room',
-        '5005' => 'There are no bots in the room',
-        '5006' => 'Attacker-user not found', 
-        '5007' => 'Attacker-user not in room', 
-        '5008' => 'Error adding money reward',
-        //arrows
-        '6001' => 'Arrow creator not found',
-        '6002' => 'Arrow creator not in room', 
-        '6003' => 'Invalid arrow coordinates',
-        '6004' => 'Arrow not found in room',
-        '6005' => 'Creator direction not set',
-        '6006' => 'No bow equipped',
-        '6007' => 'No arrows equipped',
-        '6008' => 'No arrows in room', 
         //math
         '8001' => 'Enter at least one value',
         '8002' => 'The discriminant cannot be less than zero',

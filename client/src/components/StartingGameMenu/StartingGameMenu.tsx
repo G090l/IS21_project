@@ -4,7 +4,7 @@ import { ServerContext, StoreContext } from '../../App';
 import Button from '../Button/Button';
 import { IBasePage, PAGES } from '../../pages/PageManager';
 import './StartingGameMenu.scss';
-import { TError, TRooms } from '../../services/server/types';
+import { TError, TRoom } from '../../services/server/types';
 
 interface IStartingGameMenu extends IBasePage {
     isOpen: boolean;
@@ -15,12 +15,11 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
     const { setPage, isOpen, onToggle } = props
     const server = useContext(ServerContext);
     const store = useContext(StoreContext);
-    const [currentRoom, setCurrentRoom] = useState<number | null>(null);
     const [activeSection, setActiveSection] = useState<'create' | 'join'>('create');
     const [error, setError] = useState<string | null>(null);
     const [roomName, setRoomName] = useState('');
     const [roomSize, setRoomSize] = useState(1);
-    const [rooms, setRooms] = useState<TRooms>([]);
+    const [rooms, setRooms] = useState<TRoom[]>([]);
 
 
     useEffect(() => {
@@ -38,19 +37,19 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
     }, []);
 
     useEffect(() => {
-        setRooms(store.rooms);
+        setRooms(store.getRooms());
     }, [store.rooms]);
 
     useEffect(() => {
         if (activeSection === 'join' && isOpen) {
             const loadRooms = async () => {
                 await server.getRooms();
-                setRooms(store.rooms);
+                setRooms(store.getRooms());
             };
             loadRooms();
 
             const handleRoomsUpdate = () => {
-                setRooms(store.rooms);
+               setRooms(store.getRooms());
             };
 
             server.startGettingRooms(handleRoomsUpdate);
@@ -60,7 +59,7 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
 
     const createRoomClickHandler = async () => {
         const success = await server.createRoom(roomName, roomSize);
-        if (success) {
+        if (success && success.room) {
             setPage(PAGES.LOBBY);
             onToggle(false);
         }
@@ -76,7 +75,6 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
     const joinToRoomClickHandler = async (roomId: number) => {
         const success = await server.joinToRoom(roomId);
         if (success) {
-            setCurrentRoom(roomId);
             const room = rooms.find(r => r.id === roomId);
             if (room) {
                 store.setCurrentRoom(room);
