@@ -6,7 +6,7 @@ const ClassShop: React.FC<IBasePage> = (props: IBasePage) => {
     
     return (<>
         <div>Магазин классов</div>
-        <button onClick={() => setPage(PAGES.MENU)}>Назад</button>
+        <button onClick={() => setPage(PAGES.LOBBY)}>Назад</button>
     </>)
 }
 

@@ -4,7 +4,6 @@ import { ServerContext, StoreContext } from '../../App';
 import Button from '../Button/Button';
 import { IBasePage, PAGES } from '../../pages/PageManager';
 import './LobbyManager.scss'
-import { TRoom } from '../../services/server/types';
 
 interface ILobbyManagerProps extends IBasePage {
     isOpen: boolean;
@@ -21,14 +20,6 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
     const toggleLobbyManager = () => {
         onToggle(!isOpen);
     };
-
-    const leaveRoomClickHandler = async () => {
-        const success = await server.leaveRoom();
-        if (success) {
-            setCurrentRoom(null);
-            setPage(PAGES.LOBBY);
-        }
-    }
 
     const deleteUserClickHandler = async () => {
         const success = await server.deleteUser();
@@ -60,7 +51,6 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
 
         {isOpen && (
             <div className="lobby-manager-window">
-                <Button onClick={leaveRoomClickHandler} text='Покинуть комнату' />
                 <Button onClick={deleteUserClickHandler} text='Удалить аккаунт' />
                 <Button onClick={startGameClickHandler} text='Начать игру' />
                 <Button onClick={exitAccountClickHandler} text='Выйти из аккаунта' />

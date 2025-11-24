@@ -13,9 +13,23 @@ const RoomInfo: React.FC = () => {
     const roomMembers = store.getRoomMembers();
 
     useEffect(() => {
+        const initializeRoom = async () => {
+            if (!room) {
+                const roomResponse = await server.getUserRoom();
+                if (roomResponse?.room) {
+                    store.setCurrentRoom(roomResponse.room);
+                }
+            }
+        };
+        initializeRoom();
+    }, []);
+
+    useEffect(() => {
         if (room) {
             server.startGettingRoomMembers(room.id);
             loadMembers();
+        } else {
+            store.setRoomMembers([]);
         }
         return () => {
             server.stopGettingRoomMembers();
@@ -25,7 +39,7 @@ const RoomInfo: React.FC = () => {
     const loadMembers = async () => {
         if (!room) return;
         const members = await server.getRoomMembers(room.id);
-        if (members) {
+        if (members?.members) {
             store.setRoomMembers(members.members);
         }
     };
@@ -40,6 +54,12 @@ const RoomInfo: React.FC = () => {
         }
         setIsRenaming(false);
     };
+    console.log('RoomMembers:', roomMembers.map(m => ({
+        id: m.user_id,
+        nickname: m.nickname,
+        token: m.token, // Проверьте здесь!
+        tokenLength: m.token?.length
+    })));
 
     const dropFromRoomClickHandler = async (targetToken: string) => {
         const success = await server.dropFromRoom(targetToken);
@@ -48,13 +68,20 @@ const RoomInfo: React.FC = () => {
         }
     }
 
+    const leaveRoomClickHandler = async () => {
+        const success = await server.leaveRoom();
+        if (success) {
+            store.setCurrentRoom(null);
+            store.setRoomMembers([]);
+        }
+    }
+
     if (!room) {
         return <div className="room-info">Комната не выбрана</div>;
     }
-
+    
     const owner = roomMembers.find(member => member.type === 'owner')
-    const isOwner = user?.id === owner?.character_id;
-    const otherMembers = roomMembers.filter(member => member !== owner);
+    const isOwner = user?.id === owner?.user_id;
 
     return (<div className="room-info">
         <div className="room-name-section">
@@ -90,35 +117,33 @@ const RoomInfo: React.FC = () => {
             )}
         </div>
         <div className="players-count">
-            Игроков: {room.players_count}/{room.room_size}
+            Игроков: {roomMembers.length}/{room.room_size}
         </div>
 
         <div className="room-members">
-            {owner && (
-                <div className="owner-info">
-                    <div className="owner-name">
-                        {`Владелец: ${owner.character_id}`}
+            {roomMembers.map(member => (
+                <div key={member.user_id} className="user-item">
+                    <div className="user-info">
+                        <div className="member-name">
+                            {member.nickname}
+                            {member.type === 'owner' && (
+                                <span className="host"> - хост</span>
+                            )}
+                        </div>
                     </div>
+                    {isOwner && user?.id !== member.user_id && (
+                        <div className="user-actions">
+                            <Button
+                                className="dropFromRoom-button"
+                                text="Кикнуть"
+                                onClick={() => dropFromRoomClickHandler(member.token)}
+                            />
+                        </div>
+                    )}
                 </div>
-            )}
+            ))}
         </div>
-        {otherMembers.map(member => (
-            <div key={member.character_id} className="user-item">
-                <div className="user-info">
-                    <div className="member-name">{member.nickname}</div>
-                </div>
-                {isOwner && user?.id !== member.character_id && (
-                    <div className="user-actions">
-                        <Button
-                            className="dropFromRoom-button"
-                            text="Кикнуть"
-                            onClick={() => dropFromRoomClickHandler(member.token)}
-                        />
-                    </div>
-                )}
-            </div>
-        ))}
-
+        <Button onClick={leaveRoomClickHandler} text='Покинуть комнату' />
     </div>)
 }
 

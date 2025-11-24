@@ -3,17 +3,13 @@ import cn from 'classnames';
 import { ServerContext, StoreContext } from '../../App';
 import { TMessages } from '../../services/server/types';
 import Button from '../Button/Button';
+import { typingState } from './hooks/typingState';
 import './Chat.scss'
 
 interface IChat {
     isOpen: boolean;
     onToggle: (isOpen: boolean) => void;
 }
-
-export const typingState = {
-    isTyping: false,
-    set: (typing: boolean) => typingState.isTyping = typing
-};
 
 const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
     const server = useContext(ServerContext);
