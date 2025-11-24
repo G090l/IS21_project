@@ -12,6 +12,11 @@ import useSprites from './hooks/useSprites';
 
 const GAME_FIELD = 'game-field';
 
+enum EAttackMode {
+    SWORD = 'sword',
+    BOW = 'bow'
+}
+
 const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const server = useContext(ServerContext);
     const { WINDOW, SPRITE_SIZE } = CONFIG;
@@ -21,6 +26,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const gameRef = useRef<Game | null>(null);
     const canvasRef = useRef<Canvas | null>(null);
     const animationFrameRef = useRef<number>(0);
+    const attackModeRef = useRef<EAttackMode>(EAttackMode.SWORD);
 
     // инициализация карты спрайтов
     const [
@@ -78,12 +84,11 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
                 canvasRef.current!.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');
 
                 // Рисуем меч
-                if (hero.isAttacking) {
+                if (hero.isAttacking && attackModeRef.current === EAttackMode.SWORD) {
                     const attackPosition = hero.getAttackPosition();
                     if (attackPosition) {
                         printGameObject(canvasRef.current!, attackPosition, 'red');
                         printSprite(canvasRef.current!, { x: attackPosition.x, y: attackPosition.y }, getSprite(1));
-
                     }
                 }
             });
@@ -99,7 +104,6 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
                     if (attackPosition) {
                         printGameObject(canvasRef.current!, attackPosition, 'orange');
                         printSprite(canvasRef.current!, { x: attackPosition.x, y: attackPosition.y }, getSprite(1));
-
                     }
                 }
             });
@@ -127,12 +131,15 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
         setPage(PAGES.MENU);
     };
 
-    const mouseClick = () => {
-        gameRef.current?.handleSwordAttack();
-    };
+    const mouseClick = useCallback(() => {
+        if (attackModeRef.current === EAttackMode.SWORD) {
+            gameRef.current?.handleSwordAttack();
+        } else if (attackModeRef.current === EAttackMode.BOW) {
+            gameRef.current?.addArrow();
+        }
+    }, []);
 
     const mouseRightClick = () => {
-        gameRef.current?.addArrow();
     };
 
     const handleMovement = useCallback(() => {
@@ -154,6 +161,10 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     // Функция для переключения магазина
     const toggleShop = () => {
         setIsShopOpen(prev => !prev);
+    };
+
+    const changeAttackMode = (mode: EAttackMode) => {
+        attackModeRef.current = mode;
     };
 
     useEffect(() => {
@@ -211,6 +222,12 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
                 case 77: // m 
                     toggleShop();
                     break;
+                case 49: // 1
+                    changeAttackMode(EAttackMode.SWORD);
+                    break;
+                case 50: // 2
+                    changeAttackMode(EAttackMode.BOW);
+                    break;
                 default:
                     break;
             }
@@ -237,12 +254,29 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             }
         };
 
+        const mouseDownHandler = (event: MouseEvent) => {
+            if (event.button === 2) {
+                event.preventDefault();
+                gameRef.current?.handleBlock();
+            }
+        };
+
+        const mouseUpHandler = (event: MouseEvent) => {
+            if (event.button === 2) {
+                gameRef.current?.handleUnblock();
+            }
+        };
+
         document.addEventListener('keydown', keyDownHandler);
         document.addEventListener('keyup', keyUpHandler);
+        document.addEventListener('mousedown', mouseDownHandler);
+        document.addEventListener('mouseup', mouseUpHandler);
 
         return () => {
             document.removeEventListener('keydown', keyDownHandler);
             document.removeEventListener('keyup', keyUpHandler);
+            document.removeEventListener('mousedown', mouseDownHandler);
+            document.removeEventListener('mouseup', mouseUpHandler);
         };
     }, []);
 
@@ -253,7 +287,7 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
                 <Button onClick={backClickHandler} text='Назад' />
             </div>
             <div className="debug-info">
-                <p>Управление: WASD - движение, ЛКМ - атака мечом, ПКМ - выстрел из лука, M - магазин</p>
+                <p>Управление: WASD - движение, ЛКМ - атака, ПКМ - блок, 1 - меч, 2 - лук, M - магазин</p>
             </div>
             <div id={GAME_FIELD} className={GAME_FIELD}></div>
             <Chat
