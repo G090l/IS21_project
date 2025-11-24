@@ -1,5 +1,5 @@
 import CONFIG, { TRect, EDIRECTION } from "../config";
-import Map from "./types/Map";
+import GameMap from "./types/Map";
 import Hero from "./types/Hero";
 import Server from "../services/server/Server";
 import Arrow from "./types/Arrow";
@@ -9,15 +9,16 @@ class Game {
     private server: Server;
     private heroes: Hero[];
     private walls: TRect[];
-    private gameMap: Map;
+    private gameMap: GameMap;
     private arrows: Arrow[];
     private enemies: Enemy[];
     private interval: NodeJS.Timer | null = null;
+    private enemyAttackCooldowns: Map<Enemy, number> = new Map();
 
     constructor(server: Server) {
         this.server = server;
         this.heroes = [new Hero()];
-        this.gameMap = new Map();
+        this.gameMap = new GameMap();
         this.walls = this.gameMap.walls;
         this.arrows = [];
         this.enemies = [new Enemy()];
@@ -89,6 +90,20 @@ class Game {
         }, 300);
     }
 
+    handleBlock(): void {
+        const hero = this.getCurrentUserHero();
+        if (!hero) return;
+
+        hero.isBlocking = true;
+    }
+
+    handleUnblock(): void {
+        const hero = this.getCurrentUserHero();
+        if (!hero) return;
+
+        hero.isBlocking = false;
+    }
+
     updateCurrentUserMovement(dx: number, dy: number): void {
         const hero = this.getCurrentUserHero();
         if (hero) {
@@ -143,20 +158,29 @@ class Game {
     }
 
     private handleEnemyAttack(enemy: Enemy): void {
+        const currentTime = Date.now();
+        const lastAttackTime = this.enemyAttackCooldowns.get(enemy) || 0;
+        const attackCooldown = 1000;
+
+        if (currentTime - lastAttackTime < attackCooldown) {
+            return;
+        }
+
         const attackPosition = enemy.getAttackPosition();
 
         this.heroes.forEach(hero => {
             if (hero.isAlive() && enemy.checkRectCollision(attackPosition, hero.rect)) {
                 hero.takeDamage(enemy.damage);
                 console.log(`Враг атаковал героя ${hero.name}! Здоровье: ${hero.health}`);
+
+                this.enemyAttackCooldowns.set(enemy, currentTime);
             }
         });
     }
 
-
     private updateHeroes(): void {
         this.heroes.forEach(hero => {
-            if (!hero.isAttacking) {
+            if (!hero.isAttacking && !hero.isBlocking) {
                 const dx = hero.movement.dx * hero.speed;
                 const dy = hero.movement.dy * hero.speed;
 

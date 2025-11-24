@@ -8,6 +8,8 @@ class Hero extends Unit {
     private equipment: string[] = [];
     private inventory: string[] = [...KNIGHT.inventory];
     public isAttacking: boolean = false;
+    public isBlocking: boolean = false;
+    private blockDamageReduction: number = 0.5;
 
     constructor() {
         super();
@@ -86,7 +88,13 @@ class Hero extends Unit {
     }
 
     takeDamage(damage: number): void {
-        this.health -= damage;
+        let finalDamage = damage;
+
+        if (this.isBlocking) {
+            finalDamage = damage * this.blockDamageReduction;
+        }
+
+        this.health -= finalDamage;
 
         if (this.health < 0) {
             this.health = 0;
