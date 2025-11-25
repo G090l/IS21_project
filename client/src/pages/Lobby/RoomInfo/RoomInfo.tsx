@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ServerContext, StoreContext } from '../../App';
-import Button from '../Button/Button';
+import { ServerContext, StoreContext } from '../../../App';
+import Button from '../../../components/Button/Button';
 import './RoomInfo.scss'
 
 const RoomInfo: React.FC = () => {

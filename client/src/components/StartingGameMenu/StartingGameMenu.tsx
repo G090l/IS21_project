@@ -24,14 +24,8 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
 
     useEffect(() => {
         server.showError((err: TError) => {
-            if (err.code === 2004 || err.code === 2002) {
-                setError('Вы участвуете в другом лобби.');
-            } else if (err.code === 2001) {
-                setError('Действие недоступно во время активной игры.');
-            } else if (err.code === 2005) {
-                setError('Лобби переполнено.');
-            } else if (err.code === 2003) {
-                setError('Лобби Этого лобби не существует.');
+            if ([2001, 2002, 2003, 2004, 2005].includes(err.code)) {
+                setError(err.text);
             }
         });
     }, []);

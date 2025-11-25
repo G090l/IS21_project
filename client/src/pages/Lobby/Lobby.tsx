@@ -1,20 +1,20 @@
 import React, { useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { ServerContext, StoreContext } from '../../App';
 import CONFIG from '../../config';
-import Button from '../../components/Button/Button';
-import { IBasePage, PAGES } from '../PageManager';
-import LobbyGame from '../../lobby/LobbyGame';
 import Canvas from '../../services/canvas/Canvas';
 import useCanvas from '../../services/canvas/useCanvas';
+import { IBasePage, PAGES } from '../PageManager';
+import LobbyGame from '../../lobby/LobbyGame';
+import useSprites from '../../pages/Game/hooks/useSprites';
+import Button from '../../components/Button/Button';
 import Chat from '../../components/Chat/Chat';
+import LobbyManager from './LobbyManager/LobbyManager';
+import StartingGameMenu from '../../components/StartingGameMenu/StartingGameMenu';
+import RoomInfo from './RoomInfo/RoomInfo';
+
 import menuBackground from '../../assets/img/lobby/menu-background.png';
 import lobbyBackground from '../../assets/img/lobby/lobby-background.png';
-import LobbyManager from '../../components/LobbyManager/LobbyManager';
-import StartingGameMenu from '../../components/StartingGameMenu/StartingGameMenu';
-import RoomInfo from '../../components/RoomInfo/RoomInfo';
-import useSprites from '../../pages/Game/hooks/useSprites';
-import './Lobby.scss'
-
+import './Lobby.scss';
 
 const LOBBY_FIELD = 'lobby-field';
 
