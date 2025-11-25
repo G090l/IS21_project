@@ -1,9 +1,10 @@
 import React, { useContext, useState } from 'react';
 import cn from 'classnames';
-import { ServerContext, StoreContext } from '../../App';
-import Button from '../Button/Button';
-import { IBasePage, PAGES } from '../../pages/PageManager';
+import { ServerContext, StoreContext } from '../../../App';
+import { IBasePage, PAGES } from '../../PageManager'
+import Button from '../../../components/Button/Button';
 import './LobbyManager.scss'
+
 
 interface ILobbyManagerProps extends IBasePage {
     isOpen: boolean;

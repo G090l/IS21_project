@@ -38,8 +38,9 @@ const Registration: React.FC<IBasePage> = (props: IBasePage) => {
         if (!showError(login, nickname, password, confirmPassword)) return;
 
         server.showError((err: TError) => {
-            if (err.code === 1001) setError('логин занят');
-            clearAuthFields();
+            if ([1001].includes(err.code)) {
+                setError(err.text);
+            }
         });
 
         const user = await server.registration(login, password, nickname);

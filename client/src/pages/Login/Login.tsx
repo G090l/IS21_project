@@ -50,8 +50,9 @@ const Login: React.FC<IBasePage> = (props: IBasePage) => {
             const token = server.store.getToken();
 
             server.showError((err: TError) => {
-                if (err.code === 1002 || err.code === 1005) setError('неверный логин или пароль');
-                clearAuthFields();
+                if ([1002, 1005].includes(err.code)) {
+                    setError(err.text);
+                }
             });
 
             if (token) {
