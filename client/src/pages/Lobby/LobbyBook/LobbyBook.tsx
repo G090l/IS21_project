@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import cn from 'classnames';
-import { ServerContext, StoreContext } from '../../App';
-import Button from '../Button/Button';
-import { IBasePage, PAGES } from '../../pages/PageManager';
-import './StartingGameMenu.scss';
-import { TError, TRoom } from '../../services/server/types';
+import { ServerContext, StoreContext } from '../../../App';
+import Button from '../../../components/Button/Button';
+import { IBasePage, PAGES } from '../../PageManager';
+import { TError, TRoom } from '../../../services/server/types';
+import './LobbyBook.scss';
 
 interface IStartingGameMenu extends IBasePage {
     isOpen: boolean;
@@ -43,7 +43,7 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
             loadRooms();
 
             const handleRoomsUpdate = () => {
-               setRooms(store.getRooms());
+                setRooms(store.getRooms());
             };
 
             server.startGettingRooms(handleRoomsUpdate);

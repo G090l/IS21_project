@@ -9,7 +9,7 @@ import useSprites from '../../pages/Game/hooks/useSprites';
 import Button from '../../components/Button/Button';
 import Chat from '../../components/Chat/Chat';
 import LobbyManager from './LobbyManager/LobbyManager';
-import StartingGameMenu from '../../components/StartingGameMenu/StartingGameMenu';
+import LobbyBook from './LobbyBook/LobbyBook';
 import RoomInfo from './RoomInfo/RoomInfo';
 
 import menuBackground from '../../assets/img/lobby/menu-background.png';
@@ -25,27 +25,13 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     const { WINDOW, SPRITE_SIZE } = CONFIG;
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isLobbyManagerOpen, setIsLobbyManagerOpen] = useState(false);
-    const [isStartingGameMenuOpen, setIsStartingGameMenuOpen] = useState(false);
+    const [isLobbyBookOpen, setIsLobbyBookOpen] = useState(false);
     const gameRef = useRef<LobbyGame | null>(null);
     const canvasRef = useRef<Canvas | null>(null);
     const animationFrameRef = useRef<number>(0);
     const backgroundImageRef = useRef<HTMLImageElement>(new Image());
     const [showStartButton, setShowStartButton] = useState(false);
     const [showShopButton, setShowShopButton] = useState(false);
-
-    useEffect(() => {
-        const initializeRoom = async () => {
-            const roomResponse = await server.getUserRoom();
-            if (roomResponse && roomResponse.room) {
-                store.setCurrentRoom(roomResponse.room);
-            } else {
-                store.setCurrentRoom(null);
-            }
-
-        };
-
-        initializeRoom();
-    }, []);
 
     // инициализация карты спрайтов
     const [
@@ -211,7 +197,7 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                 case 70: // f
                     event.preventDefault();
                     if (showStartButton) {
-                        toggleStartingGameMenu();
+                        toggleLobbyBook();
                     } else if (showShopButton) {
                         classShopClickHandler();
                     }
@@ -256,15 +242,15 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
         setPage(PAGES.CLASS_SHOP);
     };
 
-    const toggleStartingGameMenu = () => {
-        setIsStartingGameMenuOpen(true);
+    const toggleLobbyBook = () => {
+        setIsLobbyBookOpen(true);
     };
 
     return (<div className='lobby'>
         <div className="canvas-container">
             {showStartButton && (
                 <Button
-                    onClick={toggleStartingGameMenu}
+                    onClick={toggleLobbyBook}
                     className='startGame-button'
                     id='test-menu-startGame-button'
                 />
@@ -281,11 +267,11 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                 isOpen={isLobbyManagerOpen}
                 onToggle={setIsLobbyManagerOpen}
             />
-            {isStartingGameMenuOpen && (
-                <StartingGameMenu
+            {isLobbyBookOpen && (
+                <LobbyBook
                     setPage={setPage}
-                    isOpen={isStartingGameMenuOpen}
-                    onToggle={setIsStartingGameMenuOpen}
+                    isOpen={isLobbyBookOpen}
+                    onToggle={setIsLobbyBookOpen}
                 />
             )}
             <div id={LOBBY_FIELD} className={LOBBY_FIELD}></div>

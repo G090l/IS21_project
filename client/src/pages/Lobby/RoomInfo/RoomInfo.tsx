@@ -15,9 +15,9 @@ const RoomInfo: React.FC = () => {
     useEffect(() => {
         const initializeRoom = async () => {
             if (!room) {
-                const roomResponse = await server.getUserRoom();
-                if (roomResponse?.room) {
-                    store.setCurrentRoom(roomResponse.room);
+                const userRoom = await server.getUserRoom();
+                if (userRoom) {
+                    store.setCurrentRoom(userRoom);
                 }
             }
         };
@@ -26,23 +26,12 @@ const RoomInfo: React.FC = () => {
 
     useEffect(() => {
         if (room) {
-            server.startGettingRoomMembers(room.id);
-            loadMembers();
-        } else {
-            store.setRoomMembers([]);
+            server.startGettingRooms(() => { });
         }
         return () => {
-            server.stopGettingRoomMembers();
+            server.stopGettingRooms();
         };
     }, [room]);
-
-    const loadMembers = async () => {
-        if (!room) return;
-        const members = await server.getRoomMembers(room.id);
-        if (members?.members) {
-            store.setRoomMembers(members.members);
-        }
-    };
 
     const renameRoomClickHandler = async () => {
         if (newRoomName && room) {
@@ -57,14 +46,14 @@ const RoomInfo: React.FC = () => {
     console.log('RoomMembers:', roomMembers.map(m => ({
         id: m.user_id,
         nickname: m.nickname,
-        token: m.token, // Проверьте здесь!
+        token: m.token,
         tokenLength: m.token?.length
     })));
 
     const dropFromRoomClickHandler = async (targetToken: string) => {
         const success = await server.dropFromRoom(targetToken);
         if (success) {
-            loadMembers();
+            await server.getRooms();
         }
     }
 
@@ -72,14 +61,13 @@ const RoomInfo: React.FC = () => {
         const success = await server.leaveRoom();
         if (success) {
             store.setCurrentRoom(null);
-            store.setRoomMembers([]);
         }
     }
 
     if (!room) {
         return <div className="room-info">Комната не выбрана</div>;
     }
-    
+
     const owner = roomMembers.find(member => member.type === 'owner')
     const isOwner = user?.id === owner?.user_id;
 
@@ -90,9 +78,9 @@ const RoomInfo: React.FC = () => {
                     <input
                         value={newRoomName}
                         onChange={(e) => setNewRoomName(e.target.value)}
-                        onBlur={renameRoomClickHandler}
                         autoFocus
                         className="rename-input"
+                        maxLength={20}
                     />
                     <Button
                         text="✓"
@@ -117,7 +105,7 @@ const RoomInfo: React.FC = () => {
             )}
         </div>
         <div className="players-count">
-            Игроков: {roomMembers.length}/{room.room_size}
+            Игроков: {room.players_count}/{room.room_size}
         </div>
 
         <div className="room-members">
