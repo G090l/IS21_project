@@ -113,35 +113,16 @@ class Store {
 
     setCurrentRoom(room: TRoom | null): void {
         this.currentRoom = room;
+        this.roomMembers = room?.members || [];
     };
 
     getCurrentRoom(): TRoom | null {
         return this.currentRoom;
     };
 
-    addRoomMembers(members: TRoomMember[]): void {
-        if (members?.length) {
-            this.roomMembers = members;
-        }
-    }
-
-    setRoomMembers(members: TRoomMember[] | undefined): void {
-        this.roomMembers = members || [];
-    };
-
     getRoomMembers(): TRoomMember[] {
-        return this.roomMembers || [];
+        return this.currentRoom?.members || [];
     };
-
-    getRoomMembersHash(): string {
-        return this.roomMembersHash;
-    }
-
-    setRoomMembersHash(hash: string | undefined): void {
-        if (hash) {
-            this.roomMembersHash = hash;
-        }
-    }
 }
 
 export default Store;

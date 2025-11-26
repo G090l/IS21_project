@@ -31,6 +31,7 @@ export type TRoom = {
     name: string;
     players_count: number;
     room_size: number;
+    members: TRoomMember[];
 }
 
 export type TRoomsResponse = {
