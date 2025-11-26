@@ -138,19 +138,27 @@ class Server {
         }
     }
 
+    async getUserRoom(): Promise<TRoom | null> {
+        const user = this.store.getUser();
+        const roomsResponse = await this.getRooms();
+        if (!roomsResponse?.rooms) return null;
+        return roomsResponse.rooms.find(room =>
+            room.members?.some(member => member.user_id === user?.id)
+        ) || null;
+    }
+
     async createRoom(roomName: string, roomSize: number): Promise<{ room?: TRoom } | null> {
         const result = await this.request<boolean>('createRoom', { roomName, roomSize });
         if (result === true) {
             await new Promise(resolve => setTimeout(resolve, 500));
             const userRoom = await this.getUserRoom();
-            if (userRoom?.room) {
-                this.store.setCurrentRoom(userRoom.room);
-                return userRoom;
+            if (userRoom) {
+                this.store.setCurrentRoom(userRoom);
+                return { room: userRoom };
             }
         }
         return null;
     }
-
 
     joinToRoom(roomId: number): Promise<boolean | null> {
         return this.request<boolean>('joinToRoom', { roomId });
@@ -170,36 +178,6 @@ class Server {
             this.store.updateRoomName(newRoomName);
         }
         return !!result;
-    }
-
-    async getUserRoom(): Promise<{ room?: TRoom } | null> {
-        const result = await this.request<{ room?: TRoom }>('getUserRoom');
-        console.log('User room from API:', result);
-        return result;
-    }
-
-    async getRoomMembers(roomId: number): Promise<TRoomMembersResponse | null> {
-        const roomMembers_hash = this.store.getRoomMembersHash();
-        const result = await this.request<TRoomMembersResponse>('getRoomMembers', { roomId, roomMembers_hash });
-        if (result) {
-            this.store.setRoomMembersHash(result.hash);
-            this.store.addRoomMembers(result.members || []);
-            return result;
-        }
-        return null;
-    };
-
-    startGettingRoomMembers(roomId: number): void {
-        this.roomMembersInterval = setInterval(async () => {
-            await this.getRoomMembers(roomId);
-        }, MEMBERS_TIMESTAMP);
-    }
-
-    stopGettingRoomMembers(): void {
-        if (this.roomMembersInterval) {
-            clearInterval(this.roomMembersInterval);
-            this.roomMembersInterval = null;
-        }
     }
 
     async deleteUser(): Promise<boolean> {

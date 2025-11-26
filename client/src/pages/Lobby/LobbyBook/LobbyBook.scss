@@ -14,7 +14,7 @@
     .starting-game-menu-window {
         width: 52.6%;
         height: 63.51%;
-        background-image: url('../../assets/img/startingGameMenu/background.png');
+        background-image: url('../../../assets/img/lobbyBook/background.png');
         background-size: 100% 100%;
         background-repeat: no-repeat;
         background-color: transparent;
@@ -28,7 +28,7 @@
                 aspect-ratio: 378/95;
                 border: none;
                 outline: none;
-                background-image: url('../../assets/img/startingGameMenu/createSection-button.png');
+                background-image: url('../../../assets/img/lobbyBook/createSection-button.png');
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
                 background-color: transparent;
@@ -36,7 +36,7 @@
                 margin: 10px;
 
                 &.active {
-                    background-image: url('../../assets/img/startingGameMenu/createSection-button-active.png');
+                    background-image: url('../../../assets/img/lobbyBook/createSection-button-active.png');
                 }
             }
 
@@ -48,7 +48,7 @@
                 aspect-ratio: 378 / 128;
                 border: none;
                 outline: none;
-                background-image: url('../../assets/img/startingGameMenu/joinSection-button.png');
+                background-image: url('../../../assets/img/lobbyBook/joinSection-button.png');
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
                 background-color: transparent;
@@ -56,7 +56,7 @@
                 margin: 10px;
 
                 &.active {
-                    background-image: url('../../assets/img/startingGameMenu/joinSection-button-active.png');
+                    background-image: url('../../../assets/img/lobbyBook/joinSection-button-active.png');
                 }
             }
 
@@ -80,7 +80,7 @@
                 aspect-ratio: 376/84;
                 border: none;
                 outline: none;
-                background-image: url('../../assets/img/startingGameMenu/nameRoom-input.png');
+                background-image: url('../../../assets/img/lobbyBook/nameRoom-input.png');
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
                 background-color: transparent;
@@ -99,7 +99,7 @@
                 aspect-ratio: 400/440;
                 border: none;
                 outline: none;
-                background-image: url('../../assets/img/startingGameMenu/roomSize-bg.png');
+                background-image: url('../../../assets/img/lobbyBook/roomSize-bg.png');
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
                 background-color: transparent;
@@ -120,60 +120,60 @@
                     &.btn-1 {
                         top: 27.27%;
                         left: 9.75%;
-                        background-image: url('../../assets/img/startingGameMenu/btn-1.png');
+                        background-image: url('../../../assets/img/lobbyBook/btn-1.png');
 
                         &.active {
-                            background-image: url('../../assets/img/startingGameMenu/btn-1-active.png');
+                            background-image: url('../../../assets/img/lobbyBook/btn-1-active.png');
                         }
                     }
 
                     &.btn-2 {
                         top: 27.27%;
                         left: 41.25%;
-                        background-image: url('../../assets/img/startingGameMenu/btn-2.png');
+                        background-image: url('../../../assets/img/lobbyBook/btn-2.png');
 
                         &.active {
-                            background-image: url('../../assets/img/startingGameMenu/btn-2-active.png');
+                            background-image: url('../../../assets/img/lobbyBook/btn-2-active.png');
                         }
                     }
 
                     &.btn-3 {
                         top: 27.27%;
                         left: 71%;
-                        background-image: url('../../assets/img/startingGameMenu/btn-3.png');
+                        background-image: url('../../../assets/img/lobbyBook/btn-3.png');
 
                         &.active {
-                            background-image: url('../../assets/img/startingGameMenu/btn-3-active.png');
+                            background-image: url('../../../assets/img/lobbyBook/btn-3-active.png');
                         }
                     }
 
                     &.btn-4 {
                         top: 52.27%;
                         left: 9.75%;
-                        background-image: url('../../assets/img/startingGameMenu/btn-4.png');
+                        background-image: url('../../../assets/img/lobbyBook/btn-4.png');
 
                         &.active {
-                            background-image: url('../../assets/img/startingGameMenu/btn-4-active.png');
+                            background-image: url('../../../assets/img/lobbyBook/btn-4-active.png');
                         }
                     }
 
                     &.btn-5 {
                         top: 52.27%;
                         left: 41.25%;
-                        background-image: url('../../assets/img/startingGameMenu/btn-5.png');
+                        background-image: url('../../../assets/img/lobbyBook/btn-5.png');
 
                         &.active {
-                            background-image: url('../../assets/img/startingGameMenu/btn-5-active.png');
+                            background-image: url('../../../assets/img/lobbyBook/btn-5-active.png');
                         }
                     }
 
                     &.btn-6 {
                         top: 52.27%;
                         left: 71%;
-                        background-image: url('../../assets/img/startingGameMenu/btn-6.png');
+                        background-image: url('../../../assets/img/lobbyBook/btn-6.png');
 
                         &.active {
-                            background-image: url('../../assets/img/startingGameMenu/btn-6-active.png');
+                            background-image: url('../../../assets/img/lobbyBook/btn-6-active.png');
                         }
                     }
                 }
@@ -187,7 +187,7 @@
                 aspect-ratio: 245/79;
                 border: none;
                 outline: none;
-                background-image: url('../../assets/img/startingGameMenu/createRoom-button.png');
+                background-image: url('../../../assets/img/lobbyBook/createRoom-button.png');
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
                 background-color: transparent;
@@ -213,7 +213,7 @@
                     white-space: pre-line;
                     word-wrap: break-word;
                     overflow-wrap: break-word;
-                    background-image: url('../../assets/img/startingGameMenu/room-item.png');
+                    background-image: url('../../../assets/img/lobbyBook/room-item.png');
                     background-size: 100% 100%;
                     background-repeat: no-repeat;
                     background-color: transparent;
@@ -230,7 +230,7 @@
                 aspect-ratio: 30 / 30;
                 border: none;
                 outline: none;
-                background-image: url('../../assets/img/startingGameMenu/back-button.png');
+                background-image: url('../../../assets/img/lobbyBook/back-button.png');
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
                 background-color: transparent;
