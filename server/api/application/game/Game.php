@@ -1,4 +1,5 @@
 <?php
+require_once('application/Config.php');
 
 class Game {
     private $db;
@@ -7,40 +8,34 @@ class Game {
         $this->db = $db;
     }
 
-    //обновление данных персона
+    // обновление данных персонажа
     public function updateCharacter($userId, $characterData) {
-        //проверка, существует ли пользователь
-        $user = $this->db->getUserById($userId);
-        if (!$user) {
-            return ['error' => 705];
-        }
+        // проверка, существует ли пользователь
+        $user = checkUser($this->db, $userId);
+        if (!$user) return Answer::error(705);
 
-        //проверка, есть ли юзер в комнате
+        // проверка, есть ли юзер в комнате
         $roomMember = $this->db->getRoomMemberByUserId($userId);
-        if (!$roomMember) {
-            return ['error' => 2006];
-        }
+        if (!$roomMember) return Answer::error(2006);
 
-        //сохраняем данные и обновляем хеш
+        // сохраняем данные и обновляем хеш
         $this->db->updateRoomMemberData($roomMember->id, $characterData);
         $this->db->updateCharacterHash(md5(rand()));
         
         return true;
     }
 
-    //получение сцены
+    // получение сцены
     public function getScene($roomId, $characterHash, $botHash, $arrowHash) {
-        //проверка, есть ли комната
-        $room = $this->db->getRoomById($roomId);
-        if (!$room) {
-            return ['error' => 2003];
-        }
+        // проверка, есть ли комната
+        $room = checkRoomExists($this->db, $roomId);
+        if (!$room) return Answer::error(2011);
 
         $currentCharHash = $this->db->getCharacterHash();
         $currentBotHash = $this->db->getBotHash();
         $currentArrowHash = $this->db->getArrowHash();
 
-        //если все хеши совпадают - данные не изменились
+        // если все хеши совпадают - данные не изменились
         if ($characterHash === $currentCharHash && 
             $botHash === $currentBotHash && 
             $arrowHash === $currentArrowHash) {
@@ -50,7 +45,7 @@ class Game {
             ];
         }
 
-        //получение всех данных сцены
+        // получение всех данных сцены
         $characters = $this->db->getAllRoomMembersWithData($roomId);
         $bots = $this->db->getBotsByRoomId($roomId);
         $arrows = $this->db->getArrowsByRoomId($roomId);
@@ -67,111 +62,98 @@ class Game {
         ];
     }
 
-    //получение всех данных ботов из таблицы
+    // получение всех данных ботов
     public function getBotsData() {
-        $bots = $this->db->getAllBotsData();
-        return $bots;
+        return $this->db->getAllBotsData();
     }
 
-    //обновление ботов
+    // обновление ботов
     public function updateBots($userId, $botsData) {
-        //проверка, есть ли юзер
-        $user = $this->db->getUserById($userId);
-        if (!$user) {
-            return ['error' => 705];
-        }
+        // проверка, есть ли юзер
+        $user = checkUser($this->db, $userId);
+        if (!$user) return Answer::error(705);
 
-        //проверка, является ли юзер овнером
+        // проверка, является ли юзер овнером
         $roomMember = $this->db->getRoomMemberByUserId($userId);
-        if (!$roomMember || $roomMember->type !== 'owner') {
-            return ['error' => 2010];
-        }
+        $ownerCheck = $roomMember ? checkOwner($roomMember) : false;
+        if (!$ownerCheck) return Answer::error(2010);
 
-        //проверка, что комната уже started
-        $room = $this->db->getRoomById($roomMember->room_id);
-        if (!$room || $room->status != 'started') {
-            return ['error' => 2011];
-        }
+        // проверка, что комната уже started
+        $room = checkRoomExists($this->db, $roomMember->room_id);
+        if (!$room) return Answer::error(2011);
 
-       //сохраняем данные и обновляем хеш
+        $statusCheck = checkRoomStarted($room);
+        if (!$statusCheck) return Answer::error(2012);
+
+        // сохраняем данные и обновляем хеш
         $this->db->updateAllBotsInRoom($roomMember->room_id, $botsData);
         $this->db->updateBotHash(md5(rand()));
         
         return true;
     }
 
-    //обновление стрел
+    // обновление стрел
     public function updateArrows($userId, $arrowsData) {
-        //проверка, есть ли юзер
-        $user = $this->db->getUserById($userId);
-        if (!$user) {
-            return ['error' => 705];
-        }
+        // проверка, есть ли юзер
+        $user = checkUser($this->db, $userId);
+        if (!$user) return Answer::error(705);
 
-        //проверка, является ли юзер овнером
+        // проверка, является ли юзер овнером
         $roomMember = $this->db->getRoomMemberByUserId($userId);
-        if (!$roomMember || $roomMember->type !== 'owner') {
-            return ['error' => 2010];
-        }
+        $ownerCheck = $roomMember ? checkOwner($roomMember) : false;
+        if (!$ownerCheck) return Answer::error(2010);
 
-        //проверка, что комната уже started
-        $room = $this->db->getRoomById($roomMember->room_id);
-        if (!$room || $room->status != 'started') {
-            return ['error' => 2011];
-        }
+        // проверка, что комната уже started
+        $room = checkRoomExists($this->db, $roomMember->room_id);
+        if (!$room) return Answer::error(2011);
 
-        //сохраняем данные и обновляем хеш
+        $statusCheck = checkRoomStarted($room);
+        if (!$statusCheck) return Answer::error(2012);
+
+        // сохраняем данные и обновляем хеш
         $this->db->updateAllArrowsInRoom($roomMember->room_id, $arrowsData);
         $this->db->updateArrowHash(md5(rand()));
         
         return true;
     }
 
-    //получение денег за убийство бота
+    // получение денег за убийство бота
     public function addMoneyForKill($userId, $killerToken, $botTypeId) {
-        //проверка, существует ли юзер
-        $user = $this->db->getUserById($userId);
-        if (!$user) {
-            return ['error' => 705];
-        }
+        // проверка, существует ли юзер
+        $user = checkUser($this->db, $userId);
+        if (!$user) return Answer::error(705);
 
-        //проверка, является ли юзер овнером
+        // проверка, является ли юзер овнером
         $roomMember = $this->db->getRoomMemberByUserId($userId);
-        if (!$roomMember || $roomMember->type !== 'owner') {
-            return ['error' => 2010];
-        }
+        $ownerCheck = $roomMember ? checkOwner($roomMember) : false;
+        if (!$ownerCheck) return Answer::error(2010);
 
-        //проверка, что комната уже started
-        $room = $this->db->getRoomById($roomMember->room_id);
-        if (!$room || $room->status != 'started') {
-            return ['error' => 2011];
-        }
+        // проверка, что комната уже started
+        $room = checkRoomExists($this->db, $roomMember->room_id);
+        if (!$room) return Answer::error(2011);
 
-        //проверка существования убийцы
+        $statusCheck = checkRoomStarted($room);
+        if (!$statusCheck) return Answer::error(2012);
+
+        // проверка существования убийцы
         $killerUser = $this->db->getUserByToken($killerToken);
-        if (!$killerUser) {
-            return ['error' => 705];
-        }
+        if (!$killerUser) return Answer::error(705);
 
-        //проверка, что убийца в комнате
+        // проверка, что убийца в комнате
         $killerRoomMember = $this->db->getRoomMemberByUserId($killerUser->id);
         if (!$killerRoomMember || $killerRoomMember->room_id != $roomMember->room_id) {
-            return ['error' => 2006];
+            return Answer::error(2006);
         }
 
-        //получаем данные типа бота для награды
+        // получаем данные типа бота для награды
         $botType = $this->db->getBotTypeById($botTypeId);
-        if (!$botType) {
-            return ['error' => 5001];
-        }
+        if (!$botType) return Answer::error(5001);
 
-        //получаем персонажа убийцы
-        $killerCharacter = $this->db->getCharacterByUserId($killerUser->id);
-        if (!$killerCharacter) {
-            return ['error' => 706];
-        }
+        // получаем персонажа убийцы
+        $killerCharacter = checkCharacter($this->db, $killerUser->id);
+        if (!$killerCharacter) return Answer::error(706);
 
-        //начисляем деньгу
+        // начисляем деньги
         $reward = $botType->money;
         if ($reward > 0) {
             $this->db->updateCharacterMoneyAdd($killerCharacter->id, $reward);
