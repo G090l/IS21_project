@@ -6,6 +6,7 @@ import NotFound from './NotFound/NotFound';
 import Lobby from './Lobby/Lobby';
 import Registration from './Registration/Registration';
 import ClassShop from './ClassShop/ClassShop';
+import Lobby2 from './Lobby/Lobby2';
 
 
 export enum PAGES {
@@ -15,7 +16,7 @@ export enum PAGES {
     LOBBY,
     REGISTRATION,
     CLASS_SHOP,
-    STARTING_GAME_MENU,
+    LOBBY2
 }
 
 export interface IBasePage {
@@ -33,6 +34,7 @@ const PageManager: React.FC = () => {
             {page === PAGES.LOBBY && <Lobby setPage={setPage} />}
             {page === PAGES.REGISTRATION && <Registration setPage={setPage} />}
             {page === PAGES.CLASS_SHOP && <ClassShop setPage={setPage} />}
+            {page === PAGES.LOBBY2 && <Lobby2 setPage={setPage} />}
         </>
     );
 }

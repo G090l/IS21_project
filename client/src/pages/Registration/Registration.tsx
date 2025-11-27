@@ -40,6 +40,7 @@ const Registration: React.FC<IBasePage> = (props: IBasePage) => {
         server.showError((err: TError) => {
             if ([1001].includes(err.code)) {
                 setError(err.text);
+                clearAuthFields();
             }
         });
 

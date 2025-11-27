@@ -113,15 +113,18 @@ class Store {
 
     setCurrentRoom(room: TRoom | null): void {
         this.currentRoom = room;
-        this.roomMembers = room?.members || [];
     };
 
     getCurrentRoom(): TRoom | null {
         return this.currentRoom;
     };
 
+    setRoomMembers(members: TRoomMember[] | undefined): void {
+        this.roomMembers = members || [];
+    }
+
     getRoomMembers(): TRoomMember[] {
-        return this.currentRoom?.members || [];
+        return this.roomMembers || [];
     };
 }
 
