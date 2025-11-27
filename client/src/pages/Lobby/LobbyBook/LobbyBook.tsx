@@ -6,12 +6,12 @@ import { IBasePage, PAGES } from '../../PageManager';
 import { TError, TRoom } from '../../../services/server/types';
 import './LobbyBook.scss';
 
-interface IStartingGameMenu extends IBasePage {
+interface ILobbyBook extends IBasePage {
     isOpen: boolean;
     onToggle: (isOpen: boolean) => void;
 }
 
-const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
+const LobbyBook: React.FC<ILobbyBook> = (props) => {
     const { setPage, isOpen, onToggle } = props
     const server = useContext(ServerContext);
     const store = useContext(StoreContext);
@@ -37,7 +37,7 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
     useEffect(() => {
         if (activeSection === 'join' && isOpen) {
             const loadRooms = async () => {
-                await server.getRooms();
+                await server.getRoomsAndMembers();
                 setRooms(store.getRooms());
             };
             loadRooms();
@@ -170,4 +170,4 @@ const StartingGameMenu: React.FC<IStartingGameMenu> = (props) => {
     )
 }
 
-export default StartingGameMenu;
+export default LobbyBook;

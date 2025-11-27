@@ -109,12 +109,19 @@ class Server {
         }
     }
 
-    async getRooms(): Promise<TRoomsResponse | null> {
+    async getRoomsAndMembers(): Promise<TRoomsResponse | null> {
         const room_hash = this.store.getRoomHash();
         const result = await this.request<TRoomsResponse>('getRooms', { room_hash });
         if (result) {
             this.store.setRoomHash(result.hash);
             this.store.addRooms(result.rooms);
+            const currentRoom = this.store.getCurrentRoom();
+            if (currentRoom && result.rooms) {
+                const currentRoomData = result.rooms.find(room => room.id === currentRoom.id);
+                if (currentRoomData?.members) {
+                    this.store.setRoomMembers(currentRoomData.members);
+                }
+            }
             return result;
         }
         return null;
@@ -122,10 +129,9 @@ class Server {
 
     startGettingRooms(cb: (hash: string) => void): void {
         this.roomInterval = setInterval(async () => {
-            const result = await this.getRooms();
+            const result = await this.getRoomsAndMembers();
             if (result) {
                 const { rooms, hash } = result;
-                this.store.addRooms(rooms);
                 hash && cb(hash);
             }
         }, ROOM_TIMESTAMP);
@@ -140,7 +146,7 @@ class Server {
 
     async getUserRoom(): Promise<TRoom | null> {
         const user = this.store.getUser();
-        const roomsResponse = await this.getRooms();
+        const roomsResponse = await this.getRoomsAndMembers();
         if (!roomsResponse?.rooms) return null;
         return roomsResponse.rooms.find(room =>
             room.members?.some(member => member.user_id === user?.id)
@@ -148,14 +154,11 @@ class Server {
     }
 
     async createRoom(roomName: string, roomSize: number): Promise<{ room?: TRoom } | null> {
-        const result = await this.request<boolean>('createRoom', { roomName, roomSize });
-        if (result === true) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            const userRoom = await this.getUserRoom();
-            if (userRoom) {
-                this.store.setCurrentRoom(userRoom);
-                return { room: userRoom };
-            }
+        const result = await this.request<TRoom>('createRoom', { roomName, roomSize });
+        if (result) {
+            this.store.setCurrentRoom(result);
+            await this.getRoomsAndMembers();
+            return { room: result };
         }
         return null;
     }
@@ -164,8 +167,14 @@ class Server {
         return this.request<boolean>('joinToRoom', { roomId });
     }
 
-    leaveRoom(): Promise<boolean | null> {
-        return this.request<boolean>('leaveRoom');
+    async leaveRoom(): Promise<boolean | null> {
+        const result = await this.request<boolean>('leaveRoom');
+        if (result) {
+            this.store.setCurrentRoom(null);
+            this.store.setRoomMembers([]);
+            await this.getRoomsAndMembers();
+        }
+        return result;
     }
 
     dropFromRoom(targetToken: string): Promise<boolean | null> {
