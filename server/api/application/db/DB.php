@@ -230,6 +230,18 @@ class DB {
             [$character->id, $classId]
         );
     }
+        
+    public function getUserSelectedPersonClass($userId) {
+    $character = $this->getCharacterByUserId($userId);
+    if (!$character) return null;
+        return $this->query("
+            SELECT c.* FROM classes c
+            JOIN characters_classes cc ON cc.class_id = c.id
+            WHERE cc.character_id = ? AND cc.selected = 1
+        ", [$character->id]
+        );
+    }
+
 
     public function getUserOwnedClasses($userId) {
         $character = $this->getCharacterByUserId($userId);
