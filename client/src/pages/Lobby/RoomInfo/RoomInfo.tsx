@@ -53,7 +53,7 @@ const RoomInfo: React.FC = () => {
     const dropFromRoomClickHandler = async (targetToken: string) => {
         const success = await server.dropFromRoom(targetToken);
         if (success) {
-            await server.getRooms();
+            await server.getRoomsAndMembers();
         }
     }
 

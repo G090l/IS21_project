@@ -121,7 +121,7 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
         return () => {
             server.stopChatMessages();
         }
-    }, [user, server, store, isOpen, startAutoClose, cancelAutoClose]);
+    }, [user, server, store, isOpen]);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 

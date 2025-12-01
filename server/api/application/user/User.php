@@ -1,4 +1,5 @@
 <?php
+require_once('application/Config.php');
 
 class User {
     function __construct($db) {
@@ -10,11 +11,11 @@ class User {
     }
     
     public function getUserInfo($userId) {
-        $user = $this->db->getUserById($userId);
-        if (!$user) return ['error' => 705];
+        $user = checkUser($this->db, $userId);
+        if (!$user) return Answer::error(705);
 
-        $character = $this->db->getCharacterByUserId($userId);
-        if (!$character) return ['error' => 706];
+        $character = checkCharacter($this->db, $userId);
+        if (!$character) return Answer::error(706);
 
         return [
             'character_id' => $character->id,
@@ -37,47 +38,36 @@ class User {
                     'token' => $token
                 ];
             }
-            return ['error' => 1002];
+            return Answer::error(1002);
         }
-        return ['error' => 1005];
+        return Answer::error(705);
     }
 
     public function logout($token) {
-        $user = $this->db->getUserByToken($token);
-        if ($user) {
-            $this->db->updateToken($user->id, null);
-            return true;
-        }
-        return ['error' => 1003];
+        $user = checkUserByToken($this->db, $token);
+        if (!$user) return Answer::error(705);
+        $this->db->updateToken($user->id, null);
+        return true;
     }
 
     public function registration($login, $password, $nickname) {
         $user = $this->db->getUserByLogin($login);
-        if ($user) {
-            return ['error' => 1001];
-        }
+        if ($user) return Answer::error(1001);
+
         $this->db->registration($login, $password, $nickname);
 
-        /****Создание персонажа с базовым классом****/ 
-        $newUser = $this->db->getUserByLogin($login);
-        if (!$newUser) {
-            return ['error' => 705];
-        }
+        /****Создание персонажа с базовым классом****/
+        $newUser = checkUserByLogin($this->db, $login);
+        if (!$newUser) return Answer::error(705);
         
         $characterCreated = $this->db->createCharacter($newUser->id);
-        if (!$characterCreated) {
-            return ['error' => 1007];
-        }
+        if (!$characterCreated) return Answer::error(1007);
         
         $classAdded = $this->db->addUserPersonClass($newUser->id, 1);
-        if (!$classAdded) {
-            return ['error' => 1008];
-        }
+        if (!$classAdded) return Answer::error(1008);
         
         $classSelected = $this->db->setUserSelectedPersonClass($newUser->id, 1);
-        if (!$classSelected) {
-            return ['error' => 1009];
-        }
+        if (!$classSelected) return Answer::error(1009);
         /********************************************/ 
 
         $rnd = round(rand() * 100000);
@@ -86,39 +76,32 @@ class User {
         return $this->login($login, $passwordHash, $rnd);
     }
 
-    
     public function deleteUser($token) {
-        $user = $this->db->getUserByToken($token);
-        if (!$user) {
-            return ['error' => 705]; 
-        }
-        
-        //создание временного объекта Lobby для вызова leaveRoom (мало ли юзер овнер)
+        $user = checkUserByToken($this->db, $token);
+        if (!$user) return Answer::error(705);
+
+        // выход из комнаты, если есть
         $userType = $this->db->getUserTypeInRoom($user->id);
         if ($userType) {
             $lobby = new Lobby($this->db);
             $leaveResult = $lobby->leaveRoom($user->id);
-            if (isset($leaveResult['error'])) {
-                return $leaveResult;
-            }
+            if (!$leaveResult) return Answer::error(2012);
         }
-        
-        //последовательно убиваем все связанные данные в других таблицах
-        $character = $this->db->getCharacterByUserId($user->id);
+
+        // удаление персонажа и связанного контента
+        $character = checkCharacter($this->db, $user->id);
         if ($character) {
             $characterId = $character->id;
-            
             $this->db->deleteAllCharacterItems($characterId);
             $this->db->deleteAllCharacterClasses($characterId);
             $this->db->deleteCharacter($user->id);
         }
-        
+
         $this->db->deleteUserMessages($user->id);
-        
+
         $success = $this->db->deleteUser($user->id);
-        if ($success) {
-            return true;
-        }
-        return ['error' => 2012]; 
+        if ($success) return true;
+
+        return Answer::error(2012); 
     }
 }

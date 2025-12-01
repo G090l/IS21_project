@@ -1,4 +1,6 @@
 <?php
+require_once('application/Config.php');
+
 class Classes {
     private $db;
 
@@ -6,56 +8,72 @@ class Classes {
         $this->db = $db;
     }
 
+    // Получение всех доступных классов
     public function getClasses() {
-        return $this->db->getAllPersonClasses();
-    }
-
-    public function getUserOwnedClasses($userId) {
-        $classes = $this->db->getUserOwnedClasses($userId);
-        if (!$classes || count($classes) === 0) {
-            return ['error' => 3001];
-        }
+        $classes = $this->db->getAllPersonClasses();
+        if (!$classes || count($classes) === 0) return Answer::error(3001);
         return $classes;
     }
 
-public function buyClass($userId, $classId) {
-    $class = $this->db->getPersonClassById($classId);
-    $user = $this->db->getUserById($userId);
+    // Получение классов, которые уже принадлежат пользователю
+    public function getUserOwnedClasses($userId) {
+        $user = checkUser($this->db, $userId);
+        if (!$user) return Answer::error(705);
 
-    if (!$class) return ['error' => 3002];
-    if (!$user) return ['error' => 3003];
-
-    $owned = $this->db->getUserPersonClass($userId, $classId);
-    if ($owned) return ['error' => 3007];
-
-    $character = $this->db->getCharacterByUserId($userId);
-    if (!$character) return ['error' => 3008];
-    if ($character->money < $class->cost) return ['error' => 3004];
-
-    try {
-        $this->db->beginTransaction();
-        $this->db->updateCharacterMoneySubtract($character->id, $class->cost);
-        $this->db->addUserPersonClass($userId, $classId);
-
-        $this->db->commit();
-        return ['success' => true];
-    } catch (Exception $e) {
-        $this->db->rollBack();
-        return ['error' => 3005];
+        $classes = $this->db->getUserOwnedClasses($userId);
+        if (!$classes || count($classes) === 0) return Answer::error(3001);
+        return $classes;
     }
-}
 
+    // Покупка класса пользователем
+    public function buyClass($userId, $classId) {
+        $user = checkUser($this->db, $userId);
+        if (!$user) return Answer::error(705);
 
+        $class = $this->db->getPersonClassById($classId);
+        if (!$class) return Answer::error(3002);
 
-    public function selectClass($userId, $classId) {
         $owned = $this->db->getUserPersonClass($userId, $classId);
-        if (!$owned) return ['error' => 3006];
+        if ($owned) return Answer::error(3006);
 
-        $this->db->clearSelectedUserClasses($userId);
-        $this->db->setUserSelectedPersonClass($userId, $classId);
-        return ['success' => true];
+        $character = checkCharacter($this->db, $userId);
+        if (!$character) return Answer::error(706);
+
+        if ($character->money < $class->cost) return Answer::error(3003);
+
+        return wrapTransaction($this->db, function() use ($class, $character, $userId, $classId) {
+            $deducted = $this->db->updateCharacterMoneySubtract($character->id, $class->cost);
+            if (!$deducted) return Answer::error(3010);
+
+            $added = $this->db->addUserPersonClass($userId, $classId);
+            if (!$added) return Answer::error(3011);
+
+            return ['success' => true];
+        });
+    }
+
+    // Выбор класса пользователем
+    public function selectClass($userId, $classId) {
+        $user = checkUser($this->db, $userId);
+        if (!$user) return Answer::error(705);
+
+        $character = checkCharacter($this->db, $userId);
+        if (!$character) return Answer::error(706);
+
+        $current = $this->db->getUserSelectedPersonClass($userId);
+        if ($current && $current->id == $classId) return Answer::error(3012);
+
+        $owned = $this->db->getUserPersonClass($userId, $classId);
+        if (!$owned) return Answer::error(3005);
+
+        return wrapTransaction($this->db, function() use ($userId, $classId) {
+            $cleared = $this->db->clearSelectedUserClasses($userId);
+            if (!$cleared) return Answer::error(3009);
+
+            $selected = $this->db->setUserSelectedPersonClass($userId, $classId);
+            if (!$selected) return Answer::error(3009);
+
+            return ['success' => true];
+        });
     }
 }
-
-
-
