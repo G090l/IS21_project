@@ -29,7 +29,7 @@ const CONFIG = {
     ROOM_TIMESTAMP: 150, //ms
     GAME_UPDATE_TIMESTAMP: 50,
     MEMBERS_TIMESTAMP: 150,
-    SPRITE_SIZE: 64, // размер спрайта в пикселях
+    SPRITE_SIZE: 270, // размер спрайта в пикселях
     LINE_OF_SPRITES: 10, // количество спрайтов в карте спрайтов
     WIDTH: 50, // ширина карты
     HEIGHT: 32, // высота карты 
