@@ -17,7 +17,6 @@ import lobbyBackground from '../../assets/img/lobby/lobby-background.png';
 import './Lobby.scss';
 
 const LOBBY_FIELD = 'lobby-field';
-const HERO_WALK_SPRITES = [2, 3, 4, 5, 6, 7, 8];
 
 const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     const { setPage } = props;
@@ -33,16 +32,12 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     const backgroundImageRef = useRef<HTMLImageElement>(new Image());
     const [showStartButton, setShowStartButton] = useState(false);
     const [showShopButton, setShowShopButton] = useState(false);
-    const isMovingRef = useRef<boolean>(false);
 
     // инициализация карты спрайтов
     const [
         [spritesImage],
         getSprite,
-        animationFunctions
-    ] = useSprites({
-        hero_walk: HERO_WALK_SPRITES,
-    });
+    ] = useSprites();
 
     const keysPressedRef = useRef({
         w: false,
@@ -70,15 +65,8 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     function printFillSprite(image: HTMLImageElement, canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
         canvas.spriteFull(image, x, y, points[0], points[1], points[2]);
     }
-
-    function printHeroSprite(canvas: Canvas, { x = 0, y = 0 }, isMoving: boolean = false): void {
-        let spriteNumber = 1;
-
-        if (isMoving) {
-            spriteNumber = animationFunctions.hero_walk ? animationFunctions.hero_walk() : 1;
-        }
-        const [sx, sy, size] = getSprite(spriteNumber);
-        printFillSprite(spritesImage, canvas, { x, y }, [sx, sy, size]);
+    function printSprite(canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
+        printFillSprite(spritesImage, canvas, { x, y }, points);
     }
 
     // Использование функции render:
@@ -112,18 +100,12 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                     height: wall.height
                 }, 'transparent');
             });
-            const currentHero = heroes.find(hero => hero.name === server?.store.getUser()?.nickname) || heroes[0];
-            const isHeroMoving = isMovingRef.current;
 
             // Рисуем всех героев
             heroes.forEach((hero, index) => {
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvasRef.current!, hero.rect, color);
-                const shouldAnimateWalk = (hero === currentHero) ? isHeroMoving : false;
-                printHeroSprite(canvasRef.current!, {
-                    x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
-                    y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
-                }, shouldAnimateWalk);
+                printSprite(canvasRef.current!, { x: hero.rect.x, y: hero.rect.y }, getSprite(1));
 
                 // Подписываем имя героя
                 canvasRef.current!.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');
@@ -148,12 +130,6 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
         if (d) dx += 1;
         if (w) dy -= 1;
         if (s) dy += 1;
-
-        const isMovingNow = dx !== 0 || dy !== 0;
-
-        if (isMovingNow !== isMovingRef.current) {
-            isMovingRef.current = isMovingNow;
-        }
 
         if (gameRef.current) {
             gameRef.current.updateCurrentUserMovement(dx, dy);
