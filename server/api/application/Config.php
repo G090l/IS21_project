@@ -5,10 +5,18 @@ require_once('Answer.php');
 
 // User
 
-// Возвращаем объект пользователя или null
+// Возвращаем объект пользователя или ошибку
 function checkUser($db, $userId) {
+    if (!is_numeric($userId) || $userId <= 0) {
+        return Answer::error(3008);
+    }
+
     $user = $db->getUserById($userId);
-    return $user ? $user : null;
+    if (!$user) {
+        return Answer::error(705);
+    }
+
+    return $user;
 }
 
 // false если играет, true если не играет
@@ -17,41 +25,72 @@ function checkUserNotPlaying($db, $userId): bool
     return !$db->isUserPlaying($userId);
 }
 
-// Возвращаем объект пользователя по логину или null
+// Провека объекта пользователя по логину
 function checkUserByLogin($db, $login) 
 {
-    return $db->getUserByLogin($login) ?: null;
+    if (!$login) {
+        return Answer::error(1001);
+    }
+
+    $user = $db->getUserByLogin($login);
+    if (!$user) {
+        return Answer::error(1005);
+    }
+
+    return $user;
 }
 
-// Возвращаем объект пользователя по токену или null
+// Проверка объекта пользователя по токену
 function checkUserByToken($db, $token) 
 {
-    return $db->getUserByToken($token) ?: null;
+    if (!$token) {
+        return Answer::error(1001);
+    }
+
+    $user = $db->getUserByToken($token);
+    if (!$user) {
+        return Answer::error(705);
+    }
+
+    return $user;
 }
 
 
 //Classes
-// Возвращаем объект характера или null
+// Проверяем объект характера
 function checkCharacter($db, $userId) 
 {
-    return $db->getCharacterByUserId($userId) ?: null;
+    $character = $db->getCharacterByUserId($userId);
+    if (!$character) {
+        return Answer::error(706);
+    }
+    return $character;
 }
 
 //Item
-// Возвращаем объект предмета или null
+// Проверяем объект предмета
 function checkItemExists($db, $itemId) 
 {
-    return $db->getItemById($itemId) ?: null;
+    if (!is_numeric($itemId) || $itemId <= 0) {
+        return Answer::error(4001);
+    }
+
+    $item = $db->getItemById($itemId);
+    if (!$item) {
+        return Answer::error(4001);
+    }
+
+    return $item;
 }
 
 
-// Если у персонажа есть лук, то возвращаем тру, иначе false
+// Если у персонажа есть лук, то возвращаем true
 function checkHasBow($db, $characterId): bool 
 {
     return (bool) $db->hasCharacterWeaponType($characterId, 'bow');
 }
 
-// Если у персонажа есть стрелы,то возвращаем true, иначе false
+// Если у персонажа есть стрелы,то возвращаем true
 function checkHasArrows($db, $characterId): bool 
 {
     return (bool) $db->hasCharacterArrows($characterId);
@@ -59,10 +98,19 @@ function checkHasArrows($db, $characterId): bool
 
 
 //Lobby
-// Возвращаем объект комнаты или null
+// Проверяем объект комнаты
 function checkRoomExists($db, $roomId) 
 {
-    return $db->getRoomById($roomId) ?: null;
+    if (!is_numeric($roomId) || $roomId <= 0) {
+        return Answer::error(2005);
+    }
+
+    $room = $db->getRoomById($roomId);
+    if (!$room) {
+        return Answer::error(2003);
+    }
+
+    return $room;
 }
 
 // true если status === 'open'
@@ -95,39 +143,21 @@ function checkOwner($roomMember): bool
     return isset($roomMember->type) && $roomMember->type === 'owner';
 }
 
-// true если участник принадлежит roomId
+// правда если участник принадлежит roomId
 function checkRoomMemberInRoom($roomMember, $roomId): bool 
 {
     return isset($roomMember->room_id) && $roomMember->room_id == $roomId;
 }
 
 //Общие 
-// True только когда все ключи переданы
-function requireParams(array $params, array $keys): bool {
+// true только когда все ключи переданы
+function checkParams(array $params, array $keys) {
     foreach ($keys as $k) {
-        if (!isset($params[$k]) || $params[$k] === '') 
-            return false;
+        if (!isset($params[$k]) || $params[$k] === '') {
+            return Answer::error(242);
+        }
     }
     return true;
-}
-
-// Обёртка для транзакций 
-function wrapTransaction($db, $callback) {
-    try {
-        $db->beginTransaction();
-        $result = $callback();
-
-        if ($result === false || (is_array($result) && isset($result['error']))) {
-            $db->rollBack();
-            return ['error' => 3009];
-        }
-
-        $db->commit();
-        return $result;
-    }   catch (Exception $e) {
-            $db->rollBack();
-            return ['error' => 3009];
-    }
 }
 
 
