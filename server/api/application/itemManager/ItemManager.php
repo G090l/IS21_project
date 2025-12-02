@@ -1,5 +1,5 @@
 <?php
-require_once('application/Config.php');
+require_once('application/config.php');
 
 class ItemManager {
     function __construct($db) { 
@@ -11,15 +11,12 @@ class ItemManager {
 
         // проверка, существует ли юзер
         $user = checkUser($this->db, $userId);
-        if (!$user) return Answer::error(705);
         
         // проверка, существует ли шмот
-        $item = $this->db->getItemById($itemId);
-        if (!$item) return Answer::error(4001);
+        $item = checkItemExists($this->db, $itemId);
         
         // проверка, есть ли у юзера персонаж
         $character = checkCharacter($this->db, $userId);
-        if (!$character) return Answer::error(706);
         
         // проверка, есть ли у персонажа деньги
         if ($character->money < $item->cost) return Answer::error(4002);
@@ -81,15 +78,12 @@ class ItemManager {
     public function sellItem($userId, $itemId) {
         // проверка, существует ли юзер
         $user = checkUser($this->db, $userId);
-        if (!$user) return Answer::error(705);
         
         // проверка, существует ли шмот
-        $item = $this->db->getItemById($itemId);
-        if (!$item) return Answer::error(4001);
+        $item = checkItemExists($this->db, $itemId);
         
         // проверка, есть ли у юзера персонаж
         $character = checkCharacter($this->db, $userId);
-        if (!$character) return Answer::error(706);
         
         // проверка, есть ли предмет в инвентаре
         $userItem = $this->db->getUserItem($character->id, $itemId);
@@ -135,18 +129,16 @@ class ItemManager {
     public function checkBowAndArrows($userId) {
         // проверка, существует ли юзер
         $user = checkUser($this->db, $userId);
-        if (!$user) return Answer::error(705);
 
         // получаем персонажа
         $character = checkCharacter($this->db, $userId);
-        if (!$character) return Answer::error(706);
 
         // проверка лука
-        $hasBow = $this->db->hasCharacterWeaponType($character->id, 'bow');
+        $hasBow = checkHasBow($this->db, $character->id);
         if (!$hasBow) return Answer::error(4008);
 
         // проверка стрел
-        $hasArrows = $this->db->hasCharacterArrows($character->id);
+        $hasArrows = checkHasArrows($this->db, $character->id);
         if (!$hasArrows) return Answer::error(4009);
 
         return true;
@@ -156,14 +148,12 @@ class ItemManager {
     public function consumeArrow($userId) {
         // проверка, существует ли юзер
         $user = checkUser($this->db, $userId);
-        if (!$user) return Answer::error(705);
 
         // получаем персонажа
         $character = checkCharacter($this->db, $userId);
-        if (!$character) return Answer::error(706);
 
         // проверка стрел
-        $hasArrows = $this->db->hasCharacterArrows($character->id);
+        $hasArrows = checkHasArrows($this->db, $character->id);
         if (!$hasArrows) return Answer::error(4009);
 
         // вычитаем стрелу
