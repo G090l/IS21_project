@@ -224,7 +224,7 @@ class Lobby {
         
         if ($roomHash === $currentHash) return ['status' => 'unchanged'];
         
-        $rooms = $this->db->getOpenRooms();
+        $rooms = $this->db->getOpenAndClosedRooms();
         $roomsWithMembers = [];
         foreach ($rooms as $room) {
             $roomId = isset($room->id) ? $room->id : $room['id'];
