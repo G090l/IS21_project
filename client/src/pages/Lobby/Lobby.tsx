@@ -4,6 +4,7 @@ import CONFIG from '../../config';
 import Canvas from '../../services/canvas/Canvas';
 import useCanvas from '../../services/canvas/useCanvas';
 import { IBasePage, PAGES } from '../PageManager';
+import { useRoomUser } from '../../hooks/useRoomUser';
 import LobbyGame from '../../lobby/LobbyGame';
 import useSprites from '../../pages/Game/hooks/useSprites';
 import Button from '../../components/Button/Button';
@@ -19,10 +20,11 @@ import './Lobby.scss';
 const LOBBY_FIELD = 'lobby-field';
 
 const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
-    const { setPage } = props;
+    const { setPage, room } = props;
     const server = useContext(ServerContext);
     const store = useContext(StoreContext);
     const { WINDOW, SPRITE_SIZE } = CONFIG;
+    const user = store.getUser();
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isLobbyManagerOpen, setIsLobbyManagerOpen] = useState(false);
     const [isLobbyBookOpen, setIsLobbyBookOpen] = useState(false);
@@ -32,6 +34,13 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     const backgroundImageRef = useRef<HTMLImageElement>(new Image());
     const [showStartButton, setShowStartButton] = useState(false);
     const [showShopButton, setShowShopButton] = useState(false);
+
+    const { isUserRoomMember } = useRoomUser(room, user);
+    const background = isUserRoomMember ? lobbyBackground : menuBackground;
+
+    useEffect(() => {
+        backgroundImageRef.current.src = background;
+    }, [background]);
 
     // инициализация карты спрайтов
     const [
@@ -54,13 +63,6 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     ): void {
         canvas.rectangle(x, y, width, height, color);
     }
-
-    const background = store.getCurrentRoom() ? lobbyBackground : menuBackground;
-
-
-    useEffect(() => {
-        backgroundImageRef.current.src = background;
-    }, [background]);
 
     function printFillSprite(image: HTMLImageElement, canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
         canvas.spriteFull(image, x, y, points[0], points[1], points[2]);
@@ -279,7 +281,7 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                 isOpen={isChatOpen}
                 onToggle={setIsChatOpen}
             />
-            <RoomInfo />
+            {/*<RoomInfo />*/}
         </div>
     </div>)
 }

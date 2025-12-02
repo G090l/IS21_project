@@ -1,7 +1,7 @@
-.starting-game-menu {
+.lobbyBook {
     display: none;
 
-    &.starting-game-menu-open {
+    &.lobbyBook-open {
         display: flex;
         position: absolute;
         width: 100%;
@@ -11,7 +11,7 @@
         align-items: center;
     }
 
-    .starting-game-menu-window {
+    .lobbyBook-window {
         width: 52.6%;
         height: 63.51%;
         background-image: url('../../../assets/img/lobbyBook/background.png');

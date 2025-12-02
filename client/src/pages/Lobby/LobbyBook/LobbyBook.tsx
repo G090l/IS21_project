@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { ServerContext, StoreContext } from '../../../App';
 import Button from '../../../components/Button/Button';
 import { IBasePage, PAGES } from '../../PageManager';
 import { TError, TRoom } from '../../../services/server/types';
 import './LobbyBook.scss';
+import Room from '../Room/Room';
 
 interface ILobbyBook extends IBasePage {
     isOpen: boolean;
@@ -15,66 +16,48 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
     const { setPage, isOpen, onToggle } = props
     const server = useContext(ServerContext);
     const store = useContext(StoreContext);
+    const [rooms, setRooms] = useState<TRoom[]>([]);
+    const [_, setHash] = useState<string>('');
+    const refRoomName = useRef<HTMLInputElement>(null!);
+    const [roomSize, setRoomSize] = useState(1);
+    const user = store.getUser();
     const [activeSection, setActiveSection] = useState<'create' | 'join'>('create');
     const [error, setError] = useState<string | null>(null);
-    const [roomName, setRoomName] = useState('');
-    const [roomSize, setRoomSize] = useState(1);
-    const [rooms, setRooms] = useState<TRoom[]>([]);
 
 
     useEffect(() => {
         server.showError((err: TError) => {
-            if ([2001, 2002, 2003, 2004, 2005].includes(err.code)) {
-                setError(err.text);
-            }
+            setError(err.text);
         });
     }, []);
 
     useEffect(() => {
-        setRooms(store.getRooms());
-    }, [store.rooms]);
-
-    useEffect(() => {
-        if (activeSection === 'join' && isOpen) {
-            const loadRooms = async () => {
-                await server.getRoomsAndMembers();
-                setRooms(store.getRooms());
-            };
-            loadRooms();
-
-            const handleRoomsUpdate = () => {
-                setRooms(store.getRooms());
-            };
-
-            server.startGettingRooms(handleRoomsUpdate);
-            return () => server.stopGettingRooms();
+        const roomsUpdate = (hash: string) => {
+            setRooms(store.getRooms());
+            setHash(hash);
         }
-    }, [activeSection, isOpen]);
+
+        if (user) {
+            server.startGettingRooms(roomsUpdate);
+        }
+
+        return () => {
+            server.stopGettingRooms();
+        }
+    });
 
     const createRoomClickHandler = async () => {
-        const success = await server.createRoom(roomName, roomSize);
-        if (success && success.room) {
-            setPage(PAGES.LOBBY);
-            onToggle(false);
+        const name = refRoomName.current.value;
+        if (name && roomSize) {
+            const success = await server.createRoom(name, roomSize);
+            if (success) {
+                onToggle(false);
+            }
         }
     }
 
-    const handleRoomNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setRoomName(e.target.value);
-    }
     const roomSizeClickHandler = (count: number) => {
         setRoomSize(count);
-    }
-
-    const joinToRoomClickHandler = async (roomId: number) => {
-        const success = await server.joinToRoom(roomId);
-        if (success) {
-            const room = rooms.find(r => r.id === roomId);
-            if (room) {
-                store.setCurrentRoom(room);
-            }
-            setPage(PAGES.LOBBY);
-        }
     }
 
     const backClickHandler = () => {
@@ -87,10 +70,9 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
                 return (
                     <div className="right-section">
                         <input
+                            ref={refRoomName}
                             placeholder='Название комнаты'
                             className='nameRoom-input'
-                            value={roomName}
-                            onChange={handleRoomNameChange}
                         />
                         <div className='roomSize-buttons'>
                             {[1, 2, 3, 4, 5, 6].map(count => (
@@ -119,14 +101,19 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
                 return (
                     <div className="right-section">
                         <div className="room-section">
-                            {rooms.filter(room => room.status === 'open').map(room => (
-                                <Button
-                                    key={room.id}
-                                    onClick={() => joinToRoomClickHandler(room.id)}
-                                    className="room-item"
-                                    text={`Комната ${room.name}\nИгроков: ${room.players_count}/${room.room_size}`}
-                                />
-                            ))}
+                            {rooms.length > 0 ? (
+                                rooms.map(room => (
+                                    <Room
+                                        key={room.id}
+                                        room={room}
+                                        setPage={setPage}
+                                    />
+                                ))
+                            ) : (
+                                <div className="no-rooms-message">
+                                    Нет доступных комнат
+                                </div>
+                            )}
                         </div>
                         <Button
                             onClick={backClickHandler}
@@ -138,9 +125,9 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
     };
 
     return (<div
-        className={cn('starting-game-menu', { 'starting-game-menu-open': isOpen })}
+        className={cn('lobbyBook', { 'lobbyBook-open': isOpen })}
     >
-        <div className='starting-game-menu-window'>
+        <div className='lobbyBook-window'>
             <div className='left-section'>
                 <Button
                     onClick={() => setActiveSection('create')}

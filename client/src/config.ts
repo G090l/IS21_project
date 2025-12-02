@@ -26,7 +26,7 @@ const CONFIG = {
     HOST: 'http://knightwars.local/api',
 
     CHAT_TIMESTAMP: 200, //ms
-    ROOM_TIMESTAMP: 150, //ms
+    ROOM_TIMESTAMP: 1000, //ms
     GAME_UPDATE_TIMESTAMP: 50,
     MEMBERS_TIMESTAMP: 150,
     SPRITE_SIZE: 64, // размер спрайта в пикселях

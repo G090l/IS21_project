@@ -3,7 +3,7 @@ import cn from 'classnames';
 import { ServerContext, StoreContext } from '../../App';
 import { TMessages } from '../../services/server/types';
 import Button from '../Button/Button';
-import { typingState } from './hooks/typingState';
+import { useTypingState } from '../../hooks/useTypingState';
 import './Chat.scss'
 
 interface IChat {
@@ -42,7 +42,7 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
                 e.preventDefault();
                 e.stopPropagation();
                 onToggle(false);
-                typingState.set(false);
+                useTypingState.set(false);
                 cancelAutoClose();
             }
         }
@@ -65,26 +65,26 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
     const startAutoClose = () => {
         cancelAutoClose();
         autoCloseTimerRef.current = setTimeout(() => {
-            if (isOpen && !typingState.isTyping) {
+            if (isOpen && !useTypingState.isTyping) {
                 onToggle(false);
             }
         }, 3000);
     };
 
     const handleInputChange = () => {
-        typingState.set(true);
+        useTypingState.set(true);
 
         if (typingTimerRef.current) {
             clearTimeout(typingTimerRef.current);
         }
 
         typingTimerRef.current = setTimeout(() => {
-            typingState.set(false);
+            useTypingState.set(false);
         }, 2000);
     };
 
     useEffect(() => {
-        if (isOpen && !isHovered && !typingState.isTyping) {
+        if (isOpen && !isHovered && !useTypingState.isTyping) {
             startAutoClose();
         } else {
             cancelAutoClose();
@@ -96,7 +96,7 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
                 clearTimeout(typingTimerRef.current);
             }
         };
-    }, [isOpen, isHovered, typingState.isTyping]);
+    }, [isOpen, isHovered, useTypingState.isTyping]);
 
     useEffect(() => {
         const newMessages = (hash: string) => {
@@ -143,7 +143,7 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
             if (message) {
                 server.sendMessage(message);
                 messageRef.current.value = '';
-                typingState.set(false);
+                useTypingState.set(false);
             }
             messageRef.current.focus();
         }

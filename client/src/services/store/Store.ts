@@ -9,8 +9,7 @@ class Store {
     chatHash: string = 'empty chat hash';
     rooms: TRoom[] = [];
     roomHash: string = 'empty room  hash';
-    currentRoom: TRoom | null = null;
-    roomMembers: TRoomMember[] = [];
+    // переобозвать
     roomMembersHash: string = 'empty room members hash';
 
     rememberMe: boolean = false;
@@ -103,29 +102,6 @@ class Store {
             this.roomHash = hash;
         }
     }
-
-    updateRoomName(newName: string): void {
-        const currentRoom = this.getCurrentRoom();
-        if (currentRoom) {
-            currentRoom.name = newName;
-        }
-    }
-
-    setCurrentRoom(room: TRoom | null): void {
-        this.currentRoom = room;
-    };
-
-    getCurrentRoom(): TRoom | null {
-        return this.currentRoom;
-    };
-
-    setRoomMembers(members: TRoomMember[] | undefined): void {
-        this.roomMembers = members || [];
-    }
-
-    getRoomMembers(): TRoomMember[] {
-        return this.roomMembers || [];
-    };
 }
 
 export default Store;
