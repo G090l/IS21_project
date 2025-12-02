@@ -7,7 +7,7 @@ require_once ('lobby/Lobby.php');
 require_once('classes/Classes.php');
 require_once('itemManager/ItemManager.php');
 require_once('game/Game.php');
-require_once('Config.php');
+require_once('config.php');
 
 class Application {
     private $db;
@@ -24,246 +24,218 @@ class Application {
         $this->game = new Game($db);
     }
 
+    //User
     public function login($params) {
-        $check = requireParams($params, ['login', 'passwordHash', 'rnd']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['login', 'passwordHash', 'rnd']);
+        if (is_array($check)) return $check;
 
         return $this->user->login($params['login'], $params['passwordHash'], $params['rnd']);
     }
 
     public function logout($params) {
-        $check = requireParams($params, ['token']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->user->logout($params['token']);
     }
 
     public function registration($params) {
-        $check = requireParams($params, ['login', 'passwordHash', 'nickname']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['login', 'passwordHash', 'nickname']);
+        if (is_array($check)) return $check;
 
         return $this->user->registration($params['login'], $params['passwordHash'], $params['nickname']);
     }
 
     public function getUserInfo($params) {
-        $check = requireParams($params, ['token']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->user->getUserInfo($user->id);
     }
 
+    //Classes
     public function getClasses($params) {
         return $this->classes->getClasses();
     }
 
+    public function buyClass($params) {
+        $check = checkParams($params, ['token', 'classId']);
+        if (is_array($check)) return $check;
+
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
+
+        return $this->classes->buyClass($user->id, $params['classId']);
+    }
+
+    public function selectClass($params) {
+        $check = checkParams($params, ['token', 'classId']);
+        if (is_array($check)) return $check;
+
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
+
+        return $this->classes->selectClass($user->id, $params['classId']);
+    }
+
+    //Math
     public function math($params) {
         $a = (float) ($params['a'] ?? 0);
         $b = (float) ($params['b'] ?? 0);
         $c = (float) ($params['c'] ?? 0);
         $d = (float) ($params['d'] ?? 0);
         $e = (float) ($params['e'] ?? 0);
-        
+
         if ($a != 0 || $b != 0 || $c != 0 || $d != 0 || $e != 0) {
             return $this->math->getAnswers($a, $b, $c, $d, $e);
         }
-        return ['error' => 8001];
+        return Answer::error(8001);
     }
-
-    // Chat
+    //Chat
     public function sendMessage($params) {
-        $check = requireParams($params, ['token', 'message']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'message']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->chat->sendMessage($user->id, $params['message']);
     }
 
     public function getMessages($params) {
-        $check = requireParams($params, ['token', 'hash']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'hash']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->chat->getMessages($params['hash']);
     }
 
-    // Lobby
+    //Lobby
     public function createRoom($params) {
-        $check = requireParams($params, ['token', 'roomName', 'roomSize']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'roomName', 'roomSize']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         $roomSize = (int)$params['roomSize'];
         return $this->lobby->createRoom($user->id, $params['roomName'], $roomSize);
     }
 
     public function joinToRoom($params) {
-        $check = requireParams($params, ['token', 'roomId']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'roomId']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->lobby->joinToRoom($params['roomId'], $user->id);
     }
 
     public function leaveRoom($params) {
-        $check = requireParams($params, ['token']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->lobby->leaveRoom($user->id);
     }
 
     public function dropFromRoom($params) {
-        $check = requireParams($params, ['token', 'targetToken']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'targetToken']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->lobby->dropFromRoom($user->id, $params['targetToken']);
     }
 
     public function deleteUser($params) {
-        $check = requireParams($params, ['token']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->user->deleteUser($params['token']);
     }
 
     public function startGame($params) {
-        $check = requireParams($params, ['token']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->lobby->startGame($user->id);
     }
 
     public function renameRoom($params) {
-        $check = requireParams($params, ['token', 'newRoomName']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'newRoomName']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->lobby->renameRoom($user->id, $params['newRoomName']);
     }
 
     public function getRooms($params) {
-        $check = requireParams($params, ['token', 'room_hash']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'room_hash']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->lobby->getRooms($params['room_hash']);
     }
 
-    // Classes
-    public function getUserOwnedClasses($params) {
-        $check = requireParams($params, ['token']);
-        if (!$check) return Answer::error(242);
-
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
-
-        return $this->classes->getUserOwnedClasses($user->id);
-    }
-
-    public function buyClass($params) {
-        $check = requireParams($params, ['token', 'classId']);
-        if (!$check) return Answer::error(242);
-
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
-
-        return $this->classes->buyClass($user->id, $params['classId']);
-    }
-
-    public function selectClass($params) {
-        $check = requireParams($params, ['token', 'classId']);
-        if (!$check) return Answer::error(242);
-
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
-
-        return $this->classes->selectClass($user->id, $params['classId']);
-    }
-
-    // ItemManager
+    //ItemManager
     public function buyItem($params) {
-        $check = requireParams($params, ['token', 'itemId']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'itemId']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
-        $item = checkItemExists($this->db, $params['itemId']);
-        if (!$item) return Answer::error(4001);
+        if (is_array($item = checkItemExists($this->db, $params['itemId']))) return $item;
 
         return $this->itemManager->buyItem($user->id, $params['itemId']);
     }
 
     public function sellItem($params) {
-        $check = requireParams($params, ['token', 'itemId']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'itemId']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->itemManager->sellItem($user->id, $params['itemId']);
     }
 
     public function checkBowAndArrows($params) {
-        $check = requireParams($params, ['token']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->itemManager->checkBowAndArrows($user->id);
     }
 
     public function consumeArrow($params) {
-        $check = requireParams($params, ['token']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->itemManager->consumeArrow($user->id);
     }
-
-    // Game
+    
+    //Game
     public function getScene($params) {
-        $check = requireParams($params, ['roomId', 'characterHash', 'botHash', 'arrowHash']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['roomId', 'characterHash', 'botHash', 'arrowHash']);
+        if (is_array($check)) return $check;
 
         return $this->game->getScene($params['roomId'], $params['characterHash'], $params['botHash'], $params['arrowHash']);
     }
 
     public function getBots($params) {
-        $check = requireParams($params, ['roomId']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['roomId']);
+        if (is_array($check)) return $check;
 
         return $this->game->getBots($params['roomId']);
     }
@@ -273,48 +245,44 @@ class Application {
     }
 
     public function getArrows($params) {
-        $check = requireParams($params, ['roomId']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['roomId']);
+        if (is_array($check)) return $check;
 
         return $this->game->getArrows($params['roomId']);
     }
 
     public function updateCharacter($params) {
-        $check = requireParams($params, ['token', 'characterData']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'characterData']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->game->updateCharacter($user->id, $params['characterData']);
     }
 
     public function updateBots($params) {
-        $check = requireParams($params, ['token', 'botsData']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'botsData']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->game->updateBots($user->id, $params['botsData']);
     }
 
     public function updateArrows($params) {
-        $check = requireParams($params, ['token', 'arrowsData']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'arrowsData']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->game->updateArrows($user->id, $params['arrowsData']);
     }
 
     public function addMoneyForKill($params) {
-        $check = requireParams($params, ['token', 'killerToken', 'botTypeId']);
-        if (!$check) return Answer::error(242);
+        $check = checkParams($params, ['token', 'killerToken', 'botTypeId']);
+        if (is_array($check)) return $check;
 
-        $user = checkUserByToken($this->db, $params['token']);
-        if (!$user) return Answer::error(705);
+        if (is_array($user = checkUserByToken($this->db, $params['token']))) return $user;
 
         return $this->game->addMoneyForKill($user->id, $params['killerToken'], $params['botTypeId']);
     }
