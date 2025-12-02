@@ -1,5 +1,5 @@
 <?php
-require_once('application/Config.php');
+require_once('application/config.php');
 
 class Lobby {
     function __construct($db) { 
@@ -40,7 +40,6 @@ class Lobby {
 
         // информация о пользователе
         $user = checkUser($this->db, $userId);
-        if (!$user) return Answer::error(705);
 
         // проверка размера комнаты
         if ($roomSize < 1 || $roomSize > 6) 
@@ -59,8 +58,7 @@ class Lobby {
     // присоединение к комнате
     public function joinToRoom($roomId, $userId) { 
         // проверка, есть ли такая комната
-        $room = $this->db->getRoomById($roomId);
-        if (!$room) return Answer::error(2003);
+        $room = checkRoomExists($this->db, $roomId);
         
         // проверка, что комната открыта
         if (!isset($room->status) || $room->status != 'open') 
@@ -86,8 +84,6 @@ class Lobby {
         
         // Получаем character_id пользователя
         $character = checkCharacter($this->db, $userId);
-        if (!$character) 
-            return Answer::error(706);
         
         // добавляем перса в комнату
         $this->db->addRoomMember($roomId, $character->id, 'participant');
@@ -224,7 +220,7 @@ class Lobby {
         
         if ($roomHash === $currentHash) return ['status' => 'unchanged'];
         
-        $rooms = $this->db->getOpenAndClosedRooms();
+        $rooms = $this->db->getOpenRooms();
         $roomsWithMembers = [];
         foreach ($rooms as $room) {
             $roomId = isset($room->id) ? $room->id : $room['id'];
