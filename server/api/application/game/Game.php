@@ -1,5 +1,5 @@
 <?php
-require_once('application/Config.php');
+require_once('application/config.php');
 
 class Game {
     private $db;
@@ -12,8 +12,6 @@ class Game {
     public function updateCharacter($userId, $characterData) {
         // проверка, существует ли пользователь
         $user = checkUser($this->db, $userId);
-        if (!$user) return Answer::error(705);
-
         // проверка, есть ли юзер в комнате
         $roomMember = $this->db->getRoomMemberByUserId($userId);
         if (!$roomMember) return Answer::error(2006);
@@ -71,8 +69,6 @@ class Game {
     public function updateBots($userId, $botsData) {
         // проверка, есть ли юзер
         $user = checkUser($this->db, $userId);
-        if (!$user) return Answer::error(705);
-
         // проверка, является ли юзер овнером
         $roomMember = $this->db->getRoomMemberByUserId($userId);
         $ownerCheck = $roomMember ? checkOwner($roomMember) : false;
@@ -96,8 +92,6 @@ class Game {
     public function updateArrows($userId, $arrowsData) {
         // проверка, есть ли юзер
         $user = checkUser($this->db, $userId);
-        if (!$user) return Answer::error(705);
-
         // проверка, является ли юзер овнером
         $roomMember = $this->db->getRoomMemberByUserId($userId);
         $ownerCheck = $roomMember ? checkOwner($roomMember) : false;
@@ -121,8 +115,6 @@ class Game {
     public function addMoneyForKill($userId, $killerToken, $botTypeId) {
         // проверка, существует ли юзер
         $user = checkUser($this->db, $userId);
-        if (!$user) return Answer::error(705);
-
         // проверка, является ли юзер овнером
         $roomMember = $this->db->getRoomMemberByUserId($userId);
         $ownerCheck = $roomMember ? checkOwner($roomMember) : false;
