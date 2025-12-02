@@ -173,12 +173,12 @@ class DB {
         $this->execute("DELETE FROM rooms WHERE id=?", [$roomId]);
     }
 
-    public function getOpenRooms() {
+    public function getOpenAndClosedRooms() {
         return $this->queryAll("
             SELECT r.id, r.name, r.status, r.room_size, COUNT(rm.character_id) as players_count 
             FROM rooms r 
             LEFT JOIN room_members rm ON r.id = rm.room_id 
-            WHERE r.status = 'open' 
+            WHERE r.status IN ('open', 'closed')
             GROUP BY r.id, r.name, r.status, r.room_size
         ");
     }
