@@ -6,4 +6,4 @@
 | **Указание на модуль тестирования** | Menu → selectClass |
 | **Исходные данные** | Токен пользователя, ID непокупного класса |
 | **Шаги тест-кейса** | 1. Выполнить команду: `http://knightwars.local/api?method=selectClass&token=user_token&classId=not_owned_class_id`<br>2. Проверить ответ |
-| **Ожидаемый результат** | Ответ содержит `result: 'error'`, `error: { code: 3006, text: 'Class not owned' }` |
+| **Ожидаемый результат** | Ответ содержит `result: 'error'`, `error: { code: 3006, text: 'класс уже приобретен' }` |

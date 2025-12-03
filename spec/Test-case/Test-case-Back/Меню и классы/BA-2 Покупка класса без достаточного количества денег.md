@@ -6,4 +6,4 @@
 | **Указание на модуль тестирования** | Menu → buyClass |
 | **Исходные данные** | Токен пользователя с нулевым балансом, ID дорогого класса |
 | **Шаги тест-кейса** | 1. Выполнить команду: `http://knightwars.local/api?method=buyClass&token=user_token&classId=expensive_class_id`<br>2. Проверить ответ |
-| **Ожидаемый результат** | Ответ содержит `result: 'error'`, `error: { code: 3004, text: 'Insufficient funds' }` |
+| **Ожидаемый результат** | Ответ содержит `result: 'error'`, `error: { code: 3004, text: 'ошибка при покупке' }` |
