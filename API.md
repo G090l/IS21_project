@@ -70,7 +70,7 @@ UserInfo: {
     user_id: number;
     login: string;
     nickname: string;
-    money: string;
+    money: string;  
 }
 ```
 
@@ -169,6 +169,18 @@ SceneResponse: {
 }
 ```
 
+### 2.9. Классы
+```
+Class: {
+    id: number;
+    name: string;
+    type: string;
+    cost: number;
+    hp: number;
+    defense: number;
+}
+```
+
 ## 3. Список запросов
 ### 3.1. Описание запросов
 #### 3.1.1. User
@@ -248,7 +260,7 @@ SceneResponse: {
 * `2002` - вы уже явлеетесь хостом этой комнаты
 * `2003` - комната не найдена
 * `2004` - пользователь уже в комнате
-* `2005` - комната не открыта
+* `2005` - Комната не открыта
 * `2006` - пользователь отсутствует в комнате
 * `2007` - вы не можете выгнать самого себя
 * `2008` - только владелец комнаты может исключать участников
@@ -306,7 +318,6 @@ SceneResponse: {
 | renameRoom | http://server/api/?method=renameRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&newRoomName=НовоеНазвание |
 | getRooms | http://server/api/?method=getRooms&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&room_hash=ТЕКУЩИЙ_ХЭШ |
 | getClasses | http://server/api/?method=getClasses |
-| getUserOwnedClasses | http://server/api/?method=getUserOwnedClasses&userId=1 |
 | buyClass | http://server/api/?method=buyClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
 | selectClass | http://server/api/?method=selectClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
 | buyItem | http://server/api/?method=buyItem&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&itemId=1 |
@@ -554,7 +565,7 @@ SceneResponse: {
 * `2002` - пользователь уже является владельцем комнаты
 * `2003` - комната не найдена
 * `2004` - пользователь уже в комнате
-* `2005` - комната не открыта
+* `2005` - комната недоступна
 
 
 #### 4.4.3. leaveRoom
@@ -671,7 +682,7 @@ SceneResponse: {
         {
             id: number,
             name: string,
-            status: "open" | "closed",
+            status: "open" | "closed" ,
             room_size: number,
             players_count: number,
             members: [
@@ -743,30 +754,12 @@ SceneResponse: {
 ```
 **Успешный ответ**
 ```
-   Answer<Class[]>
+   Answer<Class>
 ```
 **Ошибки**
 * `3001` - классы не найдены
 
-#### 4.5.2 getUserOwnedClasses
-Получение списка классов, которые уже принадлежат пользователю
-
-**Параметры**
-```
-{
-    "userId": number — ID пользователя
-}
-```
-**Успешный ответ**
-```
-   Answer<Class[]>
-```
-
-**Ошибки**
-* `3001` - классы не найдены
-* `3008` - неверный данные пользователя
-
-#### 4.5.3 buyClass
+#### 4.5.2 buyClass
 Покупка класса пользователем
 
 **Параметры**
@@ -792,7 +785,7 @@ SceneResponse: {
 * `3010` - не удалось обновить деньги
 * `3011` - не удалось назначить класс
 
-#### 4.5.4 selectClass
+#### 4.5.3 selectClass
 Выбор активного класса пользователем
 
 **Параметры**

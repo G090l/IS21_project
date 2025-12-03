@@ -1,5 +1,5 @@
 <?php
-require_once('application/Config.php');
+require_once('application/config.php');
 
 class User {
     function __construct($db) {
@@ -12,10 +12,8 @@ class User {
     
     public function getUserInfo($userId) {
         $user = checkUser($this->db, $userId);
-        if (!$user) return Answer::error(705);
 
         $character = checkCharacter($this->db, $userId);
-        if (!$character) return Answer::error(706);
 
         return [
             'character_id' => $character->id,
@@ -45,7 +43,6 @@ class User {
 
     public function logout($token) {
         $user = checkUserByToken($this->db, $token);
-        if (!$user) return Answer::error(705);
         $this->db->updateToken($user->id, null);
         return true;
     }
@@ -58,7 +55,6 @@ class User {
 
         /****Создание персонажа с базовым классом****/
         $newUser = checkUserByLogin($this->db, $login);
-        if (!$newUser) return Answer::error(705);
         
         $characterCreated = $this->db->createCharacter($newUser->id);
         if (!$characterCreated) return Answer::error(1007);
@@ -78,7 +74,6 @@ class User {
 
     public function deleteUser($token) {
         $user = checkUserByToken($this->db, $token);
-        if (!$user) return Answer::error(705);
 
         // выход из комнаты, если есть
         $userType = $this->db->getUserTypeInRoom($user->id);
