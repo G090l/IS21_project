@@ -1,5 +1,5 @@
 import CONFIG from '../../../config';
-import walk from '../../../assets/img/walk.png';
+import hero from '../../../assets/img/hero.png';
 
 // взять спрайт для обычной анимации
 const getSpritesFromFrame = (frame: number[]) => {
@@ -30,7 +30,7 @@ const useSprites = (animations?: Record<string, number[]>): [
 ] => {
     const { SPRITE_SIZE, LINE_OF_SPRITES } = CONFIG;
     const spritesImage = new Image();
-    spritesImage.src = walk;
+    spritesImage.src = hero;
 
     const getSprite = (spriteNo: number): number[] => {
         const y = Math.trunc(spriteNo / LINE_OF_SPRITES) * SPRITE_SIZE;
