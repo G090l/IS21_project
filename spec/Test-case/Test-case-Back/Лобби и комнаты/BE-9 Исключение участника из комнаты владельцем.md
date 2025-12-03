@@ -5,5 +5,5 @@
 | **Название тест-кейса** | Исключение участника из комнаты владельцем |
 | **Указание на модуль тестирования** | Lobby → dropFromRoom |
 | **Исходные данные** | Токен владельца комнаты, токен исключаемого пользователя |
-| **Шаги тест-кейса** | 1. Выполнить команду: `http://knightwars.local/api/?method=dropFromRoom&token=owner_token&targetToken=player_token`<br>2. Проверить ответ |
-| **Ожидаемый результат** | Ответ содержит `result: 'ok'`, `data` с объектом пользователя (id, nickname, token) |
+| **Шаги тест-кейса** | 1. Выполнить команду: `http://knightwars.local/api?method=dropFromRoom&token=owner_token&targetToken=player_token`<br>2. Проверить ответ |
+| **Ожидаемый результат** | Ответ содержит `result: 'ok'`, `data: true` |

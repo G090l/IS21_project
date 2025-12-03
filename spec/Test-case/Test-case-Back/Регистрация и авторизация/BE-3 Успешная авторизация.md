@@ -4,6 +4,6 @@
 | **Приоритет** | Высокий |
 | **Название тест-кейса** | Успешная авторизация пользователя |
 | **Указание на модуль тестирования** | User → login |
-| **Исходные данные** | Логин: `testtest`<br> Пароль: `password123`<br> rnd: `random12345` |
-| **Шаги тест-кейса** | 1. Выполнить команду: `http://knightwars.local/api?method=login&login=valid_login_user&passwordHash=md5(password123random12345)&rnd=random12345`<br>2. Проверить ответ |
-| **Ожидаемый результат** | Ответ содержит `result: 'ok'`, `data` с id, nickname, token |test
+| **Исходные данные** | Логин: `testtest`<br>Пароль (в БД): `testtest`<br>rnd: `12345`<br>passwordHash = md5("testtest" + "12345") = md5("testtest12345") |
+| **Шаги тест-кейса** | 1. Выполнить команду: `http://knightwars.local/api?method=login&login=testtest&passwordHash=md5(testtest12345)&rnd=12345`<br>2. Проверить ответ |
+| **Ожидаемый результат** | Ответ содержит `result: 'ok'`, `data` с id, nickname, token |
