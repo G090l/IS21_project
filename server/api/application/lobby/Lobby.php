@@ -1,5 +1,5 @@
 <?php
-require_once('application/config.php');
+require_once('application/Config.php');
 
 class Lobby {
     function __construct($db) { 
@@ -220,7 +220,7 @@ class Lobby {
         
         if ($roomHash === $currentHash) return ['status' => 'unchanged'];
         
-        $rooms = $this->db->getOpenRooms();
+        $rooms = $this->db->getOpenAndClosedRooms();
         $roomsWithMembers = [];
         foreach ($rooms as $room) {
             $roomId = isset($room->id) ? $room->id : $room['id'];

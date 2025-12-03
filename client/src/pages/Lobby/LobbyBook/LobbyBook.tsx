@@ -6,6 +6,7 @@ import { IBasePage, PAGES } from '../../PageManager';
 import { TError, TRoom } from '../../../services/server/types';
 import './LobbyBook.scss';
 import Room from '../Room/Room';
+import RoomInfo from '../RoomInfo/RoomInfo';
 
 interface ILobbyBook extends IBasePage {
     isOpen: boolean;
@@ -46,13 +47,10 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
         }
     });
 
-    const createRoomClickHandler = async () => {
+    const createRoomClickHandler = () => {
         const name = refRoomName.current.value;
         if (name && roomSize) {
-            const success = await server.createRoom(name, roomSize);
-            if (success) {
-                onToggle(false);
-            }
+            server.createRoom(name, roomSize);
         }
     }
 
@@ -106,7 +104,6 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
                                     <Room
                                         key={room.id}
                                         room={room}
-                                        setPage={setPage}
                                     />
                                 ))
                             ) : (
@@ -141,7 +138,14 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
                         'active': activeSection === 'join'
                     })}
                 />
-                <div className='error-section'>
+                {rooms.map(room => (
+                    <RoomInfo
+                        room={room}
+                        setPage={setPage}
+                    />
+                ))
+                }
+                < div className='error-section'>
                     {error && (
                         <div className="error-message">
                             <span>{error}</span>
@@ -153,7 +157,7 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
             {renderRightSection()}
         </div>
 
-    </div>
+    </div >
     )
 }
 

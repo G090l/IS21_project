@@ -82,7 +82,7 @@ const Lobby3: React.FC<IBasePage> = ({ setPage }) => {
             text='create room'
             className='createRoom-button'
         />
-        {rooms.length && rooms.map((room, index) => <Room key={index} room={room} setPage={setPage} />)}
+        {rooms.length && rooms.map((room, index) => <Room key={index} room={room} />)}
 
         {/*<div className='lobby2'>
             <div className="create-join">
