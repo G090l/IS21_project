@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { ServerContext } from '../../App';
-import CONFIG from '../../config';
+import CONFIG, { EDIRECTION } from '../../config';
 import Button from '../../components/Button/Button';
 import { IBasePage, PAGES } from '../PageManager';
 import Game from '../../game/Game';
@@ -17,6 +17,17 @@ enum EAttackMode {
     BOW = 'bow'
 }
 
+const HERO_WALK_RIGHT_SPRITES = [2, 3, 4, 5, 6, 7, 8];
+const HERO_WALK_LEFT_SPRITES = [12, 13, 14, 15, 16, 17, 18];
+const HERO_IDLE_RIGHT_SPRITE = 1;
+const HERO_IDLE_LEFT_SPRITE = 11;
+const HERO_ATTACK_RIGHT_SPRITES = [21, 22, 23, 24, 25];
+const HERO_ATTACK_LEFT_SPRITES = [31, 32, 33, 34, 35];
+const HERO_BLOCK_RIGHT_SPRITES = [41, 42, 43, 44, 45];
+const HERO_BLOCK_LEFT_SPRITES = [51, 52, 53, 54, 55];
+const HERO_SWORD_RIGHT = [26]
+const HERO_SWORD_LEFT = [36]
+
 const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const server = useContext(ServerContext);
     const { WINDOW, SPRITE_SIZE } = CONFIG;
@@ -32,7 +43,17 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const [
         [spritesImage],
         getSprite,
-    ] = useSprites();
+        animationFunctions
+    ] = useSprites({
+        hero_walk_right: HERO_WALK_RIGHT_SPRITES,
+        hero_walk_left: HERO_WALK_LEFT_SPRITES,
+        hero_attack_right: HERO_ATTACK_RIGHT_SPRITES,
+        hero_attack_left: HERO_ATTACK_LEFT_SPRITES,
+        hero_block_right: HERO_BLOCK_RIGHT_SPRITES,
+        hero_block_left: HERO_BLOCK_LEFT_SPRITES,
+        hero_sword_right: HERO_SWORD_RIGHT,
+        hero_sword_left: HERO_SWORD_LEFT,
+    });
 
     const keysPressedRef = useRef({
         w: false,
@@ -53,8 +74,55 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     function printFillSprite(image: HTMLImageElement, canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
         canvas.spriteFull(image, x, y, points[0], points[1], points[2]);
     }
-    function printSprite(canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
-        printFillSprite(spritesImage, canvas, { x, y }, points);
+
+    function printHeroSprite(
+        canvas: Canvas,
+        { x = 0, y = 0 },
+        hero: any
+    ): void {
+        let spriteNumber: number;
+
+        if (hero.isBlocking) {
+            if (hero.direction === EDIRECTION.RIGHT) {
+                spriteNumber = animationFunctions.hero_block_right()
+            } else {
+                spriteNumber = animationFunctions.hero_block_left()
+            }
+        } else if (hero.isAttacking) {
+            if (hero.direction === EDIRECTION.RIGHT) {
+                spriteNumber = animationFunctions.hero_attack_right()
+            } else {
+                spriteNumber = animationFunctions.hero_attack_left()
+            }
+        } else if (hero.movement.dx || hero.movement.dy) {
+            if (hero.direction === EDIRECTION.RIGHT) {
+                spriteNumber = animationFunctions.hero_walk_right()
+            } else {
+                spriteNumber = animationFunctions.hero_walk_left()
+            }
+        } else {
+            spriteNumber = hero.direction === EDIRECTION.RIGHT ?
+                HERO_IDLE_RIGHT_SPRITE :
+                HERO_IDLE_LEFT_SPRITE;
+        }
+
+        const [sx, sy, size] = getSprite(spriteNumber);
+        printFillSprite(spritesImage, canvas, { x, y }, [sx, sy, size]);
+    }
+
+    function printHeroSword(
+        canvas: Canvas,
+        { x = 0, y = 0 },
+        hero: any
+    ): void {
+        let spriteNumber: number;
+        if (hero.direction === EDIRECTION.RIGHT) {
+            spriteNumber = animationFunctions.hero_sword_right()
+        } else {
+            spriteNumber = animationFunctions.hero_sword_left()
+        }
+        const [sx, sy, size] = getSprite(spriteNumber);
+        printFillSprite(spritesImage, canvas, { x, y }, [sx, sy, size]);
     }
 
     // Использование функции render:
@@ -78,7 +146,6 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
             heroes.forEach((hero, index) => {
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvasRef.current!, hero.rect, color);
-                printSprite(canvasRef.current!, { x: hero.rect.x, y: hero.rect.y }, getSprite(1));
 
                 // Подписываем имя героя
                 canvasRef.current!.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');
@@ -88,22 +155,28 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
                     const attackPosition = hero.getAttackPosition();
                     if (attackPosition) {
                         printGameObject(canvasRef.current!, attackPosition, 'red');
-                        printSprite(canvasRef.current!, { x: attackPosition.x, y: attackPosition.y }, getSprite(1));
+                        printHeroSword(canvasRef.current!, {
+                            x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
+                            y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
+                        }, hero);
                     }
                 }
+
+                printHeroSprite(canvasRef.current!, {
+                    x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
+                    y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
+                }, hero);
             });
 
             // Рисуем врагов
             enemies.forEach(enemy => {
                 printGameObject(canvasRef.current!, enemy.rect, 'red');
-                printSprite(canvasRef.current!, { x: enemy.rect.x, y: enemy.rect.y }, getSprite(1));
 
                 // Рисуем атаку врага
                 if (enemy.getIsAttacking()) {
                     const attackPosition = enemy.getAttackPosition();
                     if (attackPosition) {
                         printGameObject(canvasRef.current!, attackPosition, 'orange');
-                        printSprite(canvasRef.current!, { x: attackPosition.x, y: attackPosition.y }, getSprite(1));
                     }
                 }
             });
