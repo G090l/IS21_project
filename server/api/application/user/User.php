@@ -1,5 +1,5 @@
 <?php
-require_once('application/config.php');
+require_once('application/Config.php');
 
 class User {
     function __construct($db) {

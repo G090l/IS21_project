@@ -7,7 +7,7 @@ require_once ('lobby/Lobby.php');
 require_once('classes/Classes.php');
 require_once('itemManager/ItemManager.php');
 require_once('game/Game.php');
-require_once('config.php');
+require_once('Config.php');
 
 class Application {
     private $db;

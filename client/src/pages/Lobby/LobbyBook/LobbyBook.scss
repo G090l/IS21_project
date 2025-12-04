@@ -60,12 +60,19 @@
                 }
             }
 
+            .room-info {
+                position: absolute;
+                top: 50.27%;
+                left: 28.64%;
+            }
+
             .error-section {
                 .error-message {
                     position: absolute;
-                    top: 50%;
+                    top: 72%;
                     left: 29.47%;
                     width: 19.06%;
+                    font-size: 14px;
                     font-family: vcrosd;
                 }
             }
@@ -84,7 +91,7 @@
                 background-size: 100% 100%;
                 background-repeat: no-repeat;
                 background-color: transparent;
-                padding: 0 26px;
+                padding: 0 2.5%;
                 margin: 10px;
                 box-sizing: border-box;
                 font-family: vcrosd;

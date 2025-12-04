@@ -15,8 +15,6 @@ interface ILobbyManagerProps extends IBasePage {
 const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
     const { setPage, isOpen, onToggle } = props;
     const server = useContext(ServerContext);
-    const store = useContext(StoreContext);
-    const [currentRoom, setCurrentRoom] = useState<number | null>(null);
 
     const toggleLobbyManager = () => {
         onToggle(!isOpen);
@@ -26,13 +24,6 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
         const success = await server.deleteUser();
         if (success) {
             setPage(PAGES.LOGIN);
-        }
-    }
-
-    const startGameClickHandler = async () => {
-        const success = await server.startGame();
-        if (success) {
-            setPage(PAGES.GAME);
         }
     }
 
@@ -53,9 +44,7 @@ const LobbyManager: React.FC<ILobbyManagerProps> = (props) => {
         {isOpen && (
             <div className="lobby-manager-window">
                 <Button onClick={deleteUserClickHandler} text='Удалить аккаунт' />
-                <Button onClick={startGameClickHandler} text='Начать игру' />
                 <Button onClick={exitAccountClickHandler} text='Выйти из аккаунта' />
-                <button onClick={() => setPage(PAGES.GAME)}>Игра</button>
             </div>
         )}
 
