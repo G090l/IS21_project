@@ -11,7 +11,6 @@ import Button from '../../components/Button/Button';
 import Chat from '../../components/Chat/Chat';
 import LobbyManager from './LobbyManager/LobbyManager';
 import LobbyBook from './LobbyBook/LobbyBook';
-import RoomInfo from './RoomInfo/RoomInfo';
 
 import menuBackground from '../../assets/img/lobby/menu-background.png';
 import lobbyBackground from '../../assets/img/lobby/lobby-background.png';
@@ -281,7 +280,6 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                 isOpen={isChatOpen}
                 onToggle={setIsChatOpen}
             />
-            {/*<RoomInfo />*/}
         </div>
     </div>)
 }

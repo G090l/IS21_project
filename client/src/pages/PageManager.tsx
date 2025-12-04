@@ -6,7 +6,6 @@ import NotFound from './NotFound/NotFound';
 import Lobby from './Lobby/Lobby';
 import Registration from './Registration/Registration';
 import ClassShop from './ClassShop/ClassShop';
-import Lobby2 from './Lobby/Lobby2';
 import { TRoom } from '../services/server/types';
 
 
