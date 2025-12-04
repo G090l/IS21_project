@@ -670,7 +670,7 @@ SceneResponse: {
         {
             id: number,
             name: string,
-            status: "open" | "closed" ,
+            status: 'open',
             room_size: number,
             players_count: number,
             members: [
@@ -747,7 +747,7 @@ SceneResponse: {
 **Ошибки**
 * `3001` - классы не найдены
 
-#### 4.5.2 buyClass
+#### 4.5.3 buyClass
 Покупка класса пользователем
 
 **Параметры**
@@ -773,7 +773,7 @@ SceneResponse: {
 * `3010` - не удалось обновить деньги
 * `3011` - не удалось назначить класс
 
-#### 4.5.3 selectClass
+#### 4.5.4 selectClass
 Выбор активного класса пользователем
 
 **Параметры**
