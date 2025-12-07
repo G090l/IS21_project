@@ -284,7 +284,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}?method=login&login=validlogin&passwordHash=6da65d36406907d12f6ec6d208f8f89c&rnd=12345",
+							"raw": "{{baseUrl}}?method=login&login=testtest&passwordHash=md5(testtest12345)&rnd=12345",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -295,11 +295,11 @@
 								},
 								{
 									"key": "login",
-									"value": "validlogin"
+									"value": "testtest"
 								},
 								{
 									"key": "passwordHash",
-									"value": "6da65d36406907d12f6ec6d208f8f89c"
+									"value": "md5(testtest12345)"
 								},
 								{
 									"key": "rnd",
@@ -819,6 +819,13 @@
 								"packages": {},
 								"requests": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"request": {
@@ -897,6 +904,13 @@
 								"type": "text/javascript",
 								"packages": {},
 								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -981,6 +995,13 @@
 								"type": "text/javascript",
 								"packages": {},
 								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -1182,6 +1203,801 @@
 				}
 			],
 			"description": "Автоматизированные тесты на основе тест-кейсов BE-11, BE-12"
+		},
+		{
+			"name": "Меню и классы",
+			"item": [
+				{
+					"name": "BA-5 Покупка класса пользователем",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === boolean\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and data === true\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data).to.equal(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=buyClass&token=token_user_1_12345&classId=3",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "buyClass"
+								},
+								{
+									"key": "token",
+									"value": "token_user_1_12345"
+								},
+								{
+									"key": "classId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BS-4 Получение информации о пользователе",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === boolean\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and data === true\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data).to.equal(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=getUserInfo&token=token_user_1_12345",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "getUserInfo"
+								},
+								{
+									"key": "token",
+									"value": "token_user_1_12345"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BS-6 Выбор активного класса пользователем",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === boolean\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and data === true\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data).to.equal(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=selectClass&token=token_user_1_12345&classId=1",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "selectClass"
+								},
+								{
+									"key": "token",
+									"value": "token_user_1_12345"
+								},
+								{
+									"key": "classId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BS-7 Получение списка всех доступных классов",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === boolean\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and data === true\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data).to.equal(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=getClasses",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "getClasses"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BS-8 Получение списка купленных пользователем класов",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === boolean\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and data === true\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data).to.equal(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=getUserOwnedClasses&token=token_user_1_12345",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "getUserOwnedClasses"
+								},
+								{
+									"key": "token",
+									"value": "token_user_1_12345"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-18 Выбор не покупного класса",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === boolean\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and data === true\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data).to.equal(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api?method=selectClass&token=token_user_1_12345&classId=1",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "selectClass"
+								},
+								{
+									"key": "token",
+									"value": "token_user_1_12345"
+								},
+								{
+									"key": "classId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-17 Попытка покупки класса при недостатке средств",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Статус код === 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Ответ === JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Ответ === object\", function () {\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === string\", function () {\r",
+									"    pm.expect(responseData).to.have.property('result');\r",
+									"    pm.expect(responseData.result).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"data === boolean\", function () {\r",
+									"    pm.expect(responseData).to.have.property('data');\r",
+									"    pm.expect(responseData.data).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"result === ok and data === true\", function () {\r",
+									"    pm.expect(responseData.result).to.equal('ok');\r",
+									"    pm.expect(responseData.data).to.equal(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api?method=buyClass&token=5ef208ef07d1b218b0799eaa988b2871&classId=3",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api"
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "buyClass"
+								},
+								{
+									"key": "token",
+									"value": "5ef208ef07d1b218b0799eaa988b2871"
+								},
+								{
+									"key": "classId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Боты",
+			"item": [
+				{
+					"name": "BE-1 Покупка предмета",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=buyItem&token=token_user_1_12345&itemId=1",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "buyItem"
+								},
+								{
+									"key": "token",
+									"value": "token_user_1_12345"
+								},
+								{
+									"key": "itemId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-2 Продажа предмета",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=sellItem&token=token_user_1_12345&itemId=1",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "sellItem"
+								},
+								{
+									"key": "token",
+									"value": "token_user_1_12345"
+								},
+								{
+									"key": "itemId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-3 Создание бота в комнате",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=spawnBot&token=token_user_1&botType=mage&botData={\"hp\":80,\"x\":400,\"y\":200}",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "spawnBot"
+								},
+								{
+									"key": "token",
+									"value": "token_user_1"
+								},
+								{
+									"key": "botType",
+									"value": "mage"
+								},
+								{
+									"key": "botData",
+									"value": "{\"hp\":80,\"x\":400,\"y\":200}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-4 Получение списка ботов в комнате",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=getBots&roomId=35",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "getBots"
+								},
+								{
+									"key": "roomId",
+									"value": "35"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-5 Обновление данных бота в комнате",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=updateBot&token=token_user_1_12345&botId=10&botData={\"hp\":150,\"x\":60,\"y\":80}",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "updateBot"
+								},
+								{
+									"key": "token",
+									"value": "token_user_1_12345"
+								},
+								{
+									"key": "botId",
+									"value": "10"
+								},
+								{
+									"key": "botData",
+									"value": "{\"hp\":150,\"x\":60,\"y\":80}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BE-6 Удаление бота из комнаты",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://knightwars.local/api/?method=removeBot&token=token_user_1_12345&botId=10",
+							"protocol": "http",
+							"host": [
+								"knightwars",
+								"local"
+							],
+							"path": [
+								"api",
+								""
+							],
+							"query": [
+								{
+									"key": "method",
+									"value": "removeBot"
+								},
+								{
+									"key": "token",
+									"value": "token_user_1_12345"
+								},
+								{
+									"key": "botId",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
