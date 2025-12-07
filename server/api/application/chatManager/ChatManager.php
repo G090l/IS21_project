@@ -1,11 +1,8 @@
 <?php   
 
-class Chat{
-    function __construct($db) {
-        $this->db = $db;
-    }
-
-    public function sendMessage($userId, $message) {
+class ChatManager extends BaseManager {
+    
+    public function sendMessage($userId, $message) { 
         $this->db->addMessage($userId, $message);
         $this->db->updateChatHash(md5(rand()));
         return true;
