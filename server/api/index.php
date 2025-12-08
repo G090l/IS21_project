@@ -2,9 +2,11 @@
 
 error_reporting(1);
 
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
+require_once('application/config.php');
 require_once('application/Answer.php');
 require_once('application/Application.php');
 
@@ -13,18 +15,18 @@ function result($params) {
     if ($method) {
         $app = new Application();
         switch ($method) {
-            //User
+            //UserManager
             case 'login': return $app->login($params);
             case 'logout': return $app->logout($params);
             case 'registration': return $app->registration($params);
             case 'deleteUser': return $app->deleteUser($params); // для тестеров
             case 'getUserInfo': return $app->getUserInfo($params);
-            //Math
+            //MathManager
             case 'math': return $app->math($params);
-            //Chat
+            //ChatManager
             case 'sendMessage': return $app->sendMessage($params);
             case 'getMessages': return $app->getMessages($params);
-            //Lobby
+            //LobbyManager
             case 'createRoom': return $app->createRoom($params);
             case 'joinToRoom': return $app->joinToRoom($params);
             case 'leaveRoom': return $app->leaveRoom($params);
@@ -32,16 +34,16 @@ function result($params) {
             case 'startGame': return $app->startGame($params);
             case 'renameRoom': return $app->renameRoom($params);
             case 'getRooms': return $app->getRooms($params);
-            //Classes
+            //ClassManager
             case 'getClasses': return $app->getClasses($params);
             case 'buyClass': return $app->buyClass($params);
             case 'selectClass': return $app->selectClass($params);
             //ItemManager
             case 'buyItem': return $app->buyItem($params);
             case 'sellItem': return $app->sellItem($params);
-            case 'checkBowAndArrows': return $app->checkBowAndArrows($params);
-            case 'consumeArrow': return $app->consumeArrow($params);
-            //Game
+            case 'useArrow': return $app->useArrow($params);
+            case 'usePotion': return $app->usePotion($params);
+            //GameManager
             case 'getScene': return $app->getScene($params);
             case 'updateCharacter': return $app->updateCharacter($params);
             case 'updateBots': return $app->updateBots($params);

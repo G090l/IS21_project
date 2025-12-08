@@ -3,13 +3,13 @@ class DB {
     private $pdo;
 
     function __construct() {
-        //$host = '127.0.0.1';
-        $host = '127.127.126.15';
-        $port = '3306';
-        $user = 'root';      
-        $pass = '';          
-        $db = 'knightwars';  
-        $connect = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
+        $host = DB_HOST;
+        $port = DB_PORT;
+        $user = DB_USER;      
+        $pass = DB_PASS;          
+        $db = DB_NAME;
+        $charset = DB_CHARSET;  
+        $connect = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
         $this->pdo = new PDO($connect, $user, $pass);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
@@ -63,7 +63,7 @@ class DB {
 
     public function createCharacter($userId) {
         return $this->execute(
-            "INSERT INTO characters (user_id, hp, defense, money, died) VALUES (?, 100, 0, 1000, 0)",
+            "INSERT INTO characters (user_id, hp, defense, money) VALUES (?, 100, 0, 1000)",
             [$userId]
         );
     }
@@ -117,7 +117,7 @@ class DB {
     public function getUserTypeInRoom($userId) {
         $character = $this->getCharacterByUserId($userId);
         if (!$character) return false;
-        return $this->query("SELECT type FROM room_members WHERE character_id=?", [$character->id]);
+        return $this->query("SELECT type, room_id as roomId FROM room_members WHERE character_id=?", [$character->id]);
     }
 
     public function leaveParticipantFromRoom($userId) {
@@ -158,7 +158,7 @@ class DB {
     public function getRoomMemberByUserId($userId) {
         $character = $this->getCharacterByUserId($userId);
         if (!$character) return null;
-        return $this->query("SELECT * FROM room_members WHERE character_id=?", [$character->id]);
+        return $this->query("SELECT id, room_id as roomId, character_id as characterId, type, status, data FROM room_members WHERE character_id=?", [$character->id]);
     }
 
     public function getAllRoomMembers($roomId) {
@@ -175,10 +175,10 @@ class DB {
 
     public function getOpenAndClosedRooms() {
         return $this->queryAll("
-            SELECT r.id, r.name, r.status, r.room_size, COUNT(rm.character_id) as players_count 
+            SELECT r.id, r.name, r.status, r.room_size as roomSize, COUNT(rm.character_id) as playersCount 
             FROM rooms r 
             LEFT JOIN room_members rm ON r.id = rm.room_id 
-            WHERE r.status IN ('open', 'closed')
+            WHERE r.status IN ('open', 'closed') 
             GROUP BY r.id, r.name, r.status, r.room_size
         ");
     }
@@ -198,10 +198,10 @@ class DB {
     public function getAllRoomMembersWithUserInfo($roomId) {
         return $this->queryAll("
             SELECT 
-                rm.character_id,
+                rm.character_id as characterId,
                 rm.type,
                 rm.status,
-                u.id as user_id,
+                u.id as userId,
                 u.login,
                 u.nickname,
                 c.money,
@@ -229,28 +229,6 @@ class DB {
             "SELECT * FROM characters_classes WHERE character_id = ? AND class_id = ?",
             [$character->id, $classId]
         );
-    }
-        
-    public function getUserSelectedPersonClass($userId) {
-    $character = $this->getCharacterByUserId($userId);
-    if (!$character) return null;
-        return $this->query("
-            SELECT c.* FROM classes c
-            JOIN characters_classes cc ON cc.class_id = c.id
-            WHERE cc.character_id = ? AND cc.selected = 1
-        ", [$character->id]
-        );
-    }
-
-
-    public function getUserOwnedClasses($userId) {
-        $character = $this->getCharacterByUserId($userId);
-        if (!$character) return [];
-        return $this->queryAll("
-            SELECT c.*, cc.selected FROM classes c
-            JOIN characters_classes cc ON cc.class_id = c.id
-            WHERE cc.character_id = ?
-        ", [$character->id]);
     }
 
     public function addUserPersonClass($userId, $classId) {
@@ -326,11 +304,38 @@ class DB {
         );
     }
 
-    // bots
-    public function getBotById($botId) {
-        return $this->query("SELECT * FROM bots_rooms WHERE id = ?", [$botId]);
+    public function hasCharacterArrows($characterId) {
+        $arrowItem = $this->query(
+            "SELECT ci.* FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.item_type = 'arrow' AND ci.quantity > 0",
+            [$characterId]
+        );
+        return $arrowItem && $arrowItem->quantity > 0;
     }
 
+
+    public function hasCharacterPotions($characterId) {
+        $potionItem = $this->query(
+            "SELECT ci.* FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.item_type = 'potion' AND ci.quantity > 0",
+            [$characterId]
+        );
+        return $potionItem && $potionItem->quantity > 0;
+    }
+
+    public function getCharacterConsumable($characterId, $itemType) {
+        return $this->query(
+            "SELECT ci.id, ci.item_id, ci.quantity 
+            FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.item_type = ?",
+            [$characterId, $itemType]
+        );
+    }
+
+    // bots
     public function getBotTypeById($botTypeId) {
         return $this->query("SELECT * FROM bots WHERE id = ?", [$botTypeId]);
     }
@@ -370,58 +375,10 @@ class DB {
         ", [$roomId]);
     }
 
-    public function hasCharacterArrows($characterId) {
-        $arrowItem = $this->query(
-            "SELECT ci.* FROM character_items ci 
-            JOIN items i ON ci.item_id = i.id 
-            WHERE ci.character_id = ? AND i.item_type = 'arrow' AND ci.quantity > 0",
-            [$characterId]
-        );
-        return $arrowItem && $arrowItem->quantity > 0;
-    }
-
-    //трата стрел
-    public function consumeCharacterArrow($characterId) {
-        $arrowItem = $this->query(
-            "SELECT ci.* FROM character_items ci 
-            JOIN items i ON ci.item_id = i.id 
-            WHERE ci.character_id = ? AND i.item_type = 'arrow'",
-            [$characterId]
-        );
-        
-        if (!$arrowItem) {
-            return false;
-        }
-        
-        if ($arrowItem->quantity > 1) {
-            // уменьшаем количество стрел
-            return $this->execute(
-                "UPDATE character_items SET quantity = quantity - 1 WHERE id = ?",
-                [$arrowItem->id]
-            );
-        } else {
-            // удаляем запись, если стрел больше нет
-            return $this->execute(
-                "DELETE FROM character_items WHERE id = ?",
-                [$arrowItem->id]
-            );
-        }
-    }
-
     //hashes
-    public function getCharacterHash() {
-        $result = $this->query("SELECT character_hash FROM hashes WHERE id = 1");
-        return $result ? $result->character_hash : null;
-    }
-
-    public function getBotHash() {
-        $result = $this->query("SELECT bot_hash FROM hashes WHERE id = 1");
-        return $result ? $result->bot_hash : null;
-    }
-
-    public function getArrowHash() {
-        $result = $this->query("SELECT arrow_hash FROM hashes WHERE id = 1");
-        return $result ? $result->arrow_hash : null;
+    public function getAllSceneHashes() {
+        $result = $this->query("SELECT character_hash as characterHash, bot_hash as botHash, arrow_hash as arrowHash FROM hashes WHERE id = 1");
+        return $result;
     }
 
     public function updateCharacterHash($hash) {
@@ -441,14 +398,16 @@ class DB {
         return $this->queryAll("
             SELECT 
                 rm.id,
-                rm.character_id,
+                rm.character_id as characterId,
                 rm.type,
                 rm.status,
+                rm.action_status as actionStatus,
                 rm.data,
-                u.id as user_id,
+                u.id as userId,
                 u.login,
                 u.nickname,
-                c.money
+                c.money,
+                u.token
             FROM room_members rm 
             JOIN characters c ON rm.character_id = c.id 
             JOIN users u ON c.user_id = u.id 
@@ -470,21 +429,11 @@ class DB {
         );
     }
 
-    public function updateRoomMemberData($roomMemberId, $data) {
+    public function updateRoomMemberData($roomMemberId, $actionStatus, $data) {
         return $this->execute(
-            "UPDATE room_members SET data = ? WHERE id = ?",
-            [$data, $roomMemberId]
+            "UPDATE room_members SET data = ?, action_status = ? WHERE id = ?",
+            [$data, $actionStatus, $roomMemberId]
         );
-    }
-
-    public function getBotsDataByRoomId($roomId) {
-        $result = $this->query("SELECT data FROM bots_rooms WHERE room_id = ?", [$roomId]);
-        return $result ? $result->data : null;
-    }
-
-    public function getArrowsDataByRoomId($roomId) {
-        $result = $this->query("SELECT data FROM arrows WHERE room_id = ?", [$roomId]);
-        return $result ? $result->data : null;
     }
 
     // test

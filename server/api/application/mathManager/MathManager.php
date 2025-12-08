@@ -1,6 +1,6 @@
 <?php
 
-class Math {
+class MathManager {
     private function solveLinear($a, $b) {
         if ($a == 0) {
             return [];

@@ -19,7 +19,6 @@
 | hp | integer | 100 by default |
 | defense | integer | 10 by default |
 | money | integer | 100 by default |
-| died | boolean | true by default |
 
 ## Система классов
 
@@ -83,6 +82,7 @@
 | character_id | integer | not null |
 | type | enum | 'owner'/'participant' |
 | status | enum | 'ready'/'started' |
+| action_status | enum | 'idle'/'move'/'attack'/'shoot'/'block'/'dead' |
 | data | text | JSON |
 
 ## Игровые объекты

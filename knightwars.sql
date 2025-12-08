@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: MySQL-8.0
--- Время создания: Ноя 19 2025 г., 09:39
+-- Время создания: Дек 07 2025 г., 16:23
 -- Версия сервера: 8.0.41
 -- Версия PHP: 8.3.14
 
@@ -82,8 +82,7 @@ CREATE TABLE `characters` (
   `user_id` int NOT NULL,
   `hp` int DEFAULT '100',
   `defense` int DEFAULT '10',
-  `money` int DEFAULT '100',
-  `died` tinyint(1) DEFAULT '1'
+  `money` int DEFAULT '100'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -155,7 +154,7 @@ CREATE TABLE `hashes` (
 --
 
 INSERT INTO `hashes` (`id`, `chat_hash`, `room_hash`, `character_hash`, `bot_hash`, `arrow_hash`) VALUES
-(1, 'default chat_hash', 'c8f26c4751ebf37533e2359493a3ee52', '2f4f0e4d171cad29c33dc3cfb2550145', '3b36f98ebd4bb754e9db93108e89be74', '3ee71f9a5ff16873e314a439998ac8db');
+(1, 'default chat_hash', 'e8706860e557fe108f2b42beb6eb528d', '9de88efc212f5dfbd4decb9999e57db3', '3b36f98ebd4bb754e9db93108e89be74', '3ee71f9a5ff16873e314a439998ac8db');
 
 -- --------------------------------------------------------
 
@@ -224,6 +223,7 @@ CREATE TABLE `room_members` (
   `character_id` int NOT NULL,
   `type` enum('owner','participant') NOT NULL DEFAULT 'participant',
   `status` enum('ready','started') NOT NULL DEFAULT 'ready',
+  `action_status` enum('idle','move','attack','shoot','block','dead') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'idle',
   `data` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -362,13 +362,13 @@ ALTER TABLE `bots_rooms`
 -- AUTO_INCREMENT для таблицы `characters`
 --
 ALTER TABLE `characters`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT для таблицы `characters_classes`
 --
 ALTER TABLE `characters_classes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT для таблицы `character_items`
@@ -398,19 +398,19 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT для таблицы `rooms`
 --
 ALTER TABLE `rooms`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT для таблицы `room_members`
 --
 ALTER TABLE `room_members`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
