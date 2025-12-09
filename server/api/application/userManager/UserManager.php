@@ -17,12 +17,18 @@ class UserManager extends BaseManager {
             return $character;
         }
 
+        //инфа о классах юзера
+        $selectedClass = $this->db->getUserSelectedClassId($userId);
+        $purchasedClasses = $this->db->getUserPurchasedClassIds($userId);
+
         return [
             'character_id' => $character->id,
             'user_id' => $user->id,
             'login' => $user->login,
             'nickname' => $user->nickname,
-            'money' => $character->money
+            'money' => $character->money,
+            'selectedClass' => $selectedClass, 
+            'purchasedClasses' => $purchasedClasses
         ];
     }
 
