@@ -42,10 +42,12 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     }, [background]);
 
     // инициализация карты спрайтов
-    const [
-        [spritesImage],
+    const {
+        spritesImage,
         getSprite,
-    ] = useSprites();
+        animationFunctions,
+        heroSprites
+    } = useSprites();
 
     const keysPressedRef = useRef({
         w: false,

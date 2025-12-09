@@ -1,6 +1,19 @@
 import CONFIG from '../../../config';
 import hero from '../../../assets/img/hero.png';
 
+const heroSprites = {
+    walkRightSprites: [2, 3, 4, 5, 6, 7, 8],
+    walkLeftSprites: [12, 13, 14, 15, 16, 17, 18],
+    idleRightSprite: 1,
+    idleLeftSprite: 11,
+    attackRightSprites: [21, 22, 23, 24, 25],
+    attackLeftSprites: [31, 32, 33, 34, 35],
+    blockRightSprites: [41, 42, 43, 44, 45],
+    blockLeftSprites: [51, 52, 53, 54, 55],
+    swordRight: [26],
+    swordLeft: [36],
+};
+
 // взять спрайт для обычной анимации
 const getSpritesFromFrame = (frame: number[]) => {
     const count = {
@@ -23,11 +36,14 @@ const getSpritesFromFrame = (frame: number[]) => {
     }
 }
 
-const useSprites = (animations?: Record<string, number[]>): [
-    HTMLImageElement[],
-    (spriteNo: number) => number[],
-    Record<string, () => number>
-] => {
+interface UseSpritesReturn {
+    spritesImage: HTMLImageElement;
+    getSprite: (spriteNo: number) => number[];
+    animationFunctions: Record<string, () => number>;
+    heroSprites: typeof heroSprites;
+}
+
+const useSprites = (): UseSpritesReturn => {
     const { SPRITE_SIZE, LINE_OF_SPRITES } = CONFIG;
     const spritesImage = new Image();
     spritesImage.src = hero;
@@ -40,17 +56,25 @@ const useSprites = (animations?: Record<string, number[]>): [
 
     const animationFunctions: Record<string, () => number> = {};
 
-    if (animations) {
-        Object.keys(animations).forEach(key => {
-            animationFunctions[key] = getSpritesFromFrame(animations[key]);
-        });
-    }
+    Object.entries({
+        heroWalkRight: heroSprites.walkRightSprites,
+        heroWalkLeft: heroSprites.walkLeftSprites,
+        heroAttackRight: heroSprites.attackRightSprites,
+        heroAttackLeft: heroSprites.attackLeftSprites,
+        heroBlockRight: heroSprites.blockRightSprites,
+        heroBlockLeft: heroSprites.blockLeftSprites,
+        heroSwordRight: heroSprites.swordRight,
+        heroSwordLeft: heroSprites.swordLeft,
+    }).forEach(([key, frames]) => {
+        animationFunctions[key] = getSpritesFromFrame(frames);
+    });
 
-    return [
-        [spritesImage],
+    return {
+        spritesImage,
         getSprite,
-        animationFunctions
-    ];
+        animationFunctions,
+        heroSprites: heroSprites,
+    };
 }
 
 export default useSprites;

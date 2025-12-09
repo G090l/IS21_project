@@ -11,17 +11,6 @@ enum EAttackMode {
     Bow = 'bow'
 }
 
-const heroWalkRightSprites = [2, 3, 4, 5, 6, 7, 8];
-const heroWalkLeftSprites = [12, 13, 14, 15, 16, 17, 18];
-const heroIdleRightSprite = 1;
-const heroIdleLeftSprite = 11;
-const heroAttackRightSprites = [21, 22, 23, 24, 25];
-const heroAttackLeftSprites = [31, 32, 33, 34, 35];
-const heroBlockRightSprites = [41, 42, 43, 44, 45];
-const heroBlockLeftSprites = [51, 52, 53, 54, 55];
-const heroSwordRight = [26]
-const heroSwordLeft = [36]
-
 interface KeysPressed {
     w: boolean;
     a: boolean;
@@ -40,20 +29,15 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
     });
     const { WINDOW, SPRITE_SIZE } = CONFIG;
 
-    const [
-        [spritesImage],
+    const {
+        spritesImage,
         getSprite,
-        animationFunctions
-    ] = useSprites({
-        heroWalkRight: heroWalkRightSprites,
-        heroWalkLeft: heroWalkLeftSprites,
-        heroAttackRight: heroAttackRightSprites,
-        heroAttackLeft: heroAttackLeftSprites,
-        heroBlockRight: heroBlockRightSprites,
-        heroBlockLeft: heroBlockLeftSprites,
-        heroSwordRight: heroSwordRight,
-        heroSwordLeft: heroSwordLeft,
-    });
+        animationFunctions,
+        heroSprites
+    } = useSprites();
+
+    const heroIdleRightSprite = heroSprites.idleRightSprite;
+    const heroIdleLeftSprite = heroSprites.idleLeftSprite;
 
     function printGameObject(
         canvas: Canvas,
