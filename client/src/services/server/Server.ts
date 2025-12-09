@@ -3,7 +3,7 @@ import CONFIG from "../../config";
 import Store from "../store/Store";
 import { TAnswer, TError, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser } from "./types";
 
-const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, MEMBERS_TIMESTAMP, HOST } = CONFIG;
+const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST } = CONFIG;
 
 class Server {
     HOST = HOST;
@@ -110,8 +110,8 @@ class Server {
     }
 
     async getRoomsAndMembers(): Promise<TRoomsResponse | null> {
-        const room_hash = this.store.getRoomHash();
-        const result = await this.request<TRoomsResponse>('getRooms', { room_hash });
+        const roomHash = this.store.getRoomHash();
+        const result = await this.request<TRoomsResponse>('getRooms', { roomHash });
         if (result?.status === 'updated') {
             const { hash, rooms } = result;
             this.store.setRoomHash(hash);
@@ -143,7 +143,7 @@ class Server {
         const roomsResponse = await this.getRoomsAndMembers();
         if (!roomsResponse?.rooms) return null;
         return roomsResponse.rooms.find(room =>
-            room.members?.some(member => member.user_id === user?.id)
+            room.members?.some(member => member.userId === user?.id)
         ) || null;
     }
 
@@ -179,14 +179,14 @@ class Server {
         return this.request<boolean>('startGame');
     }
 
-    async getUserInfo(): Promise<{ user_id: number; login: string; nickname: string; money: number } | null> {
+    async getUserInfo(): Promise<{ userId: number; login: string; nickname: string; money: number } | null> {
         const token = this.store.getToken();
         if (!token) return null;
 
-        const userInfo = await this.request<{ character_id: number; user_id: number; login: string; nickname: string; money: number; }>('getUserInfo');
+        const userInfo = await this.request<{ characterId: number; userId: number; login: string; nickname: string; money: number; }>('getUserInfo');
         if (userInfo) {
             const user: TUser = {
-                id: userInfo.user_id,
+                id: userInfo.userId,
                 login: userInfo.login,
                 nickname: userInfo.nickname,
                 money: userInfo.money,
