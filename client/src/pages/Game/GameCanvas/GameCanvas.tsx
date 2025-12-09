@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import CONFIG, { EDIRECTION } from "../../../config";
 import Game from "../../../game/Game";
 import { Canvas, useCanvas } from "../../../services/canvas";
@@ -22,10 +22,22 @@ const heroBlockLeftSprites = [51, 52, 53, 54, 55];
 const heroSwordRight = [26]
 const heroSwordLeft = [36]
 
+interface KeysPressed {
+    w: boolean;
+    a: boolean;
+    s: boolean;
+    d: boolean;
+}
+
 const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
-    let canvas: Canvas | null = null;
-    const animationFrameRef = useRef<number>(0);
-    const attackModeRef = useRef<EAttackMode>(EAttackMode.Sword);
+    let canvas: Canvas;
+    let attackMode = EAttackMode.Sword;
+    const [keysPressed, setKeysPressed] = useState<KeysPressed>({
+        w: false,
+        a: false,
+        s: false,
+        d: false
+    });
     const { WINDOW, SPRITE_SIZE } = CONFIG;
 
     const [
@@ -41,13 +53,6 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
         heroBlockLeft: heroBlockLeftSprites,
         heroSwordRight: heroSwordRight,
         heroSwordLeft: heroSwordLeft,
-    });
-
-    const keysPressedRef = useRef({
-        w: false,
-        a: false,
-        s: false,
-        d: false
     });
 
     function printGameObject(
@@ -70,27 +75,21 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
         let spriteNumber: number;
 
         if (hero.isBlocking) {
-            if (hero.direction === EDIRECTION.RIGHT) {
-                spriteNumber = animationFunctions.heroBlockRight()
-            } else {
-                spriteNumber = animationFunctions.heroBlockLeft()
-            }
+            spriteNumber = hero.direction === EDIRECTION.RIGHT
+                ? animationFunctions.heroBlockRight()
+                : animationFunctions.heroBlockLeft();
         } else if (hero.isAttacking) {
-            if (hero.direction === EDIRECTION.RIGHT) {
-                spriteNumber = animationFunctions.heroAttackRight()
-            } else {
-                spriteNumber = animationFunctions.heroAttackLeft()
-            }
+            spriteNumber = hero.direction === EDIRECTION.RIGHT
+                ? animationFunctions.heroAttackRight()
+                : animationFunctions.heroAttackLeft();
         } else if (hero.movement.dx || hero.movement.dy) {
-            if (hero.direction === EDIRECTION.RIGHT) {
-                spriteNumber = animationFunctions.heroWalkRight()
-            } else {
-                spriteNumber = animationFunctions.heroWalkLeft()
-            }
+            spriteNumber = hero.direction === EDIRECTION.RIGHT
+                ? animationFunctions.heroWalkRight()
+                : animationFunctions.heroWalkLeft();
         } else {
-            spriteNumber = hero.direction === EDIRECTION.RIGHT ?
-                heroIdleRightSprite :
-                heroIdleLeftSprite;
+            spriteNumber = hero.direction === EDIRECTION.RIGHT
+                ? heroIdleRightSprite
+                : heroIdleLeftSprite;
         }
 
         const [sx, sy, size] = getSprite(spriteNumber);
@@ -102,12 +101,9 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
         { x = 0, y = 0 },
         hero: any
     ): void {
-        let spriteNumber: number;
-        if (hero.direction === EDIRECTION.RIGHT) {
-            spriteNumber = animationFunctions.heroSwordRight()
-        } else {
-            spriteNumber = animationFunctions.heroSwordLeft()
-        }
+        const spriteNumber = hero.direction === EDIRECTION.RIGHT
+            ? animationFunctions.heroSwordRight()
+            : animationFunctions.heroSwordLeft();
         const [sx, sy, size] = getSprite(spriteNumber);
         printFillSprite(spritesImage, canvas, { x, y }, [sx, sy, size]);
     }
@@ -118,7 +114,7 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
             const scene = game.getScene();
             const { heroes, walls, arrows, enemies } = scene;
 
-            for (let i = 0; i > walls.length; i++) {
+            for (let i = 0; i < walls.length; i++) {
                 const wall = walls[i];
                 printGameObject(canvas, {
                     x: wall.x,
@@ -130,40 +126,40 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
 
             heroes.forEach((hero, index) => {
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
-                printGameObject(canvas!, hero.rect, color);
+                printGameObject(canvas, hero.rect, color);
 
-                canvas!.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');
+                canvas.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');
 
-                if (hero.isAttacking && attackModeRef.current === EAttackMode.Sword) {
+                if (hero.isAttacking && attackMode === EAttackMode.Sword) {
                     const attackPosition = hero.getAttackPosition();
                     if (attackPosition) {
-                        printGameObject(canvas!, attackPosition, 'red');
-                        printHeroSword(canvas!, {
+                        printGameObject(canvas, attackPosition, 'red');
+                        printHeroSword(canvas, {
                             x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
                             y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
                         }, hero);
                     }
                 }
 
-                printHeroSprite(canvas!, {
+                printHeroSprite(canvas, {
                     x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
                     y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
                 }, hero);
             });
 
             enemies.forEach(enemy => {
-                printGameObject(canvas!, enemy.rect, 'red');
+                printGameObject(canvas, enemy.rect, 'red');
 
                 if (enemy.getIsAttacking()) {
                     const attackPosition = enemy.getAttackPosition();
                     if (attackPosition) {
-                        printGameObject(canvas!, attackPosition, 'orange');
+                        printGameObject(canvas, attackPosition, 'orange');
                     }
                 }
             });
 
             arrows.forEach(arrow => {
-                printGameObject(canvas!, {
+                printGameObject(canvas, {
                     x: arrow.rect.x,
                     y: arrow.rect.y,
                     width: arrow.rect.width,
@@ -172,15 +168,14 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
             });
 
             canvas.text(WINDOW.LEFT + 20, WINDOW.TOP + 50, String(fps), 'green');
-
             canvas.render();
         }
     };
 
     const mouseClick = () => {
-        if (attackModeRef.current === EAttackMode.Sword) {
+        if (attackMode === EAttackMode.Sword) {
             game.handleSwordAttack();
-        } else if (attackModeRef.current === EAttackMode.Bow) {
+        } else if (attackMode === EAttackMode.Bow) {
             game.addArrow();
         }
     };
@@ -188,8 +183,8 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
     const mouseRightClick = () => {
     };
 
-    const handleMovement = () => {
-        const { w, a, s, d } = keysPressedRef.current;
+    const handleMovement = useCallback(() => {
+        const { w, a, s, d } = keysPressed;
 
         let dx = 0;
         let dy = 0;
@@ -200,11 +195,18 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
         if (s) dy += 1;
 
         game.updateCurrentUserMovement(dx, dy);
-    };
+    }, [keysPressed]);
 
     const changeAttackMode = (mode: EAttackMode) => {
-        attackModeRef.current = mode;
+        attackMode = mode;
     };
+
+    const updateKeyState = useCallback((key: keyof KeysPressed, value: boolean) => {
+        setKeysPressed(prev => ({
+            ...prev,
+            [key]: value
+        }));
+    }, []);
 
     useEffect(() => {
         canvas = useCanvas(render)({
@@ -219,41 +221,42 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
             },
         });
 
+        let animationFrame: number;
+
         const gameLoop = () => {
             handleMovement();
-            animationFrameRef.current = requestAnimationFrame(gameLoop);
+            animationFrame = requestAnimationFrame(gameLoop);
         };
 
-        animationFrameRef.current = requestAnimationFrame(gameLoop);
+        animationFrame = requestAnimationFrame(gameLoop);
 
         return () => {
-            cancelAnimationFrame(animationFrameRef.current);
+            cancelAnimationFrame(animationFrame);
             canvas?.destructor();
-            canvas = null;
         };
     });
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
-            const keyCode = event.keyCode ? event.keyCode : event.which ? event.which : 0;
+            const key = event.key.toLowerCase();
 
-            switch (keyCode) {
-                case 65:
-                    keysPressedRef.current.a = true;
+            switch (key) {
+                case 'w':
+                    updateKeyState('w', true);
                     break;
-                case 68:
-                    keysPressedRef.current.d = true;
+                case 'a':
+                    updateKeyState('a', true);
                     break;
-                case 87:
-                    keysPressedRef.current.w = true;
+                case 's':
+                    updateKeyState('s', true);
                     break;
-                case 83:
-                    keysPressedRef.current.s = true;
+                case 'd':
+                    updateKeyState('d', true);
                     break;
-                case 49:
+                case '1':
                     changeAttackMode(EAttackMode.Sword);
                     break;
-                case 50:
+                case '2':
                     changeAttackMode(EAttackMode.Bow);
                     break;
                 default:
@@ -262,20 +265,20 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
         };
 
         const keyUpHandler = (event: KeyboardEvent) => {
-            const keyCode = event.keyCode ? event.keyCode : event.which ? event.which : 0;
+            const key = event.key.toLowerCase();
 
-            switch (keyCode) {
-                case 65:
-                    keysPressedRef.current.a = false;
+            switch (key) {
+                case 'w':
+                    updateKeyState('w', false);
                     break;
-                case 68:
-                    keysPressedRef.current.d = false;
+                case 'a':
+                    updateKeyState('a', false);
                     break;
-                case 87:
-                    keysPressedRef.current.w = false;
+                case 's':
+                    updateKeyState('s', false);
                     break;
-                case 83:
-                    keysPressedRef.current.s = false;
+                case 'd':
+                    updateKeyState('d', false);
                     break;
                 default:
                     break;
