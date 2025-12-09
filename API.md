@@ -72,6 +72,8 @@ UserInfo: {
     login: string;
     nickname: string;
     money: string;
+    selectedClass: number;
+    purchasedClasses: array of numbers;
 }
 ```
 

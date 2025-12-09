@@ -258,6 +258,35 @@ class DB {
         );
     }
 
+    public function getUserSelectedClassId($userId) {
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return null;
+        
+        $result = $this->query(
+            "SELECT class_id FROM characters_classes WHERE character_id = ? AND selected = 1 LIMIT 1",
+            [$character->id]
+        );
+        
+        return $result ? $result->class_id : null;
+    }
+
+    public function getUserPurchasedClassIds($userId) {
+        $character = $this->getCharacterByUserId($userId);
+        if (!$character) return [];
+        
+        $results = $this->queryAll(
+            "SELECT class_id FROM characters_classes WHERE character_id = ?",
+            [$character->id]
+        );
+        
+        $classIds = [];
+        foreach ($results as $row) {
+            $classIds[] = (int)$row['class_id'];
+        }
+        
+        return $classIds;
+    }
+
     // item
     public function getItemById($itemId) {
         return $this->query("SELECT * FROM items WHERE id = ?", [$itemId]);
