@@ -18,8 +18,8 @@ export type TUser = {
 }
 
 export type TUserInfoResponse = {
-    character_id: number;
-    user_id: number;
+    characterId: number;
+    userId: number;
     login: string;
     nickname: string;
     money: string;
@@ -29,8 +29,8 @@ export type TRoom = {
     id: number;
     status: 'open' | 'closed' | 'started';
     name: string;
-    players_count: number;
-    room_size: number;
+    playersCount: number;
+    roomSize: number;
     members: TRoomMember[];
 }
 
@@ -41,10 +41,10 @@ export type TRoomsResponse = {
 }
 
 export type TRoomMember = {
-    character_id: number,
+    characterId: number,
     type: "owner" | "participant",
     status: "ready" | "started",
-    user_id: number,
+    userId: number,
     login: string,
     nickname: string,
     money: string
@@ -52,7 +52,7 @@ export type TRoomMember = {
 }
 
 export type TRoomMembersResponse = {
-    room_status: 'open' | 'closed' | 'started';
+    roomStatus: 'open' | 'closed' | 'started';
     members?: TRoomMember[];
     hash?: string;
 }

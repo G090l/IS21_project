@@ -12,7 +12,7 @@ const RoomInfo: React.FC<IBasePage & { room: TRoom }> = ({ setPage, room }) => {
     const store = useContext(StoreContext);
     const refNewName = useRef<HTMLInputElement>(null!);
     const user = store.getUser();
-    const { name, players_count, room_size, members } = room;
+    const { name, playersCount, roomSize, members } = room;
 
     const { isOwner, isUserRoomMember } = useRoomUser(room, user);
 
@@ -50,7 +50,7 @@ const RoomInfo: React.FC<IBasePage & { room: TRoom }> = ({ setPage, room }) => {
                 <span>{`Название: ${name}`}</span>
             </div>
             <div>
-                <span>Участники: {players_count}/{room_size}</span>
+                <span>Участники: {playersCount}/{roomSize}</span>
                 {members.length && members.map(
                     (member, index) => <Member key={index} isOwner={isOwner} member={member} />
                 )}
