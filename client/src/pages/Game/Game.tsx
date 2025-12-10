@@ -11,7 +11,6 @@ const GamePage: React.FC<IBasePage> = (props: IBasePage) => {
     const server = useContext(ServerContext);
     const { setPage } = props;
     const game = new Game(server);
-
     const backClickHandler = () => setPage(PAGES.LOBBY);
 
     // выстреливает только при уничтожении компоненты

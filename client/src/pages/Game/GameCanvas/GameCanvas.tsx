@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect } from "react";
 import CONFIG, { EDIRECTION } from "../../../config";
 import Game from "../../../game/Game";
 import { Canvas, useCanvas } from "../../../services/canvas";
@@ -11,23 +11,18 @@ enum EAttackMode {
     Bow = 'bow'
 }
 
-interface KeysPressed {
-    w: boolean;
-    a: boolean;
-    s: boolean;
-    d: boolean;
-}
-
 const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
     let canvas: Canvas;
+    const Canvas = useCanvas(render);
     let attackMode = EAttackMode.Sword;
-    const [keysPressed, setKeysPressed] = useState<KeysPressed>({
+    const { WINDOW, SPRITE_SIZE } = CONFIG;
+
+    let movementKeys = {
         w: false,
         a: false,
         s: false,
         d: false
-    });
-    const { WINDOW, SPRITE_SIZE } = CONFIG;
+    };
 
     const {
         spritesImage,
@@ -92,7 +87,7 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
         printFillSprite(spritesImage, canvas, { x, y }, [sx, sy, size]);
     }
 
-    const render = (fps: number): void => {
+    function render(fps: number): void {
         if (canvas && game) {
             canvas.clear();
             const scene = game.getScene();
@@ -167,8 +162,8 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
     const mouseRightClick = () => {
     };
 
-    const handleMovement = useCallback(() => {
-        const { w, a, s, d } = keysPressed;
+    const handleMovement = () => {
+        const { w, a, s, d } = movementKeys;
 
         let dx = 0;
         let dy = 0;
@@ -179,21 +174,14 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
         if (s) dy += 1;
 
         game.updateCurrentUserMovement(dx, dy);
-    }, [keysPressed]);
+    };
 
     const changeAttackMode = (mode: EAttackMode) => {
         attackMode = mode;
     };
 
-    const updateKeyState = useCallback((key: keyof KeysPressed, value: boolean) => {
-        setKeysPressed(prev => ({
-            ...prev,
-            [key]: value
-        }));
-    }, []);
-
     useEffect(() => {
-        canvas = useCanvas(render)({
+        canvas = Canvas({
             parentId: gameField,
             WIDTH: WINDOW.WIDTH,
             HEIGHT: WINDOW.HEIGHT,
@@ -222,25 +210,25 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
-            const key = event.key.toLowerCase();
+            const keyCode = event.keyCode ? event.keyCode : event.which ? event.which : 0;
 
-            switch (key) {
-                case 'w':
-                    updateKeyState('w', true);
+            switch (keyCode) {
+                case 65: // a
+                    movementKeys.a = true
+                    break
+                case 68: // d
+                    movementKeys.d = true
+                    break
+                case 87: // w
+                    movementKeys.w = true
+                    break
+                case 83: // s
+                    movementKeys.s = true
                     break;
-                case 'a':
-                    updateKeyState('a', true);
-                    break;
-                case 's':
-                    updateKeyState('s', true);
-                    break;
-                case 'd':
-                    updateKeyState('d', true);
-                    break;
-                case '1':
+                case 49:
                     changeAttackMode(EAttackMode.Sword);
                     break;
-                case '2':
+                case 50:
                     changeAttackMode(EAttackMode.Bow);
                     break;
                 default:
@@ -249,22 +237,20 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
         };
 
         const keyUpHandler = (event: KeyboardEvent) => {
-            const key = event.key.toLowerCase();
+            const keyCode = event.keyCode ? event.keyCode : event.which ? event.which : 0;
 
-            switch (key) {
-                case 'w':
-                    updateKeyState('w', false);
-                    break;
-                case 'a':
-                    updateKeyState('a', false);
-                    break;
-                case 's':
-                    updateKeyState('s', false);
-                    break;
-                case 'd':
-                    updateKeyState('d', false);
-                    break;
-                default:
+            switch (keyCode) {
+                case 65: // a
+                    movementKeys.a = false
+                    break
+                case 68: // d
+                    movementKeys.d = false
+                    break
+                case 87: // w
+                    movementKeys.w = false
+                    break
+                case 83: // s
+                    movementKeys.s = false
                     break;
             }
         };
