@@ -16,7 +16,7 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
     const store = useContext(StoreContext);
     const [messages, setMessages] = useState<TMessages>([]);
     const [_, setHash] = useState<string>('');
-    const messageRef = useRef<HTMLInputElement>(null);
+    const messageRef = useRef<HTMLInputElement>(null!);
     const [isHovered, setIsHovered] = useState(false);
     const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
     const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -33,7 +33,7 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
                 } else if (!isOpen) {
                     onToggle(true);
                     setTimeout(() => {
-                        messageRef.current?.focus();
+                        messageRef.current.focus();
                     }, 0);
                 }
             }

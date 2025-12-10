@@ -4,6 +4,7 @@ import Hero from "./types/Hero";
 import Server from "../services/server/Server";
 import Arrow from "./types/Arrow";
 import Enemy from "./types/Enemy";
+import { couldStartTrivia } from "typescript";
 
 class Game {
     private server: Server;
@@ -17,7 +18,7 @@ class Game {
 
     constructor(server: Server) {
         this.server = server;
-        this.heroes = [new Hero()];
+        this.heroes = [];
         this.gameMap = new GameMap();
         this.walls = this.gameMap.walls;
         this.arrows = [];
@@ -106,10 +107,9 @@ class Game {
 
     updateCurrentUserMovement(dx: number, dy: number): void {
         const hero = this.getCurrentUserHero();
-        if (hero) {
-            hero.movement.dx = dx;
-            hero.movement.dy = dy;
-        }
+        if (!hero) return;
+        hero.movement.dx = dx;
+        hero.movement.dy = dy;
     }
 
     private userIsOwner() {
