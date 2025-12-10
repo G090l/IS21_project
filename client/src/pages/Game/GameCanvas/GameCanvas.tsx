@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import CONFIG, { EDIRECTION } from "../../../config";
 import Game from "../../../game/Game";
 import { Canvas, useCanvas } from "../../../services/canvas";
 import useSprites from "../hooks/useSprites";
+import { ServerContext } from "../../../App";
 
 const gameField = 'game-field';
 
@@ -11,7 +12,9 @@ enum EAttackMode {
     Bow = 'bow'
 }
 
-const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
+const GameCanvas: React.FC = () => {
+    let game: Game | null = null;
+    const server = useContext(ServerContext);
     let canvas: Canvas;
     const Canvas = useCanvas(render);
     let attackMode = EAttackMode.Sword;
@@ -153,9 +156,9 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
 
     const mouseClick = () => {
         if (attackMode === EAttackMode.Sword) {
-            game.handleSwordAttack();
+            game?.handleSwordAttack();
         } else if (attackMode === EAttackMode.Bow) {
-            game.addArrow();
+            game?.addArrow();
         }
     };
 
@@ -173,7 +176,7 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
         if (w) dy -= 1;
         if (s) dy += 1;
 
-        game.updateCurrentUserMovement(dx, dy);
+        game?.updateCurrentUserMovement(dx, dy);
     };
 
     const changeAttackMode = (mode: EAttackMode) => {
@@ -181,6 +184,7 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
     };
 
     useEffect(() => {
+        game = new Game(server);
         canvas = Canvas({
             parentId: gameField,
             WIDTH: WINDOW.WIDTH,
@@ -258,13 +262,13 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
         const mouseDownHandler = (event: MouseEvent) => {
             if (event.button === 2) {
                 event.preventDefault();
-                game.handleBlock();
+                game?.handleBlock();
             }
         };
 
         const mouseUpHandler = (event: MouseEvent) => {
             if (event.button === 2) {
-                game.handleUnblock();
+                game?.handleUnblock();
             }
         };
 
@@ -280,6 +284,9 @@ const GameCanvas: React.FC<{ game: Game }> = ({ game }) => {
             document.removeEventListener('mouseup', mouseUpHandler);
         };
     });
+
+    // выстреливает только при уничтожении компоненты
+    useEffect(() => () => game?.destructor());
 
     return (<div id={gameField} className={gameField}></div>);
 }
