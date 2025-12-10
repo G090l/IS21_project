@@ -34,6 +34,7 @@ function result($params) {
             case 'startGame': return $app->startGame($params);
             case 'renameRoom': return $app->renameRoom($params);
             case 'getRooms': return $app->getRooms($params);
+            case 'endGame': return $app->endGame($params);
             //ClassManager
             case 'getClasses': return $app->getClasses($params);
             case 'buyClass': return $app->buyClass($params);
@@ -43,6 +44,7 @@ function result($params) {
             case 'sellItem': return $app->sellItem($params);
             case 'useArrow': return $app->useArrow($params);
             case 'usePotion': return $app->usePotion($params);
+            case 'getItemsData': return $app->getItemsData($params);
             //GameManager
             case 'getScene': return $app->getScene($params);
             case 'updateCharacter': return $app->updateCharacter($params);

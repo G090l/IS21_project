@@ -213,6 +213,31 @@ class DB {
         ", [$roomId]);
     }
 
+    public function createInitialBotsForRoom($roomId) {
+        $initialData = json_encode([]);
+        return $this->execute(
+            "INSERT INTO bots_rooms (room_id, data) VALUES (?, ?)",
+            [$roomId, $initialData]
+        );
+    }
+
+    public function createInitialArrowsForRoom($roomId) {
+        $initialData = json_encode([]); 
+        return $this->execute(
+            "INSERT INTO arrows (room_id, data) VALUES (?, ?)",
+            [$roomId, $initialData]
+        );
+    }
+
+ 
+    public function deleteAllBotsForRoom($roomId) {
+        return $this->execute("DELETE FROM bots_rooms WHERE room_id = ?", [$roomId]);
+    }
+
+    public function deleteAllArrowsForRoom($roomId) {
+        return $this->execute("DELETE FROM arrows WHERE room_id = ?", [$roomId]);
+    }
+
     // classes
     public function getPersonClassById($id) {
         return $this->query("SELECT * FROM classes WHERE id = ?", [$id]);
@@ -263,7 +288,7 @@ class DB {
         if (!$character) return null;
         
         $result = $this->query(
-            "SELECT class_id FROM characters_classes WHERE character_id = ? AND selected = 1 LIMIT 1",
+            "SELECT class_id FROM characters_classes WHERE character_id = ? AND selected = 1",
             [$character->id]
         );
         
@@ -364,6 +389,40 @@ class DB {
         );
     }
 
+    public function getUserPurchasedItemsWithQuantity($characterId) {
+        $results = $this->queryAll(
+            "SELECT item_id as itemId, quantity FROM character_items WHERE character_id = ?",
+            [$characterId]
+        );
+        
+        $items = [];
+        foreach ($results as $row) {
+            $items[] = [
+                'itemId' => (int)$row['itemId'],
+                'quantity' => (int)$row['quantity']
+            ];
+        }
+        
+        return $items;
+    }
+
+    public function getAllItemsData() {
+        return $this->queryAll("
+            SELECT 
+                id,
+                name,
+                item_type as itemType,
+                weapon_type as weaponType,
+                damage,
+                attack_speed as attackSpeed,
+                attack_distance as attackDistance,
+                bonus_defense as bonusDefense,
+                bonus_hp as bonusHp,
+                cost
+            FROM items
+        ");
+    }
+
     // bots
     public function getBotTypeById($botTypeId) {
         return $this->query("SELECT * FROM bots WHERE id = ?", [$botTypeId]);
@@ -371,7 +430,7 @@ class DB {
 
     public function getBotsByRoomId($roomId) {
         return $this->queryAll("
-            SELECT id, room_id, data
+            SELECT id, room_id as roomId, data
             FROM bots_rooms 
             WHERE room_id = ?
         ", [$roomId]);
@@ -379,7 +438,17 @@ class DB {
 
 
     public function getAllBotsData() {
-        return $this->queryAll("SELECT * FROM bots");
+        return $this->queryAll("
+            SELECT 
+                id,
+                name,
+                hp,
+                damage,
+                attack_speed as attackSpeed,
+                attack_distance as attackDistance,
+                money
+            FROM bots
+        ");
     }
 
     // transactions
@@ -398,7 +467,7 @@ class DB {
     //arrows
     public function getArrowsByRoomId($roomId) {
         return $this->queryAll("
-            SELECT id, room_id, data
+            SELECT id, room_id as roomId, data
             FROM arrows 
             WHERE room_id = ?
         ", [$roomId]);

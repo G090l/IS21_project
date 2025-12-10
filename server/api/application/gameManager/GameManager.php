@@ -54,6 +54,13 @@ class GameManager extends BaseManager {
         $response['status'] = 'updated';
         if ($characterHash !== $currentCharHash) {
             $characters = $this->db->getAllRoomMembersWithData($roomId);
+            //класс для каждого перса
+            foreach ($characters as &$character) {
+                if (isset($character['userId'])) {
+                    $selectedClass = $this->db->getUserSelectedClassId($character['userId']);
+                    $character['selectedClass'] = $selectedClass;
+                }
+            }
             $response['characterHash'] = $currentCharHash;
             $response['characters'] = $characters;
         }

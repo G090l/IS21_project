@@ -228,7 +228,7 @@ class LobbyManager extends BaseManager {
             }
         }
         
-        //проверка на всех ready игроков
+        //проверка на наличие всех игроков
         if ($readyPlayers != $room->room_size) {
             return ['error' => 2012]; 
         }
@@ -236,6 +236,10 @@ class LobbyManager extends BaseManager {
         //меняем статус комнаты и участников на started
         $this->db->updateRoomStatus($roomMember->roomId, 'started');
         $this->db->updateAllRoomMembersStatus($roomMember->roomId, 'started');
+
+        //cоздание записей для ботов и стрел
+        $this->db->createInitialBotsForRoom($roomMember->roomId);
+        $this->db->createInitialArrowsForRoom($roomMember->roomId);
         
         $this->db->updateRoomHash(md5(rand()));
         return true;
@@ -300,5 +304,43 @@ class LobbyManager extends BaseManager {
             'hash' => $currentHash,
             'rooms' => $roomsWithMembers
         ];
+    }
+
+    public function endGame($userId) {
+        //проверка пользователя
+        $user = $this->checkUserExists($userId);
+        if (is_array($user)) return $user;
+
+        //проверка персонажа
+        $character = $this->checkCharacterExists($userId);
+        if (is_array($character)) return $character;
+
+        //проверка, что пользователь является владельцем
+        $roomMember = $this->checkUserIsRoomOwner($userId);
+        if (is_array($roomMember)) return $roomMember;
+        
+        //получаем комнату
+        $room = $this->db->getRoomById($roomMember->roomId);
+        if (!$room) {
+            return ['error' => 2003];
+        }
+        
+        //проверка, что комната в статусе started
+        if ($room->status != 'started') {
+            return ['error' => 2011];
+        }
+        
+        //удаляем все записи ботов для этой комнаты
+        $this->db->deleteAllBotsForRoom($roomMember->roomId);
+        
+        //удаляем все записи стрел для этой комнаты
+        $this->db->deleteAllArrowsForRoom($roomMember->roomId);
+        
+        //удаляем всех участников комнаты и саму комнату
+        $this->db->deleteAllRoomMembers($roomMember->roomId);
+        $this->db->deleteRoom($roomMember->roomId);
+        
+        $this->db->updateRoomHash(md5(rand()));
+        return true;
     }
 }
