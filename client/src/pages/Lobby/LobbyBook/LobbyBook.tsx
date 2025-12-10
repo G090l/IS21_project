@@ -2,11 +2,11 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { ServerContext, StoreContext } from '../../../App';
 import Button from '../../../components/Button/Button';
-import { IBasePage, PAGES } from '../../PageManager';
+import { IBasePage } from '../../PageManager';
 import { TError, TRoom } from '../../../services/server/types';
-import './LobbyBook.scss';
 import Room from '../Room/Room';
 import RoomInfo from '../RoomInfo/RoomInfo';
+import './LobbyBook.scss';
 
 interface ILobbyBook extends IBasePage {
     isOpen: boolean;

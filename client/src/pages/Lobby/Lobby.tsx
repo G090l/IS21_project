@@ -8,9 +8,9 @@ import { useRoomUser } from '../../hooks/useRoomUser';
 import LobbyGame from '../../lobby/LobbyGame';
 import useSprites from '../../pages/Game/hooks/useSprites';
 import Button from '../../components/Button/Button';
-import Chat from '../../components/Chat/Chat';
-import LobbyManager from './LobbyManager/LobbyManager';
+import LobbyMenu from './LobbyMenu/LobbyMenu';
 import LobbyBook from './LobbyBook/LobbyBook';
+import ClassShop from './ClassShop/ClassShop';
 
 import menuBackground from '../../assets/img/lobby/menu-background.png';
 import lobbyBackground from '../../assets/img/lobby/lobby-background.png';
@@ -24,9 +24,8 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     const store = useContext(StoreContext);
     const { WINDOW, SPRITE_SIZE } = CONFIG;
     const user = store.getUser();
-    const [isChatOpen, setIsChatOpen] = useState(false);
-    const [isLobbyManagerOpen, setIsLobbyManagerOpen] = useState(false);
     const [isLobbyBookOpen, setIsLobbyBookOpen] = useState(false);
+    const [isClassShopOpen, setIsClassShopOpen] = useState(false);
     const gameRef = useRef<LobbyGame | null>(null);
     const canvasRef = useRef<Canvas | null>(null);
     const animationFrameRef = useRef<number>(0);
@@ -200,7 +199,7 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                     if (showStartButton) {
                         toggleLobbyBook();
                     } else if (showShopButton) {
-                        classShopClickHandler();
+                        toggleClassShop();
                     }
                     break;
                 default:
@@ -236,11 +235,11 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
             document.removeEventListener('keydown', keyDownHandler);
             document.removeEventListener('keyup', keyUpHandler);
         };
-    }, [showStartButton, showShopButton, isChatOpen]);
+    }, [showStartButton, showShopButton]);
 
 
-    const classShopClickHandler = () => {
-        setPage(PAGES.CLASS_SHOP);
+    const toggleClassShop = () => {
+        setIsClassShopOpen(true);
     };
 
     const toggleLobbyBook = () => {
@@ -258,16 +257,11 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
             )}
             {showShopButton && (
                 <Button
-                    onClick={classShopClickHandler}
+                    onClick={toggleClassShop}
                     className='classShop-button'
                     id='test-menu-classShop-button'
                 />
             )}
-            <LobbyManager
-                setPage={setPage}
-                isOpen={isLobbyManagerOpen}
-                onToggle={setIsLobbyManagerOpen}
-            />
             {isLobbyBookOpen && (
                 <LobbyBook
                     setPage={setPage}
@@ -275,10 +269,16 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                     onToggle={setIsLobbyBookOpen}
                 />
             )}
+            {isClassShopOpen && (
+                <ClassShop
+                    setPage={setPage}
+                    isOpen={isClassShopOpen}
+                    onToggle={setIsClassShopOpen}
+                />
+            )}
             <div id={LOBBY_FIELD} className={LOBBY_FIELD}></div>
-            <Chat
-                isOpen={isChatOpen}
-                onToggle={setIsChatOpen}
+            <LobbyMenu
+                setPage={setPage}
             />
         </div>
     </div>)

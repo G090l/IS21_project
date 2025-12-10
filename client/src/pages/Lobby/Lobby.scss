@@ -55,6 +55,20 @@
             cursor: pointer;
         }
 
+        .buttons {
+            .deleteUser-button {
+                position: absolute;
+                top: 28%;
+                left: 1%;
+            }
+
+            .exitAccount-button {
+                position: absolute;
+                top: 28%;
+                left: 13%;
+            }
+        }
+
         canvas {
             display: block;
             width: 100% !important;

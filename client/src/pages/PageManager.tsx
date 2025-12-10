@@ -5,7 +5,6 @@ import GamePage from './Game/Game';
 import NotFound from './NotFound/NotFound';
 import Lobby from './Lobby/Lobby';
 import Registration from './Registration/Registration';
-import ClassShop from './ClassShop/ClassShop';
 import { TRoom } from '../services/server/types';
 
 
@@ -33,7 +32,6 @@ const PageManager: React.FC = () => {
             {page === PAGES.NOT_FOUND && <NotFound setPage={setPage} />}
             {page === PAGES.LOBBY && <Lobby setPage={setPage} />}
             {page === PAGES.REGISTRATION && <Registration setPage={setPage} />}
-            {page === PAGES.CLASS_SHOP && <ClassShop setPage={setPage} />}
         </>
     );
 }
