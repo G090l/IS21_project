@@ -16,6 +16,7 @@
     * 2.7. Стрелы
     * 2.8. Сцена игры
     * 2.9. Классы
+    * 2.10. Предметы
 3. Список запросов
     * 3.1. Описание запросов
     * 3.2. Список ошибок
@@ -74,6 +75,12 @@ UserInfo: {
     money: string;
     selectedClass: number;
     purchasedClasses: array of numbers;
+    purchasedItems: [
+        {
+        "itemId": number,
+        "quantity": number,
+      },
+    ];
 }
 ```
 
@@ -101,7 +108,8 @@ RoomMember: {
     login: string,
     nickname: string,
     money: string,
-    token?: string
+    token: string,
+    selectedClass: number
 }
 
 RoomMembersResponse: {
@@ -145,14 +153,14 @@ Bot: {
     name: string,
     hp: number,
     damage: number,
-    attack_speed: number,
-    attack_distance: number,
+    attackSpeed: number,
+    attackDistance: number,
     money: number
 }
 
 BotInRoom: {
     id: number,
-    room_id: number,
+    roomId: number,
     data: string
 }
 ```
@@ -161,7 +169,7 @@ BotInRoom: {
 ```
 ArrowInRoom: {
     id: number,
-    room_id: number,
+    roomId: number,
     data: string
 }
 ```
@@ -189,6 +197,22 @@ Class: {
     cost: number;
     hp: number;
     defense: number;
+}
+```
+
+### 2.10. Предметы
+```
+Item: {
+    id: number,
+    name: string,
+    itemType: 'weapon' | 'helmet' | 'chestplate' | 'leggings' | 'shield' | 'potion' | 'arrow',
+    weaponType: 'sword' | 'bow' | 'axe' | 'staff' | 'dagger' | null,
+    damage: number,
+    attackSpeed: number,
+    attackDistance: number,
+    bonusDefense: number,
+    bonusHp: number,
+    cost: number,
 }
 ```
 
@@ -224,6 +248,7 @@ Class: {
 | startGame | Начало игры в комнате |
 | renameRoom | Переименование комнаты |
 | getRooms | Получение списка комнат |
+| endGame | Конец игры в комнате |
 
 #### 3.1.5. ClassManager
 | Название | Описание |
@@ -239,6 +264,7 @@ Class: {
 | sellItem | Продажа предмета |
 | useArrow | Использование стрелы |
 | usePotion | Использование зелья |
+| getItemsData | Получение данных всех предметов |
 
 #### 3.1.7. GameManager
 | Название | Описание |
@@ -323,6 +349,7 @@ Class: {
 | startGame | http://server/api/?method=startGame&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | renameRoom | http://server/api/?method=renameRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&newRoomName=НовоеНазвание |
 | getRooms | http://server/api/?method=getRooms&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&roomHash=ТЕКУЩИЙ_ХЭШ |
+| endGame | http://server/api/?method=endGame&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | getClasses | http://server/api/?method=getClasses |
 | buyClass | http://server/api/?method=buyClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
 | selectClass | http://server/api/?method=selectClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
@@ -330,11 +357,12 @@ Class: {
 | sellItem | http://server/api/?method=sellItem&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&itemId=1 |
 | useArrow | http://server/api/?method=useArrow&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | usePotion | http://server/api/?method=usePotion&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
+| getItemsData | http://server/api/?method=getItemsData&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | getScene | http://server/api/?method=getScene&roomId=1&characterHash=ХЭШ&botHash=ХЭШ&arrowHash=ХЭШ |
 | updateCharacter | http://server/api/?method=updateCharacter&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&actionStatus=СТАТУС&characterData=ДАННЫЕ_JSON |
 | updateBots | http://server/api/?method=updateBots&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botsData=ДАННЫЕ_JSON |
 | updateArrows | http://server/api/?method=updateArrows&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&arrowsData=ДАННЫЕ_JSON |
-| getBotsData | http://server/api/?method=getBotsData |
+| getBotsData | http://server/api/?method=getBotsData&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | addMoneyForKill | http://server/api/?method=addMoneyForKill&token=ТОКЕН_ОВНЕРА&killerToken=ТОКЕН_УБИЙЦЫ&botTypeId=1 |
 
 
@@ -635,6 +663,7 @@ Class: {
 * `242` - не передан токен
 * `705` - пользователь не найден
 * `706` - персонаж не найден
+* `2003` - комната не найдена
 * `2010` - вы не владелец комнаты
 * `2012` - недостаточно игроков для начала игры
 * `2015` - комната не закрыта
@@ -717,6 +746,27 @@ Class: {
 * `242` - не переданы все необходимые параметры
 * `705` - пользователь не найден
 
+
+#### 4.4.8. endGame
+Конец игры в комнате (инициатор - только владелец)
+
+**Параметры**
+```
+{
+    token: string - токен владельца комнаты
+}
+```
+**Успешный ответ**
+```
+    Answer<true>
+```
+**Ошибки**
+* `242` - не передан токен
+* `705` - пользователь не найден
+* `706` - персонаж не найден
+* `2003` - комната не найдена
+* `2010` - вы не владелец комнаты
+* `2011` - в комнате не идет игра
 
 ### 4.5. ClassManager
 #### 4.5.1 getClasses
@@ -868,6 +918,23 @@ Class: {
 * `4010` - зелья не экипированы
 
 
+#### 4.6.5. getItemsData
+Получение данных всех предметов
+
+**Параметры**
+```
+{
+    token: string, - токен пользователя
+}
+```
+**Успешный ответ**
+```
+  Answer<Item[]>
+```
+**Ошибки**
+* `242` - не передан токен
+* `705` - пользователь не найден
+
 ### 4.7. GameManager
 #### 4.7.1. getScene
 Получение игровой сцены (персонажи, боты, стрелы)
@@ -984,13 +1051,16 @@ Class: {
 **Параметры**
 ```
 {
+    token: string, - токен пользователя
 }
 ```
 **Успешный ответ**
 ```
   Answer<Bot[]>
 ```
-
+**Ошибки**
+* `242` - не передан токен
+* `705` - пользователь не найден
 
 #### 4.7.6. addMoneyForKill
 Начисление денег за убийство бота

@@ -205,4 +205,9 @@ class ItemManager extends BaseManager {
         //используем схилку
         return $this->useConsumables($character->id, 'potion');
     }
+
+    //получение всех предметов из игры
+    public function getItemsData() {
+        return $this->db->getAllItemsData();
+    }
 }

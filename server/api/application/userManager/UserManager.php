@@ -21,6 +21,9 @@ class UserManager extends BaseManager {
         $selectedClass = $this->db->getUserSelectedClassId($userId);
         $purchasedClasses = $this->db->getUserPurchasedClassIds($userId);
 
+         //инфа о предметах юзера
+        $purchasedItems = $this->db->getUserPurchasedItemsWithQuantity($character->id);
+
         return [
             'character_id' => $character->id,
             'user_id' => $user->id,
@@ -28,7 +31,8 @@ class UserManager extends BaseManager {
             'nickname' => $user->nickname,
             'money' => $character->money,
             'selectedClass' => $selectedClass, 
-            'purchasedClasses' => $purchasedClasses
+            'purchasedClasses' => $purchasedClasses,
+            'purchasedItems' => $purchasedItems
         ];
     }
 

@@ -183,6 +183,17 @@ class Application {
         return ['error' => 242];
     }
 
+    public function endGame($params) {
+        if ($params['token']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->lobby->endGame($user->id);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
     //ClassManager
     public function getClasses($params) {
         return $this->class->getClasses();
@@ -251,6 +262,17 @@ class Application {
         return ['error' => 242];
     }
 
+    public function getItemsData($params) {
+        if ($params['token']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->item->getItemsData();
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
     //GameManager
     public function getScene($params) {
         if ($params['roomId'] && $params['characterHash'] && $params['botHash'] && $params['arrowHash']) {
@@ -267,7 +289,14 @@ class Application {
     }
 
     public function getBotsData($params) {
-        return $this->game->getBotsData();
+        if ($params['token']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->game->getBotsData();
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
     }
 
     public function getArrows($params) {

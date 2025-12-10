@@ -47,8 +47,8 @@
 | - | - | - |
 | id | integer | primary key |
 | name | string | not null |
-| item_type | enum | 'weapon'/'helmet'/'chestplate'/'leggings'/'shield'/'potion'/'arrow' |
-| weapon_type | enum | 'sword'/'bow'/'axe'/'staff'/'dagger' or null |
+| item_type | enum | 'weapon'/'helmet'/'chestplate'/'leggings'/'shield'/'potion'/'arrow'|
+| weapon_type | enum | 'sword'/'bow'/'axe'/'staff'/'dagger'/null |
 | damage | integer | 0 by default |
 | attack_speed | integer | 0 by default |
 | attack_distance | integer | 0 by default |
