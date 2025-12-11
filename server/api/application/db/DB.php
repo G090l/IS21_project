@@ -499,7 +499,6 @@ class DB {
                 rm.character_id as characterId,
                 rm.type,
                 rm.status,
-                rm.action_status as actionStatus,
                 rm.data,
                 u.id as userId,
                 u.login,
@@ -527,10 +526,10 @@ class DB {
         );
     }
 
-    public function updateRoomMemberData($roomMemberId, $actionStatus, $data) {
+    public function updateRoomMemberData($roomMemberId, $data) {
         return $this->execute(
-            "UPDATE room_members SET data = ?, action_status = ? WHERE id = ?",
-            [$data, $actionStatus, $roomMemberId]
+            "UPDATE room_members SET data = ? WHERE id = ?",
+            [$data, $roomMemberId]
         );
     }
 

@@ -82,7 +82,6 @@
 | character_id | integer | not null |
 | type | enum | 'owner'/'participant' |
 | status | enum | 'ready'/'started' |
-| action_status | enum | 'idle'/'move'/'attack'/'shoot'/'block'/'dead' |
 | data | text | JSON |
 
 ## Игровые объекты

@@ -118,7 +118,7 @@ class LobbyManager extends BaseManager {
     public function leaveRoom($userId) {
         //проверка пользователя
         $user = $this->checkUserExists($userId);
-         if (is_array($user)) return $user;
+        if (is_array($user)) return $user;
 
         //проверка персонажа
         $character = $this->checkCharacterExists($userId);
@@ -128,20 +128,39 @@ class LobbyManager extends BaseManager {
         $roomMember = $this->checkUserInRoom($userId);
         if (is_array($roomMember)) return $roomMember;
         
+        //получаем комнату
+        $room = $this->db->getRoomById($roomMember->roomId);
+        if (!$room) {
+            return ['error' => 2003];
+        }
+        
         $userType = $this->getUserTypeInRoom($userId);
         
-        //если юзер === 'owner', то комната распускается, а если юзер НЕ 'owner', то он удалется из комнаты
         if ($userType === 'owner') {
-            if ($roomMember) {
-                //удаляем всех участников комнаты и саму комнату
-                $this->db->deleteAllRoomMembers($roomMember->roomId);
-                $this->db->deleteRoom($roomMember->roomId);
+            //если владелец выходит из комнаты, то она распускается
+            
+            //если в комнате идет игра, то удаляем данные игры
+            if ($room->status === 'started') {
+                //удаляем все записи ботов для этой комнаты
+                $this->db->deleteAllBotsForRoom($roomMember->roomId);
+                    
+                //удаляем все записи стрел для этой комнаты
+                $this->db->deleteAllArrowsForRoom($roomMember->roomId);
             }
+            
+            //удаляем всех участников комнаты и саму комнату
+            $this->db->deleteAllRoomMembers($roomMember->roomId);
+            $this->db->deleteRoom($roomMember->roomId);
+            
         } else {
+            //если участник выходит из комнаты
+            
             $this->leaveParticipantFromRoom($userId);
             
-            //открываем комнату после выхода участника
-            $this->db->updateRoomStatus($roomMember->roomId, 'open');
+            //если комната не в статусе started, открываем её
+            if ($room->status !== 'started') {
+                $this->db->updateRoomStatus($roomMember->roomId, 'open');
+            }
         }
         
         $this->db->updateRoomHash(md5(rand()));
@@ -307,6 +326,10 @@ class LobbyManager extends BaseManager {
     }
 
     public function endGame($userId) {
+        //по сути в таком виде этот метод не нужен, так как он польностью заменяется leaveRoom, 
+        //но позже можно будет добавить функционал для подведения итого игровой сессии (так что пока оставить)
+
+
         //проверка пользователя
         $user = $this->checkUserExists($userId);
         if (is_array($user)) return $user;
@@ -343,4 +366,5 @@ class LobbyManager extends BaseManager {
         $this->db->updateRoomHash(md5(rand()));
         return true;
     }
+
 }

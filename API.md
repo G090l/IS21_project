@@ -103,7 +103,6 @@ RoomMember: {
     characterId: number,
     type: 'owner' | 'participant',
     status: 'ready' | 'started',
-    actionStatus: 'idle' | 'move' | 'attack' | 'shoot' | 'block' | 'dead',
     userId: number,
     login: string,
     nickname: string,
@@ -243,7 +242,7 @@ Item: {
 | - | - |
 | createRoom | Создание комнаты |
 | joinToRoom | Присоединение к комнате |
-| leaveRoom | Выход из комнаты |
+| leaveRoom | Выход из комнаты/игры |
 | dropFromRoom | Исключение участника из комнаты |
 | startGame | Начало игры в комнате |
 | renameRoom | Переименование комнаты |
@@ -359,7 +358,7 @@ Item: {
 | usePotion | http://server/api/?method=usePotion&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | getItemsData | http://server/api/?method=getItemsData&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | getScene | http://server/api/?method=getScene&roomId=1&characterHash=ХЭШ&botHash=ХЭШ&arrowHash=ХЭШ |
-| updateCharacter | http://server/api/?method=updateCharacter&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&actionStatus=СТАТУС&characterData=ДАННЫЕ_JSON |
+| updateCharacter | http://server/api/?method=updateCharacter&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&characterData=ДАННЫЕ_JSON |
 | updateBots | http://server/api/?method=updateBots&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botsData=ДАННЫЕ_JSON |
 | updateArrows | http://server/api/?method=updateArrows&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&arrowsData=ДАННЫЕ_JSON |
 | getBotsData | http://server/api/?method=getBotsData&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
@@ -604,7 +603,7 @@ Item: {
 
 
 #### 4.4.3. leaveRoom
-Выход из комнаты
+Выход из комнаты/игры
 
 **Параметры**
 ```
@@ -620,7 +619,19 @@ Item: {
 * `242` - не передан токен
 * `705` - пользователь не найден
 * `706` - персонаж не найден
+* `2003` - комната не найдена
 * `2006` - пользователь отсутствует в комнате
+
+**Особенности**
+```
+Если пользователь - это владелец комнаты, то:
+- при любом статусе комнаты (open, closed, started) комната полностью распускается;
+- если комната в статусе started, также удаляются все данные игры (боты, стрелы);
+
+Если пользователь - это участник комнаты, то:
+- пользователь удаляется из комнаты;
+- если комната в статусе open или closed - комната открывается для новых игроков;
+```
 
 
 #### 4.4.4. dropFromRoom
@@ -986,7 +997,6 @@ Item: {
 ```
 {
     token: string, - токен пользователя
-    actionStatus: string, - статус действия персонажа
     characterData: string - JSON с данными персонажа
 }
 ```
