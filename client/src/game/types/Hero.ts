@@ -13,14 +13,55 @@ class Hero extends Unit {
 
     constructor() {
         super();
-        this.rect.x = 100;
-        this.rect.y = 100;
+        this.rect.x = 800;
+        this.rect.y = 800;
         this.speed = 8;
         this.rect.width = 100;
         this.rect.height = 100;
         this.damage = this.characterClass.damage;
         this.health = 100;
     };
+
+    public toJSON(): string {
+        const heroData = {
+            rect: {
+                x: this.rect.x,
+                y: this.rect.y,
+                width: this.rect.width,
+                height: this.rect.height
+            },
+            speed: this.speed,
+            damage: this.damage,
+            health: this.health,
+            direction: this.direction,
+            movement: {
+                dx: this.movement.dx,
+                dy: this.movement.dy
+            },
+            name: this.name,
+        };
+
+        return JSON.stringify(heroData);
+    }
+
+    public static fromJSON(jsonString: string): Hero {
+        const data = JSON.parse(jsonString);
+        const hero = new Hero();
+
+        hero.rect.x = data.rect.x;
+        hero.rect.y = data.rect.y;
+        hero.rect.width = data.rect.width;
+        hero.rect.height = data.rect.height;
+        hero.speed = data.speed;
+        hero.damage = data.damage;
+        hero.health = data.health;
+        hero.direction = data.direction;
+        hero.movement.dx = data.movement.dx;
+        hero.movement.dy = data.movement.dy;
+        hero.name = data.name;
+
+        return hero;
+    }
 
     getCharacterClass(): CharacterClass {
         return this.characterClass;
@@ -52,6 +93,7 @@ class Hero extends Unit {
             height: swordHeight
         };
     }
+
     createProjectile(): Arrow {
         const projectileX = this.direction === EDIRECTION.RIGHT
             ? this.rect.x + this.rect.width + 1

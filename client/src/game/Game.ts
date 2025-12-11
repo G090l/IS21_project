@@ -4,7 +4,6 @@ import Hero from "./types/Hero";
 import Server from "../services/server/Server";
 import Arrow from "./types/Arrow";
 import Enemy from "./types/Enemy";
-import { couldStartTrivia } from "typescript";
 
 class Game {
     private server: Server;
