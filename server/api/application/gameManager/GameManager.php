@@ -3,7 +3,7 @@
 class GameManager extends BaseManager {
     
     //обновление данных персонажа
-    public function updateCharacter($userId, $actionStatus, $characterData) {
+    public function updateCharacter($userId, $characterData) {
         //проверка пользователя
         $user = $this->checkUserExists($userId);
          if (is_array($user)) return $user;
@@ -17,7 +17,7 @@ class GameManager extends BaseManager {
         if (is_array($roomMember)) return $roomMember;
         
         //сохраняем данные и обновляем хеш
-        $this->db->updateRoomMemberData($roomMember->id, $actionStatus, $characterData);
+        $this->db->updateRoomMemberData($roomMember->id, $characterData);
         $this->db->updateCharacterHash(md5(rand()));
         
         return true;

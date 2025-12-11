@@ -307,10 +307,10 @@ class Application {
     }
 
     public function updateCharacter($params) {
-        if ($params['token'] && $params['actionStatus'] && $params['characterData']) {
+        if ($params['token'] && $params['characterData']) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                return $this->game->updateCharacter($user->id, $params['actionStatus'], $params['characterData']);
+                return $this->game->updateCharacter($user->id, $params['characterData']);
             }
             return ['error' => 705];
         }
