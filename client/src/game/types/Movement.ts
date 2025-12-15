@@ -6,7 +6,7 @@ type TMovementOptions = {
     speed: number;
 }
 
-type TCollisionCallback = (collidedRect: TRect, currentRect: TRect) => boolean;
+type TCollisionCallback = (collidedRect: TRect, currentRect: TRect) => void;
 
 class Movement {
     public rect: TRect;
@@ -46,23 +46,15 @@ class Movement {
         rects: TRect[],
         collisionCallback?: TCollisionCallback
     ): boolean {
-        let hasCollision = false;
-
         for (const otherRect of rects) {
             if (this.checkRectCollision(this.rect, otherRect)) {
-                hasCollision = true;
-
                 if (collisionCallback) {
-                    const shouldContinue = collisionCallback(otherRect, this.rect);
-
-                    if (!shouldContinue) {
-                        break;
-                    }
+                    collisionCallback(otherRect, this.rect);
+                    return true;
                 }
             }
         }
-
-        return hasCollision;
+        return false;
     }
 }
 

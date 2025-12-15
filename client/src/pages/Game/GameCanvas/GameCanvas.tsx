@@ -1,9 +1,9 @@
 import React, { useEffect, useContext } from "react";
 import CONFIG, { EDIRECTION } from "../../../config";
+import { ServerContext, StoreContext } from "../../../App";
 import Game from "../../../game/Game";
 import { Canvas, useCanvas } from "../../../services/canvas";
 import useSprites from "../hooks/useSprites";
-import { ServerContext } from "../../../App";
 
 const gameField = 'game-field';
 
@@ -15,6 +15,7 @@ enum EAttackMode {
 const GameCanvas: React.FC = () => {
     let game: Game | null = null;
     const server = useContext(ServerContext);
+    const store = useContext(StoreContext);
     let canvas: Canvas;
     const Canvas = useCanvas(render);
     let attackMode = EAttackMode.Sword;
@@ -184,7 +185,7 @@ const GameCanvas: React.FC = () => {
     };
 
     useEffect(() => {
-        game = new Game(server);
+        game = new Game(server, store);
         canvas = Canvas({
             parentId: gameField,
             WIDTH: WINDOW.WIDTH,

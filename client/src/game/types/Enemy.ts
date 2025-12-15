@@ -74,7 +74,6 @@ class Enemy extends Unit {
                 // При столкновении откатываем позицию
                 this.rect.x = originalX;
                 this.rect.y = originalY;
-                return false;
             }
         );
 
@@ -129,18 +128,6 @@ class Enemy extends Unit {
             width: swordSize,
             height: swordSize
         };
-    }
-
-    takeDamage(damage: number): void {
-        this.health -= damage;
-
-        if (this.health < 0) {
-            this.health = 0;
-        }
-    }
-
-    isAlive(): boolean {
-        return this.health > 0;
     }
 
     getIsAttacking(): boolean {

@@ -4,7 +4,6 @@ import { EDIRECTION, TRect } from "../../config";
 // Интерфейс Attack
 interface IAttack {
     damage: number;
-    rect: TRect;
 }
 
 type TArrowOptions = {

@@ -31,6 +31,17 @@ class Unit extends Movement {
         this.health = health;
         this.damage = damage;
     }
+
+    takeDamage(damage: number): void {
+        this.health -= damage;
+        if (this.health < 0) {
+            this.health = 0;
+        }
+    }
+
+    isAlive(): boolean {
+        return this.health > 0;
+    }
 }
 
 export default Unit;

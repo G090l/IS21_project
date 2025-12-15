@@ -1,26 +1,29 @@
 import CONFIG, { TRect, EDIRECTION } from "../config";
+import Server from "../services/server/Server";
+import Store from "../services/store/Store";
 import GameMap from "./types/Map";
 import Hero from "./types/Hero";
-import Server from "../services/server/Server";
 import Arrow from "./types/Arrow";
 import Enemy from "./types/Enemy";
 
 class Game {
     private server: Server;
-    private heroes: Hero[];
+    private store: Store;
+    private heroes: Hero[] = [];
     private walls: TRect[];
     private gameMap: GameMap;
-    private arrows: Arrow[];
+    private arrows: Arrow[] = [];
     private enemies: Enemy[];
     private interval: NodeJS.Timer | null = null;
     private enemyAttackCooldowns: Map<Enemy, number> = new Map();
 
-    constructor(server: Server) {
+    private isUpdatedHero: boolean = false;
+
+    constructor(server: Server, store: Store) {
         this.server = server;
-        this.heroes = [];
+        this.store = store;
         this.gameMap = new GameMap();
         this.walls = this.gameMap.walls;
-        this.arrows = [];
         this.enemies = [new Enemy()];
         this.createHeroWithUserNickname();
 
@@ -29,7 +32,7 @@ class Game {
     }
 
     private createHeroWithUserNickname(): void {
-        const user = this.server.store.getUser();
+        const user = this.store.getUser();
         if (user && user.nickname) {
             const hero = new Hero();
             hero.name = user.nickname;
@@ -65,9 +68,8 @@ class Game {
     addArrow(): void {
         const hero = this.getCurrentUserHero();
         if (!hero) return;
-
-        const arrow = hero.createProjectile();
-        this.arrows.push(arrow);
+        this.arrows.push(new Arrow(hero.createProjectile()));
+        this.isUpdatedHero = true;
     }
 
     handleSwordAttack(): void {
@@ -93,15 +95,15 @@ class Game {
     handleBlock(): void {
         const hero = this.getCurrentUserHero();
         if (!hero) return;
-
         hero.isBlocking = true;
+        this.isUpdatedHero = true;
     }
 
     handleUnblock(): void {
         const hero = this.getCurrentUserHero();
         if (!hero) return;
-
         hero.isBlocking = false;
+        this.isUpdatedHero = true;
     }
 
     updateCurrentUserMovement(dx: number, dy: number): void {
@@ -109,9 +111,11 @@ class Game {
         if (!hero) return;
         hero.movement.dx = dx;
         hero.movement.dy = dy;
+        this.isUpdatedHero = true;
     }
 
-    private userIsOwner() {
+    private userIsOwner(): boolean {
+        return false;
     }
 
     private startUpdateScene() {
@@ -131,16 +135,8 @@ class Game {
         }
     }
 
-    // 100 ms
-    private getSceneFromBackend() {
-        // если пришёл ответ
-        // распарсить его
-        // принудительно применить к сцене игры
-    }
-
     private updateEnemies(): void {
         const heroRects = this.heroes.map(hero => hero.rect);
-
         this.enemies.forEach(enemy => {
             if (enemy.isAlive()) {
                 enemy.update(heroRects, this.walls);
@@ -151,7 +147,6 @@ class Game {
                 }
             }
         });
-
         // Удаляем мертвых врагов
         this.enemies = this.enemies.filter(enemy => enemy.isAlive());
     }
@@ -193,7 +188,6 @@ class Game {
                     (wall, heroRect) => {
                         hero.rect.x = originalX;
                         hero.rect.y = originalY;
-                        return false;
                     }
                 );
             }
@@ -216,7 +210,6 @@ class Game {
                 this.walls,
                 (wall, arrowRect) => {
                     shouldRemoveArrow = true;
-                    return false;
                 }
             );
 
@@ -231,13 +224,10 @@ class Game {
                         e.rect.width === enemyRect.width &&
                         e.rect.height === enemyRect.height
                     );
-
                     if (enemy) {
                         enemy.takeDamage(arrow.damage);
                         shouldRemoveArrow = true;
                     }
-
-                    return false;
                 }
             );
 
@@ -246,23 +236,31 @@ class Game {
     }
 
     private updateScene() {
-        let isUpdated = false;
-
         // Обновляем всех героев
         this.updateHeroes();
-        isUpdated = true;
 
         // Обновляем врагов
         this.updateEnemies();
-        isUpdated = true;
-
         // Обновляем снаряды
         this.updateArrows();
-        isUpdated = true;
 
-        if (isUpdated) {
-            // Логика отправки на сервер
+        // Логика отправки на сервер
+        if (this.userIsOwner()) {
+            // отправлять ботов и стрелы
+            //...
         }
+        if (this.isUpdatedHero) {
+            // отправлять позицию героя И выпущенную стрелу
+            //...
+            this.isUpdatedHero = false;
+        }
+    }
+
+    // 100 ms
+    private getSceneFromBackend() {
+        // если пришёл ответ
+        // распарсить его
+        // принудительно применить к сцене игры
     }
 }
 

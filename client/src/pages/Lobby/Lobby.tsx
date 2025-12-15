@@ -140,7 +140,7 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
 
     useEffect(() => {
         // Инициализация игры
-        gameRef.current = new LobbyGame(server);
+        gameRef.current = new LobbyGame(server, store);
 
         const scene = gameRef.current.getScene();
         scene.heroes.forEach(hero => {
