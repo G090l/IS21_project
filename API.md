@@ -100,9 +100,11 @@ Room: {
 }
 
 RoomMember: {
+    id: number,
     characterId: number,
     type: 'owner' | 'participant',
     status: 'ready' | 'started',
+    data: string, - JSON данные персонажа в комнате
     userId: number,
     login: string,
     nickname: string,
@@ -160,7 +162,7 @@ Bot: {
 BotInRoom: {
     id: number,
     roomId: number,
-    data: string
+    data: string - JSON данные ботов в комнате
 }
 ```
 
@@ -169,7 +171,7 @@ BotInRoom: {
 ArrowInRoom: {
     id: number,
     roomId: number,
-    data: string
+    data: string - JSON данные стрел в комнате
 }
 ```
 
