@@ -32,6 +32,7 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     const backgroundImageRef = useRef<HTMLImageElement>(new Image());
     const [showStartButton, setShowStartButton] = useState(false);
     const [showShopButton, setShowShopButton] = useState(false);
+    const [isMovementBlocked, setIsMovementBlocked] = useState(false);
 
     const { isUserRoomMember } = useRoomUser(room, user);
     const background = isUserRoomMember ? lobbyBackground : menuBackground;
@@ -123,6 +124,12 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
     const CanvasComponent = useCanvas(render);
 
     const handleMovement = useCallback(() => {
+        // Если движение заблокировано (меню открыто), не обрабатываем нажатия клавиш
+        if (isMovementBlocked) {
+            keysPressedRef.current = { w: false, a: false, s: false, d: false };
+            return;
+        }
+        
         const { w, a, s, d } = keysPressedRef.current;
 
         let dx = 0;
@@ -136,7 +143,7 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
         if (gameRef.current) {
             gameRef.current.updateCurrentUserMovement(dx, dy);
         }
-    }, []);
+    }, [isMovementBlocked]);
 
     useEffect(() => {
         // Инициализация игры
@@ -185,23 +192,25 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
             if (document.activeElement?.tagName === 'INPUT' && keyCode === 70) return;
             switch (keyCode) {
                 case 65: // a
-                    keysPressedRef.current.a = true;
+                    if (!isMovementBlocked) keysPressedRef.current.a = true;
                     break;
                 case 68: // d
-                    keysPressedRef.current.d = true;
+                    if (!isMovementBlocked) keysPressedRef.current.d = true;
                     break;
                 case 87: // w
-                    keysPressedRef.current.w = true;
+                    if (!isMovementBlocked) keysPressedRef.current.w = true;
                     break;
                 case 83: // s
-                    keysPressedRef.current.s = true;
+                    if (!isMovementBlocked) keysPressedRef.current.s = true;
                     break;
                 case 70: // f
                     event.preventDefault();
-                    if (showStartButton) {
-                        toggleLobbyBook();
-                    } else if (showShopButton) {
-                        toggleClassShop();
+                    if (!isMovementBlocked) { // Блокируем открытие меню если уже открыто другое
+                        if (showStartButton) {
+                            toggleLobbyBook();
+                        } else if (showShopButton) {
+                            toggleClassShop();
+                        }
                     }
                     break;
                 default:
@@ -237,15 +246,26 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
             document.removeEventListener('keydown', keyDownHandler);
             document.removeEventListener('keyup', keyUpHandler);
         };
-    }, [showStartButton, showShopButton]);
-
+    }, [showStartButton, showShopButton, isMovementBlocked]);
 
     const toggleClassShop = () => {
         setIsClassShopOpen(true);
+        setIsMovementBlocked(true); // Блокруем движение
     };
 
     const toggleLobbyBook = () => {
         setIsLobbyBookOpen(true);
+        setIsMovementBlocked(true); // Блокируем движение
+    };
+
+    const handleCloseLobbyBook = () => {
+        setIsLobbyBookOpen(false);
+        setIsMovementBlocked(false);
+    };
+
+    const handleCloseClassShop = () => {
+        setIsClassShopOpen(false);
+        setIsMovementBlocked(false);
     };
 
     return (<div className='lobby'>
@@ -268,14 +288,14 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                 <LobbyBook
                     setPage={setPage}
                     isOpen={isLobbyBookOpen}
-                    onToggle={setIsLobbyBookOpen}
+                    onToggle={handleCloseLobbyBook}
                 />
             )}
             {isClassShopOpen && (
                 <ClassShop
                     setPage={setPage}
                     isOpen={isClassShopOpen}
-                    onToggle={setIsClassShopOpen}
+                    onToggle={handleCloseClassShop}
                 />
             )}
             <div id={LOBBY_FIELD} className={LOBBY_FIELD}></div>
