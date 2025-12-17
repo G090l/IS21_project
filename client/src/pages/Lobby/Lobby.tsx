@@ -129,7 +129,7 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
             keysPressedRef.current = { w: false, a: false, s: false, d: false };
             return;
         }
-        
+
         const { w, a, s, d } = keysPressedRef.current;
 
         let dx = 0;
@@ -207,9 +207,9 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                     event.preventDefault();
                     if (!isMovementBlocked) { // Блокируем открытие меню если уже открыто другое
                         if (showStartButton) {
-                            toggleLobbyBook();
+                            openLobbyBook();
                         } else if (showShopButton) {
-                            toggleClassShop();
+                            openClassShop ();
                         }
                     }
                     break;
@@ -248,22 +248,22 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
         };
     }, [showStartButton, showShopButton, isMovementBlocked]);
 
-    const toggleClassShop = () => {
+    const openClassShop = () => {
         setIsClassShopOpen(true);
         setIsMovementBlocked(true); // Блокруем движение
     };
 
-    const toggleLobbyBook = () => {
+    const openLobbyBook = () => {
         setIsLobbyBookOpen(true);
         setIsMovementBlocked(true); // Блокируем движение
     };
 
-    const handleCloseLobbyBook = () => {
+    const closeLobbyBook = () => {
         setIsLobbyBookOpen(false);
         setIsMovementBlocked(false);
     };
 
-    const handleCloseClassShop = () => {
+    const closeClassShop = () => {
         setIsClassShopOpen(false);
         setIsMovementBlocked(false);
     };
@@ -272,14 +272,14 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
         <div className="canvas-container">
             {showStartButton && (
                 <Button
-                    onClick={toggleLobbyBook}
+                    onClick={openLobbyBook}
                     className='startGame-button'
                     id='test-menu-startGame-button'
                 />
             )}
             {showShopButton && (
                 <Button
-                    onClick={toggleClassShop}
+                    onClick={openClassShop}
                     className='classShop-button'
                     id='test-menu-classShop-button'
                 />
@@ -288,14 +288,14 @@ const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
                 <LobbyBook
                     setPage={setPage}
                     isOpen={isLobbyBookOpen}
-                    onToggle={handleCloseLobbyBook}
+                    onClose={closeLobbyBook}
                 />
             )}
             {isClassShopOpen && (
                 <ClassShop
                     setPage={setPage}
                     isOpen={isClassShopOpen}
-                    onToggle={handleCloseClassShop}
+                    onClose={closeClassShop}
                 />
             )}
             <div id={LOBBY_FIELD} className={LOBBY_FIELD}></div>

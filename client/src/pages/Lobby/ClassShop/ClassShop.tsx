@@ -6,14 +6,14 @@ import './ClassShop.scss';
 
 interface IClassShop extends IBasePage {
     isOpen: boolean;
-    onToggle: (isOpen: boolean) => void;
+    onClose: () => void;
 }
 
 const ClassShop: React.FC<IClassShop> = (props) => {
-    const { isOpen, onToggle } = props;
+    const { isOpen, onClose } = props;
 
     const backClickHandler = () => {
-        onToggle(false);
+        onClose();
     };
 
     return (<div
