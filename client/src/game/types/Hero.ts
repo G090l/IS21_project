@@ -1,7 +1,6 @@
 import { EDIRECTION, TRect } from "../../config";
 import CharacterClass, { KNIGHT } from "./CharacterClass";
 import Unit from "./Unit";
-import Arrow from "./Arrow";
 
 class Hero extends Unit {
     private characterClass: CharacterClass = KNIGHT;
@@ -10,6 +9,7 @@ class Hero extends Unit {
     public isAttacking: boolean = false;
     public isBlocking: boolean = false;
     private blockDamageReduction: number = 0.5;
+    private lastShotTime: number = 0;
 
     constructor() {
         super();
@@ -44,23 +44,20 @@ class Hero extends Unit {
         return JSON.stringify(heroData);
     }
 
-    public static fromJSON(jsonString: string): Hero {
+    public fromJSON(jsonString: string) {
         const data = JSON.parse(jsonString);
-        const hero = new Hero();
 
-        hero.rect.x = data.rect.x;
-        hero.rect.y = data.rect.y;
-        hero.rect.width = data.rect.width;
-        hero.rect.height = data.rect.height;
-        hero.speed = data.speed;
-        hero.damage = data.damage;
-        hero.health = data.health;
-        hero.direction = data.direction;
-        hero.movement.dx = data.movement.dx;
-        hero.movement.dy = data.movement.dy;
-        hero.name = data.name;
-
-        return hero;
+        this.rect.x = data.rect.x;
+        this.rect.y = data.rect.y;
+        this.rect.width = data.rect.width;
+        this.rect.height = data.rect.height;
+        this.speed = data.speed;
+        this.damage = data.damage;
+        this.health = data.health;
+        this.direction = data.direction;
+        this.movement.dx = data.movement.dx;
+        this.movement.dy = data.movement.dy;
+        this.name = data.name;
     }
 
     getCharacterClass(): CharacterClass {
@@ -94,17 +91,26 @@ class Hero extends Unit {
         };
     }
 
-    createProjectile(): Arrow {
+    createProjectile() {
         const projectileX = this.direction === EDIRECTION.RIGHT
             ? this.rect.x + this.rect.width + 1
             : this.rect.x - 31;
         const projectileY = this.rect.y + (this.rect.height / 2);
 
-        return new Arrow({
+        return {
             direction: this.direction,
             x: projectileX,
             y: projectileY
-        });
+        };
+    }
+
+    canShoot(): boolean {
+        const currentTime = Date.now();
+        return currentTime - this.lastShotTime >= 500;
+    }
+
+    setLastShotTime(): void {
+        this.lastShotTime = Date.now();
     }
 
     addToInventory(item: string): void {

@@ -1,11 +1,14 @@
 import React, { useEffect, useContext } from "react";
 import CONFIG, { EDIRECTION } from "../../../config";
+import { ServerContext, StoreContext } from "../../../App";
 import Game from "../../../game/Game";
 import { Canvas, useCanvas } from "../../../services/canvas";
 import useSprites from "../hooks/useSprites";
-import { ServerContext } from "../../../App";
+import arena from "../../../assets/img/background/arena.png"
 
 const gameField = 'game-field';
+const arenaImage = new Image();
+arenaImage.src = arena;
 
 enum EAttackMode {
     Sword = 'sword',
@@ -15,6 +18,7 @@ enum EAttackMode {
 const GameCanvas: React.FC = () => {
     let game: Game | null = null;
     const server = useContext(ServerContext);
+    const store = useContext(StoreContext);
     let canvas: Canvas;
     const Canvas = useCanvas(render);
     let attackMode = EAttackMode.Sword;
@@ -93,6 +97,7 @@ const GameCanvas: React.FC = () => {
     function render(fps: number): void {
         if (canvas && game) {
             canvas.clear();
+            canvas.clearImage(arenaImage)
             const scene = game.getScene();
             const { heroes, walls, arrows, enemies } = scene;
 
@@ -184,7 +189,7 @@ const GameCanvas: React.FC = () => {
     };
 
     useEffect(() => {
-        game = new Game(server);
+        game = new Game(server, store);
         canvas = Canvas({
             parentId: gameField,
             WIDTH: WINDOW.WIDTH,
