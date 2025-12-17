@@ -3,6 +3,29 @@ export type TError = {
     text: string;
 }
 
+export type TSceneResponse = {
+    status: 'unchanged' | 'updated';
+    game_status: 'open' | 'closed' | 'started';
+    character_hash?: string;
+    bot_hash?: string;
+    arrow_hash?: string;
+    characters?: TRoomMember[];
+    bots?: TBotInRoom[];
+    arrows?: TArrowInRoom[];
+}
+
+export type TBotInRoom = {
+    id: number,
+    roomId: number,
+    data: string;
+}
+
+export type TArrowInRoom = {
+    id: number,
+    roomId: number,
+    data: string;
+}
+
 export type TAnswer<T> = {
     result: 'ok' | 'error';
     data?: T;
@@ -41,14 +64,17 @@ export type TRoomsResponse = {
 }
 
 export type TRoomMember = {
+    id: number,
     characterId: number,
-    type: "owner" | "participant",
-    status: "ready" | "started",
+    type: 'owner' | 'participant',
+    status: 'ready' | 'started',
+    data: string,
     userId: number,
     login: string,
     nickname: string,
-    money: string
-    token: string
+    money: string,
+    token: string,
+    selectedClass: number
 }
 
 export type TRoomMembersResponse = {

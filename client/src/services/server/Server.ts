@@ -1,7 +1,7 @@
 import md5 from 'md5';
 import CONFIG from "../../config";
 import Store from "../store/Store";
-import { TAnswer, TError, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser } from "./types";
+import { TAnswer, TError, TMessagesResponse, TRoom, TRoomMember, TRoomMembersResponse, TRoomsResponse, TSceneResponse, TUser } from "./types";
 
 const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST } = CONFIG;
 
@@ -11,6 +11,7 @@ class Server {
     chatInterval: NodeJS.Timer | null = null;
     roomInterval: NodeJS.Timer | null = null;
     roomMembersInterval: NodeJS.Timer | null = null;
+    sceneInterval: NodeJS.Timer | null = null;
     showErrorCb: (error: TError) => void = () => { };
 
     constructor(store: Store) {
@@ -198,13 +199,55 @@ class Server {
         return null;
     }
 
-    startGetScene(callback: () => void): void {
+    async getScene(): Promise<TSceneResponse | null> {
+        const characterHash = this.store.getCharacterHash();
+        const botHash = this.store.getBotHash();
+        const arrowHash = this.store.getArrowHash();
+
+        const result = await this.request<TSceneResponse>('getScene', {
+            characterHash,
+            botHash,
+            arrowHash
+        });
+        console.log(result)
+        this.store.setCharacterHash(result?.character_hash || '');
+        this.store.setBotHash(result?.bot_hash || '');
+        this.store.setArrowHash(result?.arrow_hash || '');
+
+        return result;
+    }
+
+    async updateCharacter(characterData: string): Promise<boolean | null> {
+        const result = await this.request<boolean>('updateCharacter', {
+            characterData
+        });
+        return result;
+    }
+
+    startGetScene(callback: (scene: TSceneResponse) => void): void {
+        console.log('aboba2')
+        this.sceneInterval = setInterval(async () => {
+            const scene = await this.getScene();
+            if (scene) {
+                callback(scene);
+            }
+        }, ROOM_TIMESTAMP || 1000);
     }
 
     stopGetScene(): void {
+        if (this.sceneInterval) {
+            clearInterval(this.sceneInterval);
+            this.sceneInterval = null;
+        }
     }
 
-    updateScene(): void {
+    // Обновление сцены (отправка данных своего персонажа и получение всех данных)
+    async updateScene(heroJson: string): Promise<TSceneResponse | null> {
+        // Отправляем данные своего персонажа
+        await this.updateCharacter(heroJson);
+
+        // Получаем обновленную сцену со всеми персонажами
+        return await this.getScene();
     }
 }
 

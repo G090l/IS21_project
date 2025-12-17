@@ -10,6 +10,8 @@ class Hero extends Unit {
     public isAttacking: boolean = false;
     public isBlocking: boolean = false;
     private blockDamageReduction: number = 0.5;
+    public id: number = 0;
+
     constructor() {
         super();
         this.rect.x = 800;
@@ -23,6 +25,8 @@ class Hero extends Unit {
 
     public toJSON(): string {
         const heroData = {
+            id: this.id,
+            timestamp: Date.now(),
             rect: {
                 x: this.rect.x,
                 y: this.rect.y,
@@ -38,14 +42,20 @@ class Hero extends Unit {
                 dy: this.movement.dy
             },
             name: this.name,
+            isAttacking: this.isAttacking,
+            isBlocking: this.isBlocking,
+            characterClass: this.characterClass.name,
+            equipment: this.equipment,
+            inventory: this.inventory
         };
 
         return JSON.stringify(heroData);
     }
 
-    public fromJSON(jsonString: string) {
+    public fromJSON(jsonString: string): void {
         const data = JSON.parse(jsonString);
 
+        this.id = data.id || 0;
         this.rect.x = data.rect.x;
         this.rect.y = data.rect.y;
         this.rect.width = data.rect.width;
@@ -57,7 +67,8 @@ class Hero extends Unit {
         this.movement.dx = data.movement.dx;
         this.movement.dy = data.movement.dy;
         this.name = data.name;
-
+        this.isAttacking = data.isAttacking || false;
+        this.isBlocking = data.isBlocking || false;
     }
 
     getCharacterClass(): CharacterClass {
@@ -138,10 +149,6 @@ class Hero extends Unit {
         if (this.health < 0) {
             this.health = 0;
         }
-    }
-
-    isAlive(): boolean {
-        return this.health > 0;
     }
 }
 

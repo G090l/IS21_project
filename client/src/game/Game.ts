@@ -5,6 +5,7 @@ import GameMap from "./types/Map";
 import Hero from "./types/Hero";
 import Arrow from "./types/Arrow";
 import Enemy from "./types/Enemy";
+import { TSceneResponse, TRoomMember } from "../services/server/types";
 
 class Game {
     private server: Server;
@@ -18,6 +19,7 @@ class Game {
     private enemyAttackCooldowns: Map<Enemy, number> = new Map();
 
     private isUpdatedHero: boolean = false;
+    private sceneUpdateInterval: NodeJS.Timer | null = null;
 
     constructor(server: Server, store: Store) {
         this.server = server;
@@ -27,7 +29,7 @@ class Game {
         this.enemies = [new Enemy()];
         this.createHeroWithUserNickname();
 
-        //this.server.startGetScene(() => this.getSceneFromBackend());
+        this.server.startGetScene((scene) => this.getSceneFromBackend(scene));
         this.startUpdateScene();
     }
 
@@ -53,7 +55,11 @@ class Game {
 
     destructor() {
         this.stopUpdateScene();
-        //this.server.stopGetScene();
+        this.server.stopGetScene();
+        if (this.sceneUpdateInterval) {
+            clearInterval(this.sceneUpdateInterval);
+            this.sceneUpdateInterval = null;
+        }
     }
 
     getScene() {
@@ -89,6 +95,7 @@ class Game {
 
         setTimeout(() => {
             hero.isAttacking = false;
+            this.isUpdatedHero = true;
         }, 300);
     }
 
@@ -115,7 +122,14 @@ class Game {
     }
 
     private userIsOwner(): boolean {
-        return false;
+        const user = this.store.getUser();
+        const room = this.store.getRooms().find(r =>
+            r.members?.some(m => m.userId === user?.id)
+        );
+        if (!room || !room.members) return false;
+
+        const member = room.members.find(m => m.userId === user?.id);
+        return member?.type === 'owner';
     }
 
     private startUpdateScene() {
@@ -168,6 +182,7 @@ class Game {
                 console.log(`Враг атаковал героя ${hero.name}! Здоровье: ${hero.health}`);
 
                 this.enemyAttackCooldowns.set(enemy, currentTime);
+                this.isUpdatedHero = true;
             }
         });
     }
@@ -190,6 +205,13 @@ class Game {
                         hero.rect.y = originalY;
                     }
                 );
+
+                // Если персонаж переместился, помечаем для обновления
+                if (hero.rect.x !== originalX || hero.rect.y !== originalY) {
+                    if (hero === this.getCurrentUserHero()) {
+                        this.isUpdatedHero = true;
+                    }
+                }
             }
         });
     }
@@ -235,32 +257,94 @@ class Game {
         });
     }
 
-    private updateScene() {
+    private async updateScene() {
         // Обновляем всех героев
         this.updateHeroes();
 
         // Обновляем врагов
         this.updateEnemies();
+
         // Обновляем снаряды
         this.updateArrows();
 
-        // Логика отправки на сервер
-        if (this.userIsOwner()) {
-            // отправлять ботов и стрелы
-            //...
-        }
-        if (this.isUpdatedHero) {
-            // отправлять позицию героя И выпущенную стрелу
-            //...
-            this.isUpdatedHero = false;
+        // Отправляем данные своего героя на сервер
+        await this.sendHeroDataToBackend();
+    }
+
+    // Отправка данных своего героя на сервер
+    private async sendHeroDataToBackend(): Promise<void> {
+        const hero = this.getCurrentUserHero();
+        if (!hero) return;
+
+        const heroJson = hero.toJSON();
+        this.server.updateCharacter(heroJson);
+        this.isUpdatedHero = false;
+    }
+
+    private getSceneFromBackend(scene: TSceneResponse): void {
+        console.log("aboba")
+        if (scene.characters) {
+            this.updateHeroesFromBackend(scene.characters);
         }
     }
 
-    // 100 ms
-    private getSceneFromBackend() {
-        // если пришёл ответ
-        // распарсить его
-        // принудительно применить к сцене игры
+    // Обновление героев из данных бэкенда
+    private updateHeroesFromBackend(characters: TRoomMember[]): void {
+        console.log('aboba')
+        const user = this.store.getUser();
+        if (!user) return;
+        characters.forEach(character => {
+            // Если герой уже существует, обновляем его
+            const existingHero = this.heroes.find(h => h.name === character.nickname);
+            if (existingHero) {
+                const characterData = JSON.parse(character.data);
+
+                existingHero.rect.x = characterData.rect.x;
+                existingHero.rect.y = characterData.rect.y;
+                existingHero.direction = characterData.direction;
+                existingHero.health = characterData.health;
+                existingHero.isAttacking = characterData.isAttacking;
+                existingHero.isBlocking = characterData.isBlocking;
+                console.log("обновлен")
+            } else {
+                // Создаем нового героя
+                const hero = new Hero();
+                hero.name = character.nickname;
+                const characterData = JSON.parse(character.data);
+                hero.rect.x = characterData.rect?.x || hero.rect.x;
+                hero.rect.y = characterData.rect?.y || hero.rect.y;
+                hero.rect.width = characterData.rect?.width || hero.rect.width;
+                hero.rect.height = characterData.rect?.height || hero.rect.height;
+                hero.direction = characterData.direction || hero.direction;
+                hero.health = characterData.health || hero.health;
+                hero.speed = characterData.speed || hero.speed;
+                hero.damage = characterData.damage || hero.damage;
+
+                if (characterData.movement) {
+                    hero.movement.dx = characterData.movement.dx;
+                    hero.movement.dy = characterData.movement.dy;
+                }
+
+                this.heroes.push(hero);
+            }
+        });
+
+        // Удаляем героев, которых больше нет в БД
+        const characterNames = new Set(characters.map(c => c.nickname));
+        this.heroes = this.heroes.filter(hero => {
+            // Не удаляем своего персонажа
+            if (hero.name === user.nickname) return true;
+            // Удаляем только если персонаж не найден в БД
+            return characterNames.has(hero.name);
+        });
+    }
+
+
+    // Метод для принудительного применения данных сцены
+    private forceApplySceneData(sceneData: any): void {
+        if (sceneData.heroes) {
+            this.heroes = sceneData.heroes;
+        }
     }
 }
 
