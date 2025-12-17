@@ -4,8 +4,11 @@ import { ServerContext, StoreContext } from "../../../App";
 import Game from "../../../game/Game";
 import { Canvas, useCanvas } from "../../../services/canvas";
 import useSprites from "../hooks/useSprites";
+import arena from "../../../assets/img/background/arena.png"
 
 const gameField = 'game-field';
+const arenaImage = new Image();
+arenaImage.src = arena;
 
 enum EAttackMode {
     Sword = 'sword',
@@ -94,6 +97,7 @@ const GameCanvas: React.FC = () => {
     function render(fps: number): void {
         if (canvas && game) {
             canvas.clear();
+            canvas.clearImage(arenaImage)
             const scene = game.getScene();
             const { heroes, walls, arrows, enemies } = scene;
 

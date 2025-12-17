@@ -1,7 +1,6 @@
 import { EDIRECTION, TRect } from "../../config";
 import CharacterClass, { KNIGHT } from "./CharacterClass";
 import Unit from "./Unit";
-import Arrow from "./Arrow";
 
 class Hero extends Unit {
     private characterClass: CharacterClass = KNIGHT;
@@ -91,17 +90,17 @@ class Hero extends Unit {
         };
     }
 
-    createProjectile(): Arrow {
+    createProjectile() {
         const projectileX = this.direction === EDIRECTION.RIGHT
             ? this.rect.x + this.rect.width + 1
             : this.rect.x - 31;
         const projectileY = this.rect.y + (this.rect.height / 2);
 
-        return new Arrow({
+        return {
             direction: this.direction,
             x: projectileX,
             y: projectileY
-        });
+        };
     }
 
     addToInventory(item: string): void {
