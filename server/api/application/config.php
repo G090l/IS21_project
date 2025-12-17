@@ -18,7 +18,9 @@ const MAX_POTIONS_PER_USER = 3;       // Максимальное количес
 const MAX_ARROWS_PER_USER = 50;       // Максимальное количество стрел у одного пользователя
 
 // Настройки игры
-const DEFAULT_CLASS_ID = 1;           // ID класса по умолчанию (воин)
+const STARTED_CLASS_ID = 1;           // ID стартового класса (воин)
+const STARTED_ITEMS = [3, 5, 6, 7, 8];   // ID стартовых предметов
+
 
 // Настройки безопасности
 const PASSWORD_SALT_LENGTH = 100000;  // Длина соли для пароля

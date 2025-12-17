@@ -314,7 +314,22 @@ class DB {
 
     // item
     public function getItemById($itemId) {
-        return $this->query("SELECT * FROM items WHERE id = ?", [$itemId]);
+        return $this->query("
+            SELECT 
+                id,
+                name,
+                item_type as itemType,
+                weapon_type as weaponType,
+                damage,
+                attack_speed as attackSpeed,
+                attack_distance as attackDistance,
+                bonus_defense as bonusDefense,
+                bonus_hp as bonusHp,
+                cost
+            FROM items 
+            WHERE id = ?", 
+            [$itemId]
+        );
     }
 
     public function getUserItem($characterId, $itemId) {
@@ -381,7 +396,7 @@ class DB {
 
     public function getCharacterConsumable($characterId, $itemType) {
         return $this->query(
-            "SELECT ci.id, ci.item_id, ci.quantity 
+            "SELECT ci.id, ci.item_id as itemId, ci.quantity 
             FROM character_items ci 
             JOIN items i ON ci.item_id = i.id 
             WHERE ci.character_id = ? AND i.item_type = ?",
@@ -421,6 +436,17 @@ class DB {
                 cost
             FROM items
         ");
+    }
+
+    public function hasCharacterItemType($characterId, $itemType) {
+        return $this->query(
+            "SELECT ci.id, ci.item_id as itemId, ci.character_id as characterId, ci.quantity, 
+                    i.item_type as itemType, i.weapon_type as weaponType
+            FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.item_type = ?",
+            [$characterId, $itemType]
+        );
     }
 
     // bots
