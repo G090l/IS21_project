@@ -67,8 +67,10 @@ class Game {
 
     addArrow(): void {
         const hero = this.getCurrentUserHero();
-        if (!hero) return;
+        if (!hero || !hero.canShoot()) return;
+
         this.arrows.push(new Arrow(hero.createProjectile()));
+        hero.setLastShotTime();
         this.isUpdatedHero = true;
     }
 

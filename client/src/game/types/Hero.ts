@@ -9,6 +9,8 @@ class Hero extends Unit {
     public isAttacking: boolean = false;
     public isBlocking: boolean = false;
     private blockDamageReduction: number = 0.5;
+    private lastShotTime: number = 0;
+
     constructor() {
         super();
         this.rect.x = 800;
@@ -56,7 +58,6 @@ class Hero extends Unit {
         this.movement.dx = data.movement.dx;
         this.movement.dy = data.movement.dy;
         this.name = data.name;
-
     }
 
     getCharacterClass(): CharacterClass {
@@ -101,6 +102,15 @@ class Hero extends Unit {
             x: projectileX,
             y: projectileY
         };
+    }
+
+    canShoot(): boolean {
+        const currentTime = Date.now();
+        return currentTime - this.lastShotTime >= 500;
+    }
+
+    setLastShotTime(): void {
+        this.lastShotTime = Date.now();
     }
 
     addToInventory(item: string): void {
