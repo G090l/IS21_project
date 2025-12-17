@@ -69,7 +69,7 @@ class UserManager extends BaseManager {
         }
         $this->db->registration($login, $password, $nickname);
 
-        /****Создание персонажа с базовым классом****/ 
+        /****Создание персонажа с базовым классом и стандартыми предметами****/ 
         $newUser = $this->db->getUserByLogin($login);
         if (!$newUser) {
             return ['error' => 705];
@@ -80,14 +80,21 @@ class UserManager extends BaseManager {
             return ['error' => 1007];
         }
         
-        $classAdded = $this->db->addUserPersonClass($newUser->id, DEFAULT_CLASS_ID);
+        $classAdded = $this->db->addUserPersonClass($newUser->id, STARTED_CLASS_ID);
         if (!$classAdded) {
             return ['error' => 1008];
         }
         
-        $classSelected = $this->db->setUserSelectedPersonClass($newUser->id, DEFAULT_CLASS_ID);
+        $classSelected = $this->db->setUserSelectedPersonClass($newUser->id, STARTED_CLASS_ID);
         if (!$classSelected) {
             return ['error' => 1009];
+        }
+
+        $character = $this->checkCharacterExists($newUser->id);
+        if (is_array($character)) return $character;
+
+        foreach (STARTED_ITEMS as $itemId) {
+            $itemAdded = $this->db->addUserItem($character->id, $itemId);
         }
         /********************************************/ 
 

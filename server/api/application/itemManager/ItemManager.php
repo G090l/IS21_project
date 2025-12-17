@@ -24,7 +24,7 @@ class ItemManager extends BaseManager {
     public function buyItem($userId, $itemId) {
         //проверка пользователя
         $user = $this->checkUserExists($userId);
-         if (is_array($user)) return $user;
+        if (is_array($user)) return $user;
 
         //проверка персонажа
         $character = $this->checkCharacterExists($userId);
@@ -41,23 +41,22 @@ class ItemManager extends BaseManager {
             return ['error' => 4002];
         }
         
-        //проверка, есть ли такие шмотки у юзера
-        $existingItem = $this->db->getUserItem($character->id, $itemId);
+        //проверка, есть ли у персонажа предмет такого же типа
+        $existingItemType = $this->db->hasCharacterItemType($character->id, $item->itemType);
         
-        if ($existingItem) {
-            //для зелей - ограничение 3 штуки
-            if ($item->item_type === 'potion') {
-                if ($existingItem->quantity >= MAX_POTIONS_PER_USER) {
+        if ($existingItemType) {
+            //для зелей и стрел проверяем только ограничение по количеству (для зелей макс. = 3, для стрел макс. = 50)
+            if ($item->itemType === 'potion') {
+                if ($existingItemType->quantity >= MAX_POTIONS_PER_USER) {
                     return ['error' => 4005];
                 }
             }
-            //для стрел - ограничение 50 штуки
-            else if ($item->item_type === 'arrow') {
-                if ($existingItem->quantity >= MAX_ARROWS_PER_USER) {
+            else if ($item->itemType === 'arrow') {
+                if ($existingItemType->quantity >= MAX_ARROWS_PER_USER) {
                     return ['error' => 4005];
                 }
             }
-            //для остальных шмоток - ограничение 1 штука
+            //для остальных типов предметов - нельзя иметь больше одного предмета данного типа
             else {
                 return ['error' => 4003];
             }
@@ -74,16 +73,16 @@ class ItemManager extends BaseManager {
                 return ['error' => 4004];
             }
             
-            //если расходники уже есть в инвентаре, увеличиваем количество
-            if ($existingItem && in_array($item->item_type, ['potion', 'arrow'])) {
-                $newQuantity = $existingItem->quantity + 1;
-                $itemUpdated = $this->db->updateUserItemQuantity($character->id, $itemId, $newQuantity);
+            //если это зелье или стрела, то увеличиваем количество
+            if ($existingItemType && in_array($item->itemType, ['potion', 'arrow'])) {
+                $newQuantity = $existingItemType->quantity + 1;
+                $itemUpdated = $this->db->updateUserItemQuantity($character->id, $existingItemType->itemId, $newQuantity);
                 if (!$itemUpdated) {
                     $this->db->rollBack();
                     return ['error' => 4004];
                 }
             } else {
-                //добавляем шмот в инвентарь
+                //добавляем новый предмет в инвентарь
                 $itemAdded = $this->db->addUserItem($character->id, $itemId);
                 if (!$itemAdded) {
                     $this->db->rollBack();
@@ -128,7 +127,7 @@ class ItemManager extends BaseManager {
         
         try {
             //для расходников уменьшаем количество (на последней удаляем), для остального шмота - сразу удаляем
-            if (in_array($item->item_type, ['potion', 'arrow']) && $userItem->quantity > 1) {
+            if (in_array($item->itemType, ['potion', 'arrow']) && $userItem->quantity > 1) {
                 //уменьшаем количество расходника на 1
                 $itemUpdated = $this->db->updateUserItemQuantity($character->id, $itemId, $userItem->quantity - 1);
                 if (!$itemUpdated) {
