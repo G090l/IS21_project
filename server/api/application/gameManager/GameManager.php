@@ -24,9 +24,21 @@ class GameManager extends BaseManager {
     }
     
     //получение сцены
-    public function getScene($roomId, $characterHash, $botHash, $arrowHash) {
-        //проверка, есть ли комната
-        $room = $this->db->getRoomById($roomId);
+    public function getScene($userId, $characterHash, $botHash, $arrowHash) {
+        //проверка пользователя
+        $user = $this->checkUserExists($userId);
+        if (is_array($user)) return $user;
+
+        //проверка персонажа
+        $character = $this->checkCharacterExists($userId);
+        if (is_array($character)) return $character;
+        
+        //проверка, что пользователь в комнате
+        $roomMember = $this->checkUserInRoom($userId);
+        if (is_array($roomMember)) return $roomMember;
+        
+        //получаем комнату
+        $room = $this->db->getRoomById($roomMember->roomId);
         if (!$room) {
             return ['error' => 2003];
         }
@@ -53,7 +65,7 @@ class GameManager extends BaseManager {
 
         $response['status'] = 'updated';
         if ($characterHash !== $currentCharHash) {
-            $characters = $this->db->getAllRoomMembersWithData($roomId);
+            $characters = $this->db->getAllRoomMembersWithData($roomMember->roomId);
             //класс для каждого перса
             foreach ($characters as &$character) {
                 if (isset($character['userId'])) {
@@ -65,17 +77,14 @@ class GameManager extends BaseManager {
             $response['characters'] = $characters;
         }
         if ($botHash !== $currentBotHash) {
-            $bots = $this->db->getBotsByRoomId($roomId);
             $response['botHash'] = $currentBotHash;
-            $response['bots'] = $bots;
+            $response['botsData'] = $this->db->getBotsByRoomId($roomMember->roomId);
         }
         if ($arrowHash !== $currentArrowHash) {
-            $arrows = $this->db->getArrowsByRoomId($roomId);
             $response['arrowHash'] = $currentArrowHash;
-            $response['arrows'] = $arrows;
+            $response['arrowsData'] = $this->db->getArrowsByRoomId($roomMember->roomId);
         }
         return $response;
-
     }
     
     //получение всех данных ботов из таблицы

@@ -46,6 +46,7 @@
 | cost | integer | 0 by default |
 | hp | integer | 50 by default |
 | defense | integer | 0 by default |
+| speed | integer | 0 by default |
 
 **characters_classes**
 | name | type | comment |
@@ -152,11 +153,11 @@
 ## 2. Дополнительная информация
 ### 2.1. Перечень классов
 
-| id | name | type | cost | hp | defence |
+| id | name | type | cost | hp | defence | speed |
 | - | - | - | - | - | - |
-| 1 | Воин | warrior | 100 | 100 | 100 |
-| 2 | Лучник | mage | 150 | 120 | 80 |
-| 3 | Плут | rogue | 150 | 80 | 120 |
+| 1 | Воин | warrior | 100 | 100 | 100 | 10 |
+| 2 | Лучник | mage | 150 | 120 | 80 | 15 |
+| 3 | Плут | rogue | 150 | 80 | 120 | 20 |
 
 ### 2.2. Перечень ботов
 

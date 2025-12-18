@@ -13,10 +13,9 @@
     * 2.4. Комната (лобби)
     * 2.5. Чат
     * 2.6. Боты
-    * 2.7. Стрелы
-    * 2.8. Сцена игры
-    * 2.9. Классы
-    * 2.10. Предметы
+    * 2.7. Сцена игры
+    * 2.8. Классы
+    * 2.9. Предметы
 3. Список запросов
     * 3.1. Описание запросов
     * 3.2. Список ошибок
@@ -104,9 +103,8 @@ RoomMember: {
     characterId: number,
     type: 'owner' | 'participant',
     status: 'ready' | 'started',
-    data: string, - JSON данные персонажа в комнате
+    characterData: string | null, - JSON данные персонажа в комнате
     userId: number,
-    login: string,
     nickname: string,
     money: string,
     token: string,
@@ -158,38 +156,23 @@ Bot: {
     attackDistance: number,
     money: number
 }
-
-BotInRoom: {
-    id: number,
-    roomId: number,
-    data: string - JSON данные ботов в комнате
-}
 ```
 
-### 2.7. Стрелы
-```
-ArrowInRoom: {
-    id: number,
-    roomId: number,
-    data: string - JSON данные стрел в комнате
-}
-```
-
-### 2.8. Сцена игры
+### 2.7. Сцена игры
 ```
 SceneResponse: {
     status: 'unchanged' | 'updated';
-    game_status: 'open' | 'closed' | 'started';
-    character_hash?: string;
-    bot_hash?: string;
-    arrow_hash?: string;
-    characters?: RoomMember[];
-    bots?: BotInRoom[];
-    arrows?: ArrowInRoom[];
+    gameStatus: 'started';
+    characterHash: string;
+    characters: RoomMember[];
+    botHash: string;
+    botsData: string | null; - JSON данные ботов в комнате
+    arrowHash: string;
+    arrowsData: string | null; - JSON данные стрел в комнате
 }
 ```
 
-### 2.9. Классы
+### 2.8. Классы
 ```
 Class: {
     id: number;
@@ -198,10 +181,11 @@ Class: {
     cost: number;
     hp: number;
     defense: number;
+    speed: number;
 }
 ```
 
-### 2.10. Предметы
+### 2.9. Предметы
 ```
 Item: {
     id: number,
@@ -351,7 +335,7 @@ Item: {
 | renameRoom | http://server/api/?method=renameRoom&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&newRoomName=НовоеНазвание |
 | getRooms | http://server/api/?method=getRooms&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&roomHash=ТЕКУЩИЙ_ХЭШ |
 | endGame | http://server/api/?method=endGame&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
-| getClasses | http://server/api/?method=getClasses |
+| getClasses | http://server/api/?method=getClasses&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | buyClass | http://server/api/?method=buyClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
 | selectClass | http://server/api/?method=selectClass&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&classId=1 |
 | buyItem | http://server/api/?method=buyItem&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&itemId=1 |
@@ -359,7 +343,7 @@ Item: {
 | useArrow | http://server/api/?method=useArrow&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | usePotion | http://server/api/?method=usePotion&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
 | getItemsData | http://server/api/?method=getItemsData&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ |
-| getScene | http://server/api/?method=getScene&roomId=1&characterHash=ХЭШ&botHash=ХЭШ&arrowHash=ХЭШ |
+| getScene | http://server/api/?method=getScene&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&characterHash=ХЭШ&botHash=ХЭШ&arrowHash=ХЭШ |
 | updateCharacter | http://server/api/?method=updateCharacter&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&characterData=ДАННЫЕ_JSON |
 | updateBots | http://server/api/?method=updateBots&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&botsData=ДАННЫЕ_JSON |
 | updateArrows | http://server/api/?method=updateArrows&token=ТОКЕН_ПОЛЬЗОВАТЕЛЯ&arrowsData=ДАННЫЕ_JSON |
@@ -788,6 +772,7 @@ Item: {
 **Параметры**
 ```
 {
+    token: string - токен пользователя
 }
 ```
 **Успешный ответ**
@@ -795,7 +780,8 @@ Item: {
    Answer<Class[]>
 ```
 **Ошибки**
-* `3001` - классы не найдены
+* `242` - не передан токен
+* `705` - пользователь не найден
 
 #### 4.5.2 buyClass
 Покупка класса пользователем
@@ -955,7 +941,7 @@ Item: {
 **Параметры**
 ```
 {
-    roomId: number, - ID комнаты
+    token: string, - токен пользователя
     characterHash: string, - хэш персонажей
     botHash: string, - хэш ботов
     arrowHash: string - хэш стрел
@@ -970,26 +956,29 @@ Item: {
 ```
 {
     status: 'unchanged',
-    game_status: 'started'
+    gameStatus: 'started'
 }
 ```
 
 ```
 {
     status: 'updated',
-    game_status: 'started',
-    character_hash: 'новый_хэш',
-    bot_hash: 'новый_хэш', 
-    arrow_hash: 'новый_хэш',
+    gameStatus: 'started',
+    characterHash: 'новый_хэш',
     characters: RoomMember[],
-    bots: BotInRoom[],
-    arrows: ArrowInRoom[]
+    botHash: 'новый_хэш', 
+    botsData: string, - JSON данные ботов в комнате,
+    arrowHash: 'новый_хэш',
+    arrowsData: string, - JSON данные стрел в комнате
 }
 ```
 
 **Ошибки**
 * `242` - не переданы все необходимые параметры
+* `705` - пользователь не найден
+* `706` - персонаж не найден
 * `2003` - комната не найдена
+* `2006` - пользователь отсутствует в комнате
 
 
 #### 4.7.2. updateCharacter

@@ -214,18 +214,16 @@ class DB {
     }
 
     public function createInitialBotsForRoom($roomId) {
-        $initialData = json_encode([]);
         return $this->execute(
-            "INSERT INTO bots_rooms (room_id, data) VALUES (?, ?)",
-            [$roomId, $initialData]
+            "INSERT INTO bots_rooms (room_id) VALUES (?)",
+            [$roomId]
         );
     }
 
-    public function createInitialArrowsForRoom($roomId) {
-        $initialData = json_encode([]); 
+    public function createInitialArrowsForRoom($roomId) { 
         return $this->execute(
-            "INSERT INTO arrows (room_id, data) VALUES (?, ?)",
-            [$roomId, $initialData]
+            "INSERT INTO arrows (room_id) VALUES (?)",
+            [$roomId]
         );
     }
 
@@ -455,11 +453,11 @@ class DB {
     }
 
     public function getBotsByRoomId($roomId) {
-        return $this->queryAll("
-            SELECT id, room_id as roomId, data
-            FROM bots_rooms 
-            WHERE room_id = ?
-        ", [$roomId]);
+        $result = $this->query(
+            "SELECT data FROM bots_rooms WHERE room_id = ?",
+            [$roomId]
+        );
+        return $result ? $result->data : null;
     }
 
 
@@ -492,11 +490,11 @@ class DB {
 
     //arrows
     public function getArrowsByRoomId($roomId) {
-        return $this->queryAll("
-            SELECT id, room_id as roomId, data
-            FROM arrows 
-            WHERE room_id = ?
-        ", [$roomId]);
+        $result = $this->query(
+            "SELECT data FROM arrows WHERE room_id = ?",
+            [$roomId]
+        );
+        return $result ? $result->data : null;
     }
 
     //hashes
@@ -525,9 +523,8 @@ class DB {
                 rm.character_id as characterId,
                 rm.type,
                 rm.status,
-                rm.data,
+                rm.data as characterData,
                 u.id as userId,
-                u.login,
                 u.nickname,
                 c.money,
                 u.token
