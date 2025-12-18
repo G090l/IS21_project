@@ -42,13 +42,13 @@ export type TRoomsResponse = {
 
 export type TRoomMember = {
     characterId: number,
-    type: "owner" | "participant",
-    status: "ready" | "started",
-    userId: number,
-    login: string,
-    nickname: string,
-    money: string
-    token: string
+    type: "owner" | "participant";
+    status: "ready" | "started";
+    userId: number;
+    login: string;
+    nickname: string;
+    money: string;
+    token: string;
 }
 
 export type TRoomMembersResponse = {
@@ -67,4 +67,13 @@ export type TMessages = TMessage[];
 export type TMessagesResponse = {
     messages: TMessages;
     hash: string;
+}
+
+export type TClass = {
+    id: number;
+    name: string;
+    type: string;
+    cost: number;
+    hp: number;
+    defense: number;
 }

@@ -10,11 +10,11 @@ import './LobbyBook.scss';
 
 interface ILobbyBook extends IBasePage {
     isOpen: boolean;
-    onToggle: (isOpen: boolean) => void;
+    onClose: () => void;
 }
 
 const LobbyBook: React.FC<ILobbyBook> = (props) => {
-    const { setPage, isOpen, onToggle } = props
+    const { setPage, isOpen, onClose } = props
     const server = useContext(ServerContext);
     const store = useContext(StoreContext);
     const [rooms, setRooms] = useState<TRoom[]>([]);
@@ -59,7 +59,7 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
     }
 
     const backClickHandler = () => {
-        onToggle(false);
+        onClose();
     };
 
     const renderRightSection = () => {
