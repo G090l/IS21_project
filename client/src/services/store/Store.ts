@@ -102,6 +102,8 @@ class Store {
             this.roomHash = hash;
         }
     }
+    setSelectedClass(classId: number): void {
+    }
 }
 
 export default Store;

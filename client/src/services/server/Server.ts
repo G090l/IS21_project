@@ -1,7 +1,7 @@
 import md5 from 'md5';
 import CONFIG from "../../config";
 import Store from "../store/Store";
-import { TAnswer, TError, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser } from "./types";
+import { TAnswer, TClass, TError, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser } from "./types";
 
 const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST } = CONFIG;
 
@@ -194,6 +194,18 @@ class Server {
             };
             this.store.setUser(user);
             return userInfo;
+        }
+        return null;
+    }
+
+    async getClasses(): Promise<TClass[] | null> {
+        return await this.request<TClass[]>('getClasses');
+    }
+
+    async selectClass(classId: number): Promise<boolean | null> {
+        const result = await this.request<boolean>('selectClass', { classId });
+        if (result) {
+            this.store.setSelectedClass(classId);
         }
         return null;
     }
