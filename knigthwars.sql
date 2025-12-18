@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: MySQL-8.0
--- Время создания: Дек 17 2025 г., 16:39
+-- Время создания: Дек 18 2025 г., 14:56
 -- Версия сервера: 8.0.41
 -- Версия PHP: 8.3.14
 
@@ -124,17 +124,18 @@ CREATE TABLE `classes` (
   `type` varchar(255) NOT NULL,
   `cost` int DEFAULT '0',
   `hp` int DEFAULT '50',
-  `defense` int DEFAULT '0'
+  `defense` int DEFAULT '0',
+  `speed` int DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Дамп данных таблицы `classes`
 --
 
-INSERT INTO `classes` (`id`, `name`, `type`, `cost`, `hp`, `defense`) VALUES
-(1, 'Воин', 'warrior', 100, 100, 100),
-(2, 'Лучник', 'mage', 150, 120, 80),
-(3, 'Плут', 'rogue', 150, 80, 120);
+INSERT INTO `classes` (`id`, `name`, `type`, `cost`, `hp`, `defense`, `speed`) VALUES
+(1, 'Воин', 'warrior', 100, 100, 100, 10),
+(2, 'Лучник', 'mage', 150, 120, 80, 15),
+(3, 'Плут', 'rogue', 150, 80, 120, 20);
 
 -- --------------------------------------------------------
 
@@ -156,7 +157,7 @@ CREATE TABLE `hashes` (
 --
 
 INSERT INTO `hashes` (`id`, `chat_hash`, `room_hash`, `character_hash`, `bot_hash`, `arrow_hash`) VALUES
-(1, 'default chat_hash', '9f29b5b1458c4a96528a4c01188620c1', '73bc9048550c82fda4096f21c0e44cd1', '2c796082accb102c5875420912b2ecb7', '16b3424826d3d8b3ffada29e1f083541');
+(1, 'ba47d2da2a1c5162ed39ad9b66f308cb', 'c5a8b667c681ffd493a801ce1b71b1b0', '73bc9048550c82fda4096f21c0e44cd1', 'e502de9265239d9fc3e695852b5e9494', '16b3424826d3d8b3ffada29e1f083541');
 
 -- --------------------------------------------------------
 
@@ -355,7 +356,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `arrows`
 --
 ALTER TABLE `arrows`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT для таблицы `bots`
@@ -367,25 +368,25 @@ ALTER TABLE `bots`
 -- AUTO_INCREMENT для таблицы `bots_rooms`
 --
 ALTER TABLE `bots_rooms`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT для таблицы `characters`
 --
 ALTER TABLE `characters`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT для таблицы `characters_classes`
 --
 ALTER TABLE `characters_classes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT для таблицы `character_items`
 --
 ALTER TABLE `character_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
 
 --
 -- AUTO_INCREMENT для таблицы `classes`
@@ -403,25 +404,25 @@ ALTER TABLE `items`
 -- AUTO_INCREMENT для таблицы `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT для таблицы `rooms`
 --
 ALTER TABLE `rooms`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT для таблицы `room_members`
 --
 ALTER TABLE `room_members`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
