@@ -2,9 +2,9 @@ import CONFIG, { TRect, EDIRECTION } from "../config";
 import Server from "../services/server/Server";
 import Store from "../services/store/Store";
 import GameMap from "./types/Map";
-import Hero from "./types/Hero";
-import Arrow from "./types/Arrow";
-import Enemy from "./types/Enemy";
+import Hero from "./types/Movement/Hero";
+import Arrow from "./types/Movement/Arrow";
+import Enemy from "./types/Movement/Enemy";
 
 class Game {
     private server: Server;
@@ -25,16 +25,18 @@ class Game {
         this.gameMap = new GameMap();
         this.walls = this.gameMap.walls;
         this.enemies = [new Enemy()];
-        this.createHeroWithUserNickname();
+        this.createHero();
 
         //this.server.startGetScene(() => this.getSceneFromBackend());
         this.startUpdateScene();
     }
 
-    private createHeroWithUserNickname(): void {
-        const user = this.store.getUser();
-        if (user && user.nickname) {
-            const hero = new Hero();
+    private createHero(): void {
+        const { user, allItems, allClasses } = this.store;
+        if (user) {
+            // Передаем персонажу изначальные данные
+            const { purchasedItems, selectedClass } = user;
+            const hero = new Hero({ purchasedItems, selectedClass, allItems, allClasses });
             hero.name = user.nickname;
             this.heroes.push(hero);
         } else {

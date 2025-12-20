@@ -1,4 +1,4 @@
-import { TMessages, TRoom, TRoomMember, TUser } from "../server/types";
+import { TClass, TItem, TMessages, TRoom, TRoomMember, TUser } from "../server/types";
 
 const TOKEN = 'token';
 const REMEMBER_ME = 'rememberMe';
@@ -6,12 +6,13 @@ const REMEMBER_ME = 'rememberMe';
 class Store {
     user: TUser | null = null;
     messages: TMessages = [];
-    chatHash: string = 'empty chat hash';
     rooms: TRoom[] = [];
+    allClasses: TClass[] = [];
+    allItems: TItem[] = [];
+    chatHash: string = 'empty chat hash';
     roomHash: string = 'empty room  hash';
-    // переобозвать
     roomMembersHash: string = 'empty room members hash';
-
+    
     rememberMe: boolean = false;
 
     constructor() {
@@ -102,6 +103,15 @@ class Store {
             this.roomHash = hash;
         }
     }
+    //Вызывается единожды при логине
+    setClasses(classes: TClass[]): void {
+        this.allClasses = classes;
+    }
+    //Вызывается единожды при логине
+    setItems(items: TItem[]): void {
+        this.allItems = items;
+    }
+
     setSelectedClass(classId: number): void {
     }
 }

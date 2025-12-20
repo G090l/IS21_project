@@ -1,4 +1,4 @@
-import { EDIRECTION, TRect } from "../../config";
+import { EDIRECTION, TRect } from "../../../config";
 
 type TMovementOptions = {
     rect: TRect;

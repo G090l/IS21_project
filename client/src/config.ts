@@ -12,6 +12,36 @@ export enum EDIRECTION {
     DOWN = 'down',
 };
 
+export enum EITEMTYPE {
+    WEAPON = 'weapon',
+    HELMET = 'helmet',
+    CHESTPLATE = 'chestplate',
+    LEGGINGS = 'leggings',
+    SHIELD = 'shield',
+}
+
+export enum EWEAPONTYPE {
+    SWORD = 'sword',
+    BOW = 'bow',
+    AXE = 'axe',
+    STAFF = 'staff',
+    DAGGER = 'dagger'
+}
+
+
+export enum ECLASSTYPE {
+    WARRIOR = "warrior",
+    MAGE = "mage",
+    ROUGE = "rouge"
+}
+
+
+export type TARMOR = {
+    type: EITEMTYPE;
+    cost: number;       
+    bonusDefense: number;
+}
+
 export type TWINDOW = {
     LEFT: number;
     TOP: number;
@@ -23,7 +53,7 @@ const CONFIG = {
     //UDSU
     //HOST: 'http://knightwars:81/api',
 
-    HOST: 'http://knightwars.local/api',
+    HOST: 'http://knightwars.local',
 
     CHAT_TIMESTAMP: 200, //ms
     ROOM_TIMESTAMP: 1000, //ms
