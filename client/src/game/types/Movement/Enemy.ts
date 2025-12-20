@@ -1,4 +1,4 @@
-import { TRect, EDIRECTION } from "../../config";
+import { TRect, EDIRECTION } from "../../../config";
 import Unit from "./Unit";
 
 class Enemy extends Unit {

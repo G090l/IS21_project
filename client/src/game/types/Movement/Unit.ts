@@ -1,5 +1,5 @@
 import Movement from "./Movement";
-import { EDIRECTION, TRect } from "../../config";
+import { EDIRECTION, TRect } from "../../../config";
 
 type TUnitOptions = {
     name?: string;

@@ -1,3 +1,6 @@
+import { ECLASSTYPE, EITEMTYPE, EWEAPONTYPE } from "../../config";
+import { TCharacterClass } from "../../game/types/CharacterClass";
+
 export type TError = {
     code: number;
     text: string;
@@ -10,10 +13,14 @@ export type TAnswer<T> = {
 }
 
 export type TUser = {
-    id: number;
+    userId: number;
     login: string;
     nickname: string;
     money: number;
+    characterId: number; 
+    selectedClass: number;
+    purchasedClasses: number[]; 
+    purchasedItems: { itemId: number, quantity: number}[];
     token: string;
 }
 
@@ -69,11 +76,17 @@ export type TMessagesResponse = {
     hash: string;
 }
 
-export type TClass = {
+export type TClass = TCharacterClass & {
     id: number;
-    name: string;
-    type: string;
+}
+
+export type TItem = {
+    id: number;
     cost: number;
-    hp: number;
-    defense: number;
+    itemType: EITEMTYPE;
+    weaponType: EWEAPONTYPE | null;
+    attackSpeed: number | null;
+    attackDistance: number | null;
+    bonusDefense: number | null;
+    bonusHp: number | null;
 }

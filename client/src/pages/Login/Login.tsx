@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { use, useContext, useEffect, useRef, useState } from 'react';
 import useCheckLogin from './hooks/useCheckLogin';
-import { ServerContext } from '../../App';
+import { ServerContext, StoreContext } from '../../App';
 import { IBasePage, PAGES } from '../PageManager';
 import { TError } from '../../services/server/types';
 import Button from '../../components/Button/Button';
@@ -10,10 +10,19 @@ import './Login.scss'
 const Login: React.FC<IBasePage> = (props: IBasePage) => {
     const { setPage } = props;
     const server = useContext(ServerContext);
+    const store = useContext(StoreContext);
     const loginRef = useRef<HTMLInputElement>(null!);
     const passwordRef = useRef<HTMLInputElement>(null!);
     const { isFormValid, error, setError, checkFilled, showError } = useCheckLogin();
     const [rememberMe, setRememberMe] = useState(false);
+
+    const getGameData = async () => {
+        const allItems = await server.getAllItems();
+        const allClasses = await server.getClasses();
+        console.log(allItems, allClasses);
+        store.setItems(allItems!);
+        store.setClasses(allClasses!);
+    };  
 
     const hideErrorOnInput = () => {
         setError('');
@@ -34,11 +43,11 @@ const Login: React.FC<IBasePage> = (props: IBasePage) => {
         const password = passwordRef.current.value;
 
         if (!showError(login, password)) return;
-
         const user = await server.login(login, password);
 
         if (user) {
-            server.store.setUser(user, rememberMe)
+            store.setUser(user, rememberMe);
+            await getGameData();
             setPage(PAGES.LOBBY);
         }
     }
@@ -47,7 +56,7 @@ const Login: React.FC<IBasePage> = (props: IBasePage) => {
 
     useEffect(() => {
         const autoLogin = async () => {
-            const token = server.store.getToken();
+            const token = store.getToken();
 
             server.showError((err: TError) => {
                 if ([1002, 1005].includes(err.code)) {
@@ -59,12 +68,14 @@ const Login: React.FC<IBasePage> = (props: IBasePage) => {
             if (token) {
                 const user = await server.getUserInfo();
                 if (user) {
+                    console.log(user)
+                    await getGameData();
                     setPage(PAGES.LOBBY);
                 } else {
                     sessionStorage.removeItem('token');
                     localStorage.removeItem('token');
                     localStorage.removeItem('rememberMe');
-                    server.store.clearUser();
+                    store.clearUser();
                 }
             }
         };

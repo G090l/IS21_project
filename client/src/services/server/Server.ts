@@ -1,7 +1,8 @@
 import md5 from 'md5';
 import CONFIG from "../../config";
 import Store from "../store/Store";
-import { TAnswer, TClass, TError, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser } from "./types";
+import { TAnswer, TClass, TError, TItem, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser } from "./types";
+import { use } from 'react';
 
 const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST } = CONFIG;
 
@@ -57,6 +58,12 @@ class Server {
         const passwordHash = md5(`${md5(`${login}${password}`)}${rnd}`)
         const user = await this.request<TUser>('login', { login, passwordHash, rnd: `${rnd}` });
         if (user) {
+            const userInfo = await this.request<TUser>('getUserInfo', { token: user.token });
+            if (userInfo) {
+                userInfo.token = user.token;
+                this.store.setUser(userInfo);
+                return userInfo;
+            }
             this.store.setUser(user);
             return user;
         }
@@ -143,7 +150,7 @@ class Server {
         const roomsResponse = await this.getRoomsAndMembers();
         if (!roomsResponse?.rooms) return null;
         return roomsResponse.rooms.find(room =>
-            room.members?.some(member => member.userId === user?.id)
+            room.members?.some(member => member.userId === user?.userId)
         ) || null;
     }
 
@@ -179,27 +186,25 @@ class Server {
         return this.request<boolean>('startGame');
     }
 
-    async getUserInfo(): Promise<{ userId: number; login: string; nickname: string; money: number } | null> {
+    async getUserInfo(): Promise< TUser | null> {
         const token = this.store.getToken();
         if (!token) return null;
 
-        const userInfo = await this.request<{ characterId: number; userId: number; login: string; nickname: string; money: number; }>('getUserInfo');
-        if (userInfo) {
-            const user: TUser = {
-                id: userInfo.userId,
-                login: userInfo.login,
-                nickname: userInfo.nickname,
-                money: userInfo.money,
-                token: token
-            };
-            this.store.setUser(user);
-            return userInfo;
+        const user = await this.request<TUser>('getUserInfo');
+        if (user) {
+            user.token = token;
+            this.store.setUser(user)
+            return user;
         }
         return null;
     }
 
-    async getClasses(): Promise<TClass[] | null> {
-        return await this.request<TClass[]>('getClasses');
+    getAllItems(): Promise<TItem[] | null> {
+        return this.request<TItem[]>("getItemsData");
+    }
+
+    getClasses(): Promise<TClass[] | null> {
+        return this.request<TClass[]>('getClasses');
     }
 
     async selectClass(classId: number): Promise<boolean | null> {
