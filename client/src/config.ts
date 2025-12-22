@@ -53,7 +53,7 @@ const CONFIG = {
     //UDSU
     //HOST: 'http://knightwars:81/api',
 
-    HOST: 'http://knightwars.local',
+    HOST: 'http://knightwars.local/api',
 
     CHAT_TIMESTAMP: 200, //ms
     ROOM_TIMESTAMP: 1000, //ms

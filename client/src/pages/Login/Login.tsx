@@ -19,7 +19,6 @@ const Login: React.FC<IBasePage> = (props: IBasePage) => {
     const getGameData = async () => {
         const allItems = await server.getAllItems();
         const allClasses = await server.getClasses();
-        console.log(allItems, allClasses);
         store.setItems(allItems!);
         store.setClasses(allClasses!);
     };  
