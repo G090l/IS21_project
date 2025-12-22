@@ -50,7 +50,6 @@ class Hero extends Unit {
         this.health = 100;
 
         //Если владелец персонажа - owner, заполняем снаряжение
-        console.log(options);
         if (options) {
             this.equipment = {
                 helmet: null,
@@ -195,7 +194,6 @@ class Hero extends Unit {
             if (item) this.equipItem(item);
         });
         const characterClass = allClasses.find(charClass => charClass.id === selectedClass);
-        console.log(characterClass);
         if (characterClass) this.changeClass(characterClass);
     }
 
