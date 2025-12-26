@@ -1,10 +1,9 @@
 import md5 from 'md5';
 import CONFIG from "../../config";
 import Store from "../store/Store";
-import { TAnswer, TClass, TError, TItem, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser } from "./types";
-import { use } from 'react';
+import { TAnswer, TClass, TError, TItem, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser, TSceneResponse } from "./types";
 
-const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST } = CONFIG;
+const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST, GAME_UPDATE_TIMESTAMP } = CONFIG;
 
 class Server {
     HOST = HOST;
@@ -12,6 +11,7 @@ class Server {
     chatInterval: NodeJS.Timer | null = null;
     roomInterval: NodeJS.Timer | null = null;
     roomMembersInterval: NodeJS.Timer | null = null;
+    sceneInterval: NodeJS.Timer | null = null;
     showErrorCb: (error: TError) => void = () => { };
 
     constructor(store: Store) {
@@ -186,7 +186,7 @@ class Server {
         return this.request<boolean>('startGame');
     }
 
-    async getUserInfo(): Promise< TUser | null> {
+    async getUserInfo(): Promise<TUser | null> {
         const token = this.store.getToken();
         if (!token) return null;
 
@@ -215,13 +215,57 @@ class Server {
         return null;
     }
 
-    startGetScene(callback: () => void): void {
+    async getScene(): Promise<TSceneResponse | null> {
+        const token = this.store.getToken();
+        const characterHash = this.store.getCharacterHash();
+        const botHash = this.store.getBotHash() || 'empty bot hash';
+        const arrowHash = this.store.getArrowHash() || 'empty arrow hash';
+
+        const result = await this.request<TSceneResponse>('getScene', {
+            token,
+            characterHash,
+            botHash,
+            arrowHash
+        });
+
+        if (result) {
+            if (result.status === 'updated') {
+                this.store.setCharacterHash(result.characterHash || '');
+                this.store.setBotHash(result.botHash || '');
+                this.store.setArrowHash(result.arrowHash || '');
+                this.store.setCharacters(result.characters || []);
+                this.store.setBotsData(result.botsData || '');
+                this.store.setArrowsData(result.arrowsData || '');
+            }
+            this.store.setGameStatus(result.gameStatus || '');
+            return result;
+        }
+        return null;
+    }
+
+    async updateCharacter(characterData: string): Promise<boolean | null> {
+        return this.request<boolean>('updateCharacter', { characterData });
+    }
+
+    startGetScene(callback: (sceneData: TSceneResponse) => void): void {
+        this.sceneInterval = setInterval(async () => {
+            const result = await this.getScene();
+            if (result) {
+                callback(result);
+            }
+        }, GAME_UPDATE_TIMESTAMP);
     }
 
     stopGetScene(): void {
+        if (this.sceneInterval) {
+            clearInterval(this.sceneInterval);
+            this.sceneInterval = null;
+        }
+        this.store.clearGameData();
     }
 
-    updateScene(): void {
+    updateScene(): Promise<TSceneResponse | null> {
+        return this.getScene();
     }
 }
 

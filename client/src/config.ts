@@ -38,7 +38,7 @@ export enum ECLASSTYPE {
 
 export type TARMOR = {
     type: EITEMTYPE;
-    cost: number;       
+    cost: number;
     bonusDefense: number;
 }
 
