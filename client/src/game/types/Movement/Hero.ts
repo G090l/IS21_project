@@ -10,7 +10,7 @@ import Item from "../Items/Item";
 import { TClass, TItem } from "../../../services/server/types";
 
 type TOptions = {
-    purchasedItems: {itemId: number; quantity: number}[],
+    purchasedItems: { itemId: number; quantity: number }[],
     selectedClass: number,
     allItems: TItem[],
     allClasses: TClass[]
@@ -59,7 +59,7 @@ class Hero extends Unit {
                 shield: null
             }
             this.setEquipmentAndClass(options);
-            this.inventory = { potions: 0, arrows: 0};
+            this.inventory = { potions: 0, arrows: 0 };
         }
     };
 
@@ -75,10 +75,6 @@ class Hero extends Unit {
             damage: this.damage,
             health: this.health,
             direction: this.direction,
-            movement: {
-                dx: this.movement.dx,
-                dy: this.movement.dy
-            },
             name: this.name,
         };
 
@@ -96,8 +92,6 @@ class Hero extends Unit {
         this.damage = data.damage;
         this.health = data.health;
         this.direction = data.direction;
-        this.movement.dx = data.movement.dx;
-        this.movement.dy = data.movement.dy;
         this.name = data.name;
     }
 
