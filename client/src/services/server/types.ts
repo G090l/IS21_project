@@ -17,10 +17,10 @@ export type TUser = {
     login: string;
     nickname: string;
     money: number;
-    characterId: number; 
+    characterId: number;
     selectedClass: number;
-    purchasedClasses: number[]; 
-    purchasedItems: { itemId: number, quantity: number}[];
+    purchasedClasses: number[];
+    purchasedItems: { itemId: number, quantity: number }[];
     token: string;
 }
 
@@ -89,4 +89,15 @@ export type TItem = {
     attackDistance: number | null;
     bonusDefense: number | null;
     bonusHp: number | null;
+}
+
+export type TSceneResponse = {
+    status: 'unchanged' | 'updated';
+    gameStatus: string;
+    characterHash?: string;
+    characters?: TRoomMember[];
+    botHash?: string;
+    botsData?: string;
+    arrowHash?: string;
+    arrowsData?: string;
 }

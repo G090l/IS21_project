@@ -5,6 +5,7 @@ import GameMap from "./types/Map";
 import Hero from "./types/Movement/Hero";
 import Arrow from "./types/Movement/Arrow";
 import Enemy from "./types/Movement/Enemy";
+import { TRoomMember } from "../services/server/types";
 
 class Game {
     private server: Server;
@@ -18,6 +19,7 @@ class Game {
     private enemyAttackCooldowns: Map<Enemy, number> = new Map();
 
     private isUpdatedHero: boolean = false;
+    private sceneUpdateInterval: NodeJS.Timer | null = null;
 
     constructor(server: Server, store: Store) {
         this.server = server;
@@ -27,8 +29,9 @@ class Game {
         this.enemies = [new Enemy()];
         this.createHero();
 
-        //this.server.startGetScene(() => this.getSceneFromBackend());
+        this.server.startGetScene((sceneData) => this.getSceneFromBackend(sceneData));
         this.startUpdateScene();
+        this.startPeriodicHeroUpdate();
     }
 
     private createHero(): void {
@@ -53,9 +56,14 @@ class Game {
         return this.heroes.find(hero => hero.name === user.nickname) || null;
     }
 
+    private getHeroByNickname(nickname: string): Hero | undefined {
+        return this.heroes.find(hero => hero.name === nickname);
+    }
+
     destructor() {
         this.stopUpdateScene();
-        //this.server.stopGetScene();
+        this.stopPeriodicHeroUpdate();
+        this.server.stopGetScene();
     }
 
     getScene() {
@@ -94,6 +102,8 @@ class Game {
         setTimeout(() => {
             hero.isAttacking = false;
         }, 300);
+
+        this.isUpdatedHero = true;
     }
 
     handleBlock(): void {
@@ -119,7 +129,11 @@ class Game {
     }
 
     private userIsOwner(): boolean {
-        return false;
+        const user = this.store.getUser();
+        const currentRoom = this.store.getUserRoom();
+        return currentRoom?.members?.some(member =>
+            member.userId === user?.userId && member.type === "owner"
+        ) || false;
     }
 
     private startUpdateScene() {
@@ -136,6 +150,32 @@ class Game {
         if (this.interval) {
             clearInterval(this.interval);
             this.interval = null;
+        }
+    }
+
+    private startPeriodicHeroUpdate(): void {
+        this.sceneUpdateInterval = setInterval(async () => {
+            await this.updateCurrentHeroOnServer();
+        }, CONFIG.GAME_UPDATE_TIMESTAMP);
+    }
+
+    private stopPeriodicHeroUpdate(): void {
+        if (this.sceneUpdateInterval) {
+            clearInterval(this.sceneUpdateInterval);
+            this.sceneUpdateInterval = null;
+        }
+    }
+
+    private async updateCurrentHeroOnServer(): Promise<void> {
+        const hero = this.getCurrentUserHero();
+        if (!hero || !this.isUpdatedHero) return;
+
+        try {
+            const heroData = hero.toJSON();
+            await this.server.updateCharacter(heroData);
+            this.isUpdatedHero = false;
+        } catch (error) {
+            console.error('Failed to update hero on server:', error);
         }
     }
 
@@ -170,6 +210,7 @@ class Game {
             if (hero.isAlive() && enemy.checkRectCollision(attackPosition, hero.rect)) {
                 hero.takeDamage(enemy.damage);
                 console.log(`Враг атаковал героя ${hero.name}! Здоровье: ${hero.health}`);
+                this.isUpdatedHero = true;
 
                 this.enemyAttackCooldowns.set(enemy, currentTime);
             }
@@ -210,7 +251,7 @@ class Game {
             }
 
             // Проверка столкновений стрел со стенами
-            const hitWall = arrow.checkCollisionsWithArray(
+            arrow.checkCollisionsWithArray(
                 this.walls,
                 (wall, arrowRect) => {
                     shouldRemoveArrow = true;
@@ -219,7 +260,7 @@ class Game {
 
             // Проверка столкновений стрел с врагами
             const enemyRects = this.enemies.map(enemy => enemy.rect);
-            const hitEnemy = arrow.checkCollisionsWithArray(
+            arrow.checkCollisionsWithArray(
                 enemyRects,
                 (enemyRect, arrowRect) => {
                     const enemy = this.enemies.find(e =>
@@ -245,26 +286,64 @@ class Game {
 
         // Обновляем врагов
         this.updateEnemies();
+
         // Обновляем снаряды
         this.updateArrows();
 
         // Логика отправки на сервер
         if (this.userIsOwner()) {
-            // отправлять ботов и стрелы
-            //...
-        }
-        if (this.isUpdatedHero) {
-            // отправлять позицию героя И выпущенную стрелу
-            //...
-            this.isUpdatedHero = false;
         }
     }
 
-    // 100 ms
-    private getSceneFromBackend() {
-        // если пришёл ответ
-        // распарсить его
-        // принудительно применить к сцене игры
+    private getSceneFromBackend(sceneData: any): void {
+        if (sceneData.characters) {
+            this.updateOtherHeroes(sceneData.characters);
+        }
+        if (sceneData.gameStatus) {
+            this.store.setGameStatus(sceneData.gameStatus);
+        }
+    }
+
+    private updateOtherHeroes(characters: TRoomMember[]): void {
+        const currentUser = this.store.getUser();
+
+        characters.forEach((character: any) => {
+            if (character.userId === currentUser?.userId) {
+                return;
+            }
+
+            const existingHero = this.getHeroByNickname(character.nickname);
+
+            if (!existingHero) {
+                const hero = new Hero();
+                hero.name = character.nickname;
+
+                if (character.characterData) {
+                    try {
+                        hero.fromJSON(character.characterData);
+                    } catch (error) {
+                        console.error(`Failed to parse character data for ${character.nickname}:`, error);
+                    }
+                }
+
+                this.heroes.push(hero);
+                console.log(`Добавлен новый герой: ${character.nickname}`);
+            } else if (character.characterData) {
+                try {
+                    existingHero.fromJSON(character.characterData);
+                } catch (error) {
+                    console.error(`Failed to update character data for ${character.nickname}:`, error);
+                }
+            }
+        });
+
+        const activeNicknames = characters.map(c => c.nickname);
+        this.heroes = this.heroes.filter(hero => {
+            if (hero.name === currentUser?.nickname) {
+                return true;
+            }
+            return activeNicknames.includes(hero.name);
+        });
     }
 }
 

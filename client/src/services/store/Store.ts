@@ -2,6 +2,10 @@ import { TClass, TItem, TMessages, TRoom, TRoomMember, TUser } from "../server/t
 
 const TOKEN = 'token';
 const REMEMBER_ME = 'rememberMe';
+const CHARACTER_HASH = 'characterHash';
+const BOT_HASH = 'botHash';
+const ARROW_HASH = 'arrowHash';
+const GAME_STATUS = 'gameStatus';
 
 class Store {
     user: TUser | null = null;
@@ -10,13 +14,24 @@ class Store {
     allClasses: TClass[] = [];
     allItems: TItem[] = [];
     chatHash: string = 'empty chat hash';
-    roomHash: string = 'empty room  hash';
+    roomHash: string = 'empty room hash';
     roomMembersHash: string = 'empty room members hash';
-    
+    characterHash: string = 'empty character hash';
+    botHash: string = 'empty bot hash';
+    arrowHash: string = 'empty arrow hash';
+    gameStatus: string = '';
+    characters: TRoomMember[] = [];
+    botsData: string = '';
+    arrowsData: string = '';
+
     rememberMe: boolean = false;
 
     constructor() {
         this.rememberMe = localStorage.getItem(REMEMBER_ME) === 'true';
+        this.characterHash = localStorage.getItem(CHARACTER_HASH) || 'empty character hash';
+        this.botHash = localStorage.getItem(BOT_HASH) || 'empty bot hash';
+        this.arrowHash = localStorage.getItem(ARROW_HASH) || 'empty arrow hash';
+        this.gameStatus = localStorage.getItem(GAME_STATUS) || '';
     }
 
     setToken(token: string, rememberMe = false): void {
@@ -28,12 +43,20 @@ class Store {
             localStorage.setItem(REMEMBER_ME, 'false');
             sessionStorage.setItem(TOKEN, token);
         }
-
     }
 
     getToken(): string {
         const token = sessionStorage.getItem(TOKEN) || localStorage.getItem(TOKEN);
         return token || '';
+    }
+
+    getUserRoom(): TRoom | null {
+        const user = this.getUser();
+        if (!user) return null;
+
+        return this.rooms.find(room =>
+            room.members?.some(member => member.userId === user.userId)
+        ) || null;
     }
 
     getRememberMe(): boolean {
@@ -103,16 +126,93 @@ class Store {
             this.roomHash = hash;
         }
     }
+
     //Вызывается единожды при логине
     setClasses(classes: TClass[]): void {
         this.allClasses = classes;
     }
+
     //Вызывается единожды при логине
     setItems(items: TItem[]): void {
         this.allItems = items;
     }
 
     setSelectedClass(classId: number): void {
+    }
+
+    getCharacterHash(): string {
+        return this.characterHash;
+    }
+
+    setCharacterHash(hash: string): void {
+        this.characterHash = hash;
+        localStorage.setItem(CHARACTER_HASH, hash);
+    }
+
+    getBotHash(): string {
+        return this.botHash;
+    }
+
+    setBotHash(hash: string): void {
+        this.botHash = hash;
+        localStorage.setItem(BOT_HASH, hash);
+    }
+
+    getArrowHash(): string {
+        return this.arrowHash;
+    }
+
+    setArrowHash(hash: string): void {
+        this.arrowHash = hash;
+        localStorage.setItem(ARROW_HASH, hash);
+    }
+
+    setGameStatus(status: string): void {
+        this.gameStatus = status;
+        localStorage.setItem(GAME_STATUS, status);
+    }
+
+    getGameStatus(): string {
+        return this.gameStatus;
+    }
+
+    setCharacters(characters: TRoomMember[]): void {
+        this.characters = characters;
+    }
+
+    getCharacters(): TRoomMember[] {
+        return this.characters;
+    }
+
+    setBotsData(data: string): void {
+        this.botsData = data;
+    }
+
+    getBotsData(): string {
+        return this.botsData;
+    }
+
+    setArrowsData(data: string): void {
+        this.arrowsData = data;
+    }
+
+    getArrowsData(): string {
+        return this.arrowsData;
+    }
+
+    clearGameData(): void {
+        this.characterHash = 'empty character hash';
+        this.botHash = 'empty bot hash';
+        this.arrowHash = 'empty arrow hash';
+        this.gameStatus = '';
+        this.characters = [];
+        this.botsData = '';
+        this.arrowsData = '';
+
+        localStorage.removeItem(CHARACTER_HASH);
+        localStorage.removeItem(BOT_HASH);
+        localStorage.removeItem(ARROW_HASH);
+        localStorage.removeItem(GAME_STATUS);
     }
 }
 
