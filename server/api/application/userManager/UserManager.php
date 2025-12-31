@@ -25,8 +25,8 @@ class UserManager extends BaseManager {
         $purchasedItems = $this->db->getUserPurchasedItemsWithQuantity($character->id);
 
         return [
-            'character_id' => $character->id,
-            'user_id' => $user->id,
+            'characterId' => $character->id,
+            'userId' => $user->id,
             'login' => $user->login,
             'nickname' => $user->nickname,
             'money' => $character->money,
