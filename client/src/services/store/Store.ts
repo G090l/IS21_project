@@ -27,7 +27,7 @@ class Store {
     rememberMe: boolean = false;
 
     constructor() {
-        this.rememberMe = localStorage.getItem(REMEMBER_ME) === 'true';
+        this.rememberMe = Boolean(localStorage.getItem(REMEMBER_ME));
         this.characterHash = localStorage.getItem(CHARACTER_HASH) || 'empty character hash';
         this.botHash = localStorage.getItem(BOT_HASH) || 'empty bot hash';
         this.arrowHash = localStorage.getItem(ARROW_HASH) || 'empty arrow hash';
@@ -40,7 +40,7 @@ class Store {
             localStorage.setItem(REMEMBER_ME, 'true');
             localStorage.setItem(TOKEN, token);
         } else {
-            localStorage.setItem(REMEMBER_ME, 'false');
+            localStorage.setItem(REMEMBER_ME, '');
             sessionStorage.setItem(TOKEN, token);
         }
     }

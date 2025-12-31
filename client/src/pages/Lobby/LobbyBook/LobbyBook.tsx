@@ -24,6 +24,7 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
     const user = store.getUser();
     const [activeSection, setActiveSection] = useState<'create' | 'join'>('create');
     const [error, setError] = useState<string | null>(null);
+    const userRoom = store.getUserRoom();
 
 
     useEffect(() => {
@@ -33,19 +34,17 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
     }, []);
 
     useEffect(() => {
-        const roomsUpdate = (hash: string) => {
-            setRooms(store.getRooms());
-            setHash(hash);
-        }
+        if (!user) return;
 
-        if (user) {
-            server.startGettingRooms(roomsUpdate);
-        }
+        server.startGettingRooms((hash) => {
+            setRooms([...store.getRooms()]);
+            setHash(hash);
+        });
 
         return () => {
             server.stopGettingRooms();
         }
-    });
+    }, [user]);
 
     const createRoomClickHandler = () => {
         const name = refRoomName.current.value;
@@ -138,13 +137,12 @@ const LobbyBook: React.FC<ILobbyBook> = (props) => {
                         'active': activeSection === 'join'
                     })}
                 />
-                {rooms.map(room => (
+                {userRoom && (
                     <RoomInfo
-                        room={room}
+                        room={userRoom}
                         setPage={setPage}
                     />
-                ))
-                }
+                )}
                 < div className='error-section'>
                     {error && (
                         <div className="error-message">
