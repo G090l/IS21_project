@@ -67,7 +67,6 @@ const Login: React.FC<IBasePage> = (props: IBasePage) => {
             if (token) {
                 const user = await server.getUserInfo();
                 if (user) {
-                    console.log(user)
                     await getGameData();
                     setPage(PAGES.LOBBY);
                 } else {

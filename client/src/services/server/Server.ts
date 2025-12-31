@@ -10,6 +10,7 @@ class Server {
     store: Store;
     chatInterval: NodeJS.Timer | null = null;
     roomInterval: NodeJS.Timer | null = null;
+    startGettingRoomsCb: ((hash: string) => void) | null = null;
     roomMembersInterval: NodeJS.Timer | null = null;
     sceneInterval: NodeJS.Timer | null = null;
     showErrorCb: (error: TError) => void = () => { };
@@ -119,23 +120,28 @@ class Server {
     async getRoomsAndMembers(): Promise<TRoomsResponse | null> {
         const roomHash = this.store.getRoomHash();
         const result = await this.request<TRoomsResponse>('getRooms', { roomHash });
-        if (result?.status === 'updated') {
-            const { hash, rooms } = result;
-            this.store.setRoomHash(hash);
-            this.store.addRooms(rooms);
+        if (result) {
+            const { hash, rooms, status } = result;
+            if (status === 'updated') {
+                if (hash) {
+                    this.store.setRoomHash(hash);
+                }
+                this.store.addRooms(rooms);
+            }
             return result;
         }
         return null;
     }
 
     startGettingRooms(cb: (hash: string) => void): void {
-        this.roomInterval = setInterval(async () => {
+        this.startGettingRoomsCb = cb;
+        const tick = async () => {
             const result = await this.getRoomsAndMembers();
-            if (result) {
-                const { hash } = result;
-                hash && cb(hash);
-            }
-        }, ROOM_TIMESTAMP);
+            if (!this.startGettingRoomsCb) return;
+            this.startGettingRoomsCb(result?.hash ?? '');
+        };
+        this.roomInterval = setInterval(tick, ROOM_TIMESTAMP);
+        tick();
     }
 
     stopGettingRooms(): void {
@@ -143,6 +149,7 @@ class Server {
             clearInterval(this.roomInterval);
             this.roomInterval = null;
         }
+        this.startGettingRoomsCb = null;
     }
 
     async getUserRoom(): Promise<TRoom | null> {

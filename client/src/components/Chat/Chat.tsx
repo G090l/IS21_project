@@ -99,29 +99,32 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
     }, [isOpen, isHovered, useTypingState.isTyping]);
 
     useEffect(() => {
-        const newMessages = (hash: string) => {
+        if (!user) return;
+
+        server.startChatMessages((hash: string) => {
             const currentMessages = store.getMessages();
-            if (currentMessages?.length) {
-                const sortedMessages = [...currentMessages].sort((a, b) =>
-                    new Date(a.created).getTime() - new Date(b.created).getTime()
+
+            setMessages(prev => {
+                const newMessages = currentMessages.filter(
+                    m => !prev.some(p => p.author === m.author && p.created === m.created)
                 );
-                setMessages(sortedMessages);
-                setHash(hash);
 
-                if (currentMessages.length > messages.length) {
-                    onToggle(true);
+                if (newMessages.length > 0) {
+                    setTimeout(() => onToggle(true), 0);
+                    return [...prev, ...newMessages].sort(
+                        (a, b) => new Date(a.created).getTime() - new Date(b.created).getTime()
+                    );
                 }
-            }
-        }
 
-        if (user) {
-            server.startChatMessages(newMessages);
-        }
+                return prev;
+            });
+            setHash(hash);
+        });
 
         return () => {
             server.stopChatMessages();
-        }
-    }, [user, server, store, isOpen]);
+        };
+    }, [user]);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
