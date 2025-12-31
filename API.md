@@ -67,8 +67,8 @@ User: {
 }
 
 UserInfo: {
-    character_id: number;
-    user_id: number;
+    characterId: number;
+    userId: number;
     login: string;
     nickname: string;
     money: string;
