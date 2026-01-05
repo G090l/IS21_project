@@ -123,6 +123,7 @@ class Game {
     updateCurrentUserMovement(dx: number, dy: number): void {
         const hero = this.getCurrentUserHero();
         if (!hero) return;
+        hero.isMoving = dx || dy ? true : false
         hero.movement.dx = dx;
         hero.movement.dy = dy;
         this.isUpdatedHero = true;
@@ -298,9 +299,6 @@ class Game {
     private getSceneFromBackend(sceneData: any): void {
         if (sceneData.characters) {
             this.updateOtherHeroes(sceneData.characters);
-        }
-        if (sceneData.gameStatus) {
-            this.store.setGameStatus(sceneData.gameStatus);
         }
     }
 

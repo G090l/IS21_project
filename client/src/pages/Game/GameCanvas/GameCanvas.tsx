@@ -68,7 +68,7 @@ const GameCanvas: React.FC = () => {
             spriteNumber = hero.direction === EDIRECTION.RIGHT
                 ? animationFunctions.heroAttackRight()
                 : animationFunctions.heroAttackLeft();
-        } else if (hero.movement.dx || hero.movement.dy) {
+        } else if (hero.isMoving) {
             spriteNumber = hero.direction === EDIRECTION.RIGHT
                 ? animationFunctions.heroWalkRight()
                 : animationFunctions.heroWalkLeft();

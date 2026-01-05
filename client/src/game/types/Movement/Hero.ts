@@ -34,6 +34,7 @@ const BLOCK_DAMAGE_REDUCTION = 0.5;
 class Hero extends Unit {
     public isAttacking: boolean = false;
     public isBlocking: boolean = false;
+    public isMoving: boolean = false;
     private lastShotTime: number = 0;
     private characterClassType: ECLASSTYPE = ECLASSTYPE.WARRIOR;
     private equipment: TEquipment | null = null;
@@ -67,11 +68,12 @@ class Hero extends Unit {
         const heroData = {
             rect: {
                 x: this.rect.x,
-                y: this.rect.y,
-                width: this.rect.width,
-                height: this.rect.height
+                y: this.rect.y
             },
-            speed: this.speed,
+            isAlive: this.isAlive,
+            isAttacking: this.isAttacking,
+            isBlocking: this.isBlocking,
+            isMoving: this.isMoving,
             damage: this.damage,
             health: this.health,
             direction: this.direction,
@@ -83,12 +85,12 @@ class Hero extends Unit {
 
     public fromJSON(jsonString: string) {
         const data = JSON.parse(jsonString);
-
+        this.isAlive = data.isAlive;
+        this.isAttacking = data.isAttacking;
+        this.isBlocking = data.isBlocking;
+        this.isMoving = data.isMoving;
         this.rect.x = data.rect.x;
         this.rect.y = data.rect.y;
-        this.rect.width = data.rect.width;
-        this.rect.height = data.rect.height;
-        this.speed = data.speed;
         this.damage = data.damage;
         this.health = data.health;
         this.direction = data.direction;

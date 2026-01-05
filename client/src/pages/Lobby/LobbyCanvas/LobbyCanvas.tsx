@@ -35,6 +35,7 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
 
     const { isUserRoomMember } = useRoomUser(room, user);
     const background = isUserRoomMember ? lobbyBackground : menuBackground;
+    const { setPage } = props;
 
     useEffect(() => {
         backgroundImageRef.current.src = background;
@@ -155,6 +156,9 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
 
         // Игровой цикл
         const gameLoop = () => {
+            if (store.gameStatus == 'started') {
+                setPage(PAGES.GAME);
+            };
             handleMovement();
             animationFrameRef.current = requestAnimationFrame(gameLoop);
         };

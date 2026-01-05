@@ -240,9 +240,6 @@ class Server {
                 this.store.setCharacterHash(result.characterHash || '');
                 this.store.setBotHash(result.botHash || '');
                 this.store.setArrowHash(result.arrowHash || '');
-                this.store.setCharacters(result.characters || []);
-                this.store.setBotsData(result.botsData || '');
-                this.store.setArrowsData(result.arrowsData || '');
             }
             this.store.setGameStatus(result.gameStatus || '');
             return result;
@@ -252,6 +249,10 @@ class Server {
 
     async updateCharacter(characterData: string): Promise<boolean | null> {
         return this.request<boolean>('updateCharacter', { characterData });
+    }
+
+    async updateArrows(arrowsData: string): Promise<boolean | null> {
+        return this.request<boolean>('updateArrows', { arrowsData });
     }
 
     startGetScene(callback: (sceneData: TSceneResponse) => void): void {
