@@ -50,7 +50,6 @@ class Store {
     getUserRoom(): TRoom | null {
         const user = this.getUser();
         if (!user) return null;
-
         return this.rooms.find(room =>
             room.members?.some(member => member.userId === user.userId)
         ) || null;

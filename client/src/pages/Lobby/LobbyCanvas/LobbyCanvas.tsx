@@ -156,7 +156,7 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
 
         // Игровой цикл
         const gameLoop = () => {
-            if (store.gameStatus == 'started') {
+            if (store.gameStatus == 'started' && store.rooms.length > 0) {
                 setPage(PAGES.GAME);
             };
             handleMovement();

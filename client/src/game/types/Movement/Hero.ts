@@ -202,13 +202,10 @@ class Hero extends Unit {
 
         this.health -= finalDamage;
 
-        if (this.health < 0) {
+        if (this.health <= 0) {
             this.health = 0;
+            this.isAlive = false
         }
-    }
-
-    isAlive(): boolean {
-        return this.health > 0;
     }
 }
 

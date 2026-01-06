@@ -152,15 +152,6 @@ class Server {
         this.startGettingRoomsCb = null;
     }
 
-    async getUserRoom(): Promise<TRoom | null> {
-        const user = this.store.getUser();
-        const roomsResponse = await this.getRoomsAndMembers();
-        if (!roomsResponse?.rooms) return null;
-        return roomsResponse.rooms.find(room =>
-            room.members?.some(member => member.userId === user?.userId)
-        ) || null;
-    }
-
     createRoom(roomName: string, roomSize: number): Promise<boolean | null> {
         return this.request<boolean>('createRoom', { roomName, roomSize });
     }
@@ -253,6 +244,10 @@ class Server {
 
     async updateArrows(arrowsData: string): Promise<boolean | null> {
         return this.request<boolean>('updateArrows', { arrowsData });
+    }
+
+    async updateEnemy(enemyData: string): Promise<boolean | null> {
+        return this.request<boolean>('updateBots', { enemyData });
     }
 
     startGetScene(callback: (sceneData: TSceneResponse) => void): void {

@@ -31,7 +31,7 @@ class Game {
 
         this.server.startGetScene((sceneData) => this.getSceneFromBackend(sceneData));
         this.startUpdateScene();
-        this.startPeriodicHeroUpdate();
+        this.startPeriodicUpdate();
     }
 
     private createHero(): void {
@@ -50,7 +50,7 @@ class Game {
     }
 
     private getCurrentUserHero(): Hero | null {
-        const user = this.server.store.getUser();
+        const user = this.store.getUser();
         if (!user || !user.nickname) return null;
 
         return this.heroes.find(hero => hero.name === user.nickname) || null;
@@ -94,7 +94,7 @@ class Game {
         if (!swordPosition) return;
 
         this.enemies.forEach(enemy => {
-            if (enemy.isAlive() && hero.checkRectCollision(swordPosition, enemy.rect)) {
+            if (enemy.isAlive && hero.checkRectCollision(swordPosition, enemy.rect)) {
                 enemy.takeDamage(hero.damage);
             }
         });
@@ -154,9 +154,14 @@ class Game {
         }
     }
 
-    private startPeriodicHeroUpdate(): void {
+    private startPeriodicUpdate(): void {
         this.sceneUpdateInterval = setInterval(async () => {
             await this.updateCurrentHeroOnServer();
+            await this.updateArrowsOnServer();
+
+            if (this.enemies.length > 0) {
+                //await this.updateEnemiesOnServer();
+            }
         }, CONFIG.GAME_UPDATE_TIMESTAMP);
     }
 
@@ -180,10 +185,19 @@ class Game {
         }
     }
 
+    private async updateArrowsOnServer(): Promise<void> {
+        this.arrows.forEach(async arrow => { })
+        try {
+            await this.server.updateArrows();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     private updateEnemies(): void {
         const heroRects = this.heroes.map(hero => hero.rect);
         this.enemies.forEach(enemy => {
-            if (enemy.isAlive()) {
+            if (enemy.isAlive) {
                 enemy.update(heroRects, this.walls);
 
                 // Обработка атак врагов
@@ -193,7 +207,7 @@ class Game {
             }
         });
         // Удаляем мертвых врагов
-        this.enemies = this.enemies.filter(enemy => enemy.isAlive());
+        this.enemies = this.enemies.filter(enemy => enemy.isAlive);
     }
 
     private handleEnemyAttack(enemy: Enemy): void {
@@ -208,7 +222,7 @@ class Game {
         const attackPosition = enemy.getAttackPosition();
 
         this.heroes.forEach(hero => {
-            if (hero.isAlive() && enemy.checkRectCollision(attackPosition, hero.rect)) {
+            if (hero.isAlive && enemy.checkRectCollision(attackPosition, hero.rect)) {
                 hero.takeDamage(enemy.damage);
                 console.log(`Враг атаковал героя ${hero.name}! Здоровье: ${hero.health}`);
                 this.isUpdatedHero = true;
@@ -285,14 +299,12 @@ class Game {
         // Обновляем всех героев
         this.updateHeroes();
 
-        // Обновляем врагов
-        this.updateEnemies();
-
-        // Обновляем снаряды
-        this.updateArrows();
-
         // Логика отправки на сервер
         if (this.userIsOwner()) {
+            // Обновляем снаряды
+            this.updateArrows();
+            // Обновляем врагов
+            this.updateEnemies();
         }
     }
 
@@ -300,6 +312,17 @@ class Game {
         if (sceneData.characters) {
             this.updateOtherHeroes(sceneData.characters);
         }
+        if (sceneData.arrowsData) {
+            //this.updateOtherArrows(sceneData.arrowsData);
+        }
+    }
+
+    private updateOtherArrows(arrowsData: any[]): void {
+        this.arrows = [];
+        arrowsData.forEach(arrowData => {
+            const newArrow = new Arrow();
+            this.arrows.push(newArrow);
+        });
     }
 
     private updateOtherHeroes(characters: TRoomMember[]): void {
