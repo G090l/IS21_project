@@ -7,6 +7,13 @@ import Arrow from "./types/Movement/Arrow";
 import Enemy from "./types/Movement/Enemy";
 import { TRoomMember } from "../services/server/types";
 
+type TArrowData = {
+    x: number;
+    y: number;
+    direction: EDIRECTION;
+    damage: number;
+};
+
 class Game {
     private server: Server;
     private store: Store;
@@ -30,8 +37,8 @@ class Game {
         this.createHero();
 
         this.server.startGetScene((sceneData) => this.getSceneFromBackend(sceneData));
-        this.startUpdateScene();
         this.startPeriodicUpdate();
+        this.startUpdateScene();
     }
 
     private createHero(): void {
@@ -157,7 +164,9 @@ class Game {
     private startPeriodicUpdate(): void {
         this.sceneUpdateInterval = setInterval(async () => {
             await this.updateCurrentHeroOnServer();
-            await this.updateArrowsOnServer();
+            if (this.arrows.length > 0) {
+                await this.updateArrowsOnServer();
+            }
 
             if (this.enemies.length > 0) {
                 //await this.updateEnemiesOnServer();
@@ -186,11 +195,18 @@ class Game {
     }
 
     private async updateArrowsOnServer(): Promise<void> {
-        this.arrows.forEach(async arrow => { })
         try {
-            await this.server.updateArrows();
+            const arrowsData: TArrowData[] = this.arrows.map(arrow => ({
+                x: arrow.rect.x,
+                y: arrow.rect.y,
+                direction: arrow.direction,
+                damage: arrow.damage
+            }));
+
+            const arrowsJson = JSON.stringify(arrowsData);
+            await this.server.updateArrows(arrowsJson);
         } catch (error) {
-            console.error(error);
+            console.error('Failed to update arrows on server:', error);
         }
     }
 
@@ -304,7 +320,7 @@ class Game {
             // Обновляем снаряды
             this.updateArrows();
             // Обновляем врагов
-            this.updateEnemies();
+            //this.updateEnemies();
         }
     }
 
@@ -313,16 +329,25 @@ class Game {
             this.updateOtherHeroes(sceneData.characters);
         }
         if (sceneData.arrowsData) {
-            //this.updateOtherArrows(sceneData.arrowsData);
+            this.updateOtherArrows(sceneData.arrowsData);
         }
     }
 
-    private updateOtherArrows(arrowsData: any[]): void {
-        this.arrows = [];
-        arrowsData.forEach(arrowData => {
-            const newArrow = new Arrow();
-            this.arrows.push(newArrow);
-        });
+    private updateOtherArrows(arrowsDataJson: string): void {
+        try {
+            const arrowsData: TArrowData[] = JSON.parse(arrowsDataJson);
+            this.arrows = []
+            arrowsData.forEach(arrowData => {
+                const newArrow = new Arrow();
+                newArrow.rect.x = arrowData.x;
+                newArrow.rect.y = arrowData.y;
+                newArrow.direction = arrowData.direction;
+                newArrow.damage = arrowData.damage;
+                this.arrows.push(newArrow);
+            });
+        } catch (error) {
+            console.error('Failed to parse arrows data:', error);
+        }
     }
 
     private updateOtherHeroes(characters: TRoomMember[]): void {
