@@ -37,8 +37,8 @@ class Game {
         this.createHero();
 
         this.server.startGetScene((sceneData) => this.getSceneFromBackend(sceneData));
-        this.startPeriodicUpdate();
         this.startUpdateScene();
+        this.startPeriodicUpdate();
     }
 
     private createHero(): void {
@@ -150,7 +150,7 @@ class Game {
         }
         this.interval = setInterval(
             () => this.updateScene(),
-            CONFIG.GAME_UPDATE_TIMESTAMP
+            50
         );
     }
 
@@ -208,6 +208,7 @@ class Game {
         } catch (error) {
             console.error('Failed to update arrows on server:', error);
         }
+        this.arrows = []
     }
 
     private updateEnemies(): void {
