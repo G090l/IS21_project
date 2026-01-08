@@ -11,6 +11,7 @@ type TUnitOptions = {
 }
 
 class Unit extends Movement {
+    public isAlive: boolean = true;
     public name: string;
     public health: number;
     public damage: number;
@@ -34,13 +35,10 @@ class Unit extends Movement {
 
     takeDamage(damage: number): void {
         this.health -= damage;
-        if (this.health < 0) {
+        if (this.health <= 0) {
             this.health = 0;
+            this.isAlive = false
         }
-    }
-
-    isAlive(): boolean {
-        return this.health > 0;
     }
 }
 

@@ -20,9 +20,6 @@ class Store {
     botHash: string = 'empty bot hash';
     arrowHash: string = 'empty arrow hash';
     gameStatus: string = '';
-    characters: TRoomMember[] = [];
-    botsData: string = '';
-    arrowsData: string = '';
 
     rememberMe: boolean = false;
 
@@ -53,7 +50,6 @@ class Store {
     getUserRoom(): TRoom | null {
         const user = this.getUser();
         if (!user) return null;
-
         return this.rooms.find(room =>
             room.members?.some(member => member.userId === user.userId)
         ) || null;
@@ -176,38 +172,11 @@ class Store {
         return this.gameStatus;
     }
 
-    setCharacters(characters: TRoomMember[]): void {
-        this.characters = characters;
-    }
-
-    getCharacters(): TRoomMember[] {
-        return this.characters;
-    }
-
-    setBotsData(data: string): void {
-        this.botsData = data;
-    }
-
-    getBotsData(): string {
-        return this.botsData;
-    }
-
-    setArrowsData(data: string): void {
-        this.arrowsData = data;
-    }
-
-    getArrowsData(): string {
-        return this.arrowsData;
-    }
-
     clearGameData(): void {
         this.characterHash = 'empty character hash';
         this.botHash = 'empty bot hash';
         this.arrowHash = 'empty arrow hash';
         this.gameStatus = '';
-        this.characters = [];
-        this.botsData = '';
-        this.arrowsData = '';
 
         localStorage.removeItem(CHARACTER_HASH);
         localStorage.removeItem(BOT_HASH);
