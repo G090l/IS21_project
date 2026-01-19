@@ -3,7 +3,7 @@ import CONFIG from "../../config";
 import Store from "../store/Store";
 import { TAnswer, TClass, TError, TItem, TMessagesResponse, TRoom, TRoomMembersResponse, TRoomsResponse, TUser, TSceneResponse } from "./types";
 
-const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST, GAME_UPDATE_TIMESTAMP } = CONFIG;
+const { CHAT_TIMESTAMP, ROOM_TIMESTAMP, HOST } = CONFIG;
 
 class Server {
     HOST = HOST;
@@ -214,8 +214,8 @@ class Server {
     }
 
     async getScene(): Promise<TSceneResponse | null> {
-        const token = this.store.getToken();
-        const characterHash = this.store.getCharacterHash();
+        const token = this.store.getToken() || 'empty token'
+        const characterHash = this.store.getCharacterHash() || 'empty charcter hash'
         const botHash = this.store.getBotHash() || 'empty bot hash';
         const arrowHash = this.store.getArrowHash() || 'empty arrow hash';
 
@@ -248,27 +248,6 @@ class Server {
 
     async updateEnemy(enemyData: string): Promise<boolean | null> {
         return this.request<boolean>('updateBots', { enemyData });
-    }
-
-    startGetScene(callback: (sceneData: TSceneResponse) => void): void {
-        this.sceneInterval = setInterval(async () => {
-            const result = await this.getScene();
-            if (result) {
-                callback(result);
-            }
-        }, GAME_UPDATE_TIMESTAMP);
-    }
-
-    stopGetScene(): void {
-        if (this.sceneInterval) {
-            clearInterval(this.sceneInterval);
-            this.sceneInterval = null;
-        }
-        this.store.clearGameData();
-    }
-
-    updateScene(): Promise<TSceneResponse | null> {
-        return this.getScene();
     }
 }
 

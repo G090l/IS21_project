@@ -115,7 +115,7 @@ const GameCanvas: React.FC = () => {
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvas, hero.rect, color);
 
-                canvas.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');
+                canvas.text(hero.rect.x, hero.rect.y - 150, hero.name || "Неизвестно", 'white');
 
                 if (hero.isAttacking && attackMode === EAttackMode.Sword) {
                     const attackPosition = hero.getAttackPosition();

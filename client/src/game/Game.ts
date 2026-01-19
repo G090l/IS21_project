@@ -5,7 +5,7 @@ import GameMap from "./types/Map";
 import Hero from "./types/Movement/Hero";
 import Arrow from "./types/Movement/Arrow";
 import Enemy from "./types/Movement/Enemy";
-import { TRoomMember } from "../services/server/types";
+import { TRoomMember, TSceneResponse } from "../services/server/types";
 
 type TArrowData = {
     x: number;
@@ -22,11 +22,10 @@ class Game {
     private gameMap: GameMap;
     private arrows: Arrow[] = [];
     private enemies: Enemy[];
-    private interval: NodeJS.Timer | null = null;
     private enemyAttackCooldowns: Map<Enemy, number> = new Map();
 
-    private isUpdatedHero: boolean = false;
     private sceneUpdateInterval: NodeJS.Timer | null = null;
+    private isShoot: boolean = false;
 
     constructor(server: Server, store: Store) {
         this.server = server;
@@ -35,9 +34,6 @@ class Game {
         this.walls = this.gameMap.walls;
         this.enemies = [new Enemy()];
         this.createHero();
-
-        this.server.startGetScene((sceneData) => this.getSceneFromBackend(sceneData));
-        this.startUpdateScene();
         this.startPeriodicUpdate();
     }
 
@@ -68,9 +64,8 @@ class Game {
     }
 
     destructor() {
-        this.stopUpdateScene();
         this.stopPeriodicHeroUpdate();
-        this.server.stopGetScene();
+        this.store.clearGameData();
     }
 
     getScene() {
@@ -88,7 +83,7 @@ class Game {
 
         this.arrows.push(new Arrow(hero.createProjectile()));
         hero.setLastShotTime();
-        this.isUpdatedHero = true;
+        this.isShoot = true;
     }
 
     handleSwordAttack(): void {
@@ -109,22 +104,18 @@ class Game {
         setTimeout(() => {
             hero.isAttacking = false;
         }, 300);
-
-        this.isUpdatedHero = true;
     }
 
     handleBlock(): void {
         const hero = this.getCurrentUserHero();
         if (!hero) return;
         hero.isBlocking = true;
-        this.isUpdatedHero = true;
     }
 
     handleUnblock(): void {
         const hero = this.getCurrentUserHero();
         if (!hero) return;
         hero.isBlocking = false;
-        this.isUpdatedHero = true;
     }
 
     updateCurrentUserMovement(dx: number, dy: number): void {
@@ -133,7 +124,6 @@ class Game {
         hero.isMoving = dx || dy ? true : false
         hero.movement.dx = dx;
         hero.movement.dy = dy;
-        this.isUpdatedHero = true;
     }
 
     private userIsOwner(): boolean {
@@ -144,33 +134,20 @@ class Game {
         ) || false;
     }
 
-    private startUpdateScene() {
-        if (this.interval) {
-            this.stopUpdateScene();
-        }
-        this.interval = setInterval(
-            () => this.updateScene(),
-            50
-        );
-    }
-
-    private stopUpdateScene() {
-        if (this.interval) {
-            clearInterval(this.interval);
-            this.interval = null;
-        }
-    }
-
     private startPeriodicUpdate(): void {
         this.sceneUpdateInterval = setInterval(async () => {
+            this.getSceneFromBackend(await this.server.getScene());
+            this.updateScene()
             await this.updateCurrentHeroOnServer();
-            if (this.arrows.length > 0) {
+            if (this.isShoot == true || (this.userIsOwner() && this.arrows.length > 0)) {
                 await this.updateArrowsOnServer();
+                this.isShoot = false
+                this.arrows = []
             }
 
-            if (this.enemies.length > 0) {
-                //await this.updateEnemiesOnServer();
-            }
+            /*if (this.enemies.length > 0) {
+                await this.updateEnemiesOnServer();
+            }*/
         }, CONFIG.GAME_UPDATE_TIMESTAMP);
     }
 
@@ -183,12 +160,11 @@ class Game {
 
     private async updateCurrentHeroOnServer(): Promise<void> {
         const hero = this.getCurrentUserHero();
-        if (!hero || !this.isUpdatedHero) return;
+        if (!hero) return;
 
         try {
             const heroData = hero.toJSON();
             await this.server.updateCharacter(heroData);
-            this.isUpdatedHero = false;
         } catch (error) {
             console.error('Failed to update hero on server:', error);
         }
@@ -208,7 +184,6 @@ class Game {
         } catch (error) {
             console.error('Failed to update arrows on server:', error);
         }
-        this.arrows = []
     }
 
     private updateEnemies(): void {
@@ -242,7 +217,6 @@ class Game {
             if (hero.isAlive && enemy.checkRectCollision(attackPosition, hero.rect)) {
                 hero.takeDamage(enemy.damage);
                 console.log(`Враг атаковал героя ${hero.name}! Здоровье: ${hero.health}`);
-                this.isUpdatedHero = true;
 
                 this.enemyAttackCooldowns.set(enemy, currentTime);
             }
@@ -252,8 +226,8 @@ class Game {
     private updateHeroes(): void {
         this.heroes.forEach(hero => {
             if (!hero.isAttacking && !hero.isBlocking) {
-                const dx = hero.movement.dx * hero.speed;
-                const dy = hero.movement.dy * hero.speed;
+                const dx = hero.movement.dx * hero.speed * 1.2;
+                const dy = hero.movement.dy * hero.speed * 1.2;
 
                 const originalX = hero.rect.x;
                 const originalY = hero.rect.y;
@@ -277,9 +251,9 @@ class Game {
 
             // Двигаем стрелу
             if (arrow.direction == EDIRECTION.RIGHT) {
-                arrow.move(10, 0);
+                arrow.move(35, 0);
             } else {
-                arrow.move(-10, 0);
+                arrow.move(-35, 0);
             }
 
             // Проверка столкновений стрел со стенами
@@ -325,7 +299,8 @@ class Game {
         }
     }
 
-    private getSceneFromBackend(sceneData: any): void {
+    private getSceneFromBackend(sceneData: TSceneResponse | null): void {
+        if (!sceneData) return
         if (sceneData.characters) {
             this.updateOtherHeroes(sceneData.characters);
         }

@@ -41,13 +41,44 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
         backgroundImageRef.current.src = background;
     }, [background]);
 
-    // инициализация карты спрайтов
     const {
         spritesImage,
         getSprite,
         animationFunctions,
         heroSprites
     } = useSprites();
+
+    const heroIdleRightSprite = heroSprites.idleRightSprite;
+    const heroIdleLeftSprite = heroSprites.idleLeftSprite;
+
+    function printHeroSprite(
+        canvas: Canvas,
+        { x = 0, y = 0 },
+        hero: any
+    ): void {
+        let spriteNumber: number;
+
+        if (hero.isBlocking) {
+            spriteNumber = hero.direction === EDIRECTION.RIGHT
+                ? animationFunctions.heroBlockRight()
+                : animationFunctions.heroBlockLeft();
+        } else if (hero.isAttacking) {
+            spriteNumber = hero.direction === EDIRECTION.RIGHT
+                ? animationFunctions.heroAttackRight()
+                : animationFunctions.heroAttackLeft();
+        } else if (hero.isMoving) {
+            spriteNumber = hero.direction === EDIRECTION.RIGHT
+                ? animationFunctions.heroWalkRight()
+                : animationFunctions.heroWalkLeft();
+        } else {
+            spriteNumber = hero.direction === EDIRECTION.RIGHT
+                ? heroIdleRightSprite
+                : heroIdleLeftSprite;
+        }
+
+        const [sx, sy, size] = getSprite(spriteNumber);
+        printFillSprite(spritesImage, canvas, { x, y }, [sx, sy, size]);
+    }
 
     const keysPressedRef = useRef({
         w: false,
@@ -92,10 +123,13 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
             heroes.forEach((hero, index) => {
                 const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
                 printGameObject(canvasRef.current!, hero.rect, color);
-                printSprite(canvasRef.current!, { x: hero.rect.x, y: hero.rect.y }, getSprite(1));
 
                 // Подписываем имя героя
-                canvasRef.current!.text(hero.rect.x, hero.rect.y - 20, hero.name || "Неизвестно", 'white');
+                canvasRef.current!.text(hero.rect.x, hero.rect.y - 150, hero.name || "Неизвестно", 'white');
+                printHeroSprite(canvasRef.current!, {
+                    x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
+                    y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
+                }, hero);
             });
 
             // Рисуем FPS
