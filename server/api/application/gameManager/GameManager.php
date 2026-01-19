@@ -15,10 +15,6 @@ class GameManager extends BaseManager {
         //проверка, что пользователь в комнате
         $roomMember = $this->checkUserInRoom($userId);
         if (is_array($roomMember)) return $roomMember;
-        
-        //проверка статуса комнаты
-        $room = $this->checkRoomIsStarted($roomMember->roomId);
-        if (is_array($room)) return $room;
 
         //сохраняем данные и обновляем хеш
         $this->db->updateRoomMemberData($roomMember->id, $characterData);
