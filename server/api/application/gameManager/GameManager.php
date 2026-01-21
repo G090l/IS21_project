@@ -143,54 +143,32 @@ class GameManager extends BaseManager {
         return true;
     }
     
-    //получение денег за убийство бота
-    public function addMoneyForKill($userId, $killerToken, $botTypeId) {
+    //передача денег игроку
+    public function giveMoney($userId, $money) {
         //проверка пользователя
         $user = $this->checkUserExists($userId);
-         if (is_array($user)) return $user;
+        if (is_array($user)) return $user;
 
         //проверка персонажа
         $character = $this->checkCharacterExists($userId);
         if (is_array($character)) return $character;
-        
-        //проверка пользователя и прав владельца
-        $roomMember = $this->checkUserIsRoomOwner($userId);
+
+        //проверка, что пользователь в комнате
+        $roomMember = $this->checkUserInRoom($userId);
         if (is_array($roomMember)) return $roomMember;
         
         //проверка статуса комнаты
         $room = $this->checkRoomIsStarted($roomMember->roomId);
         if (is_array($room)) return $room;
         
-        //проверка существования убийцы
-        $killerUser = $this->db->getUserByToken($killerToken);
-        if (!$killerUser) {
-            return ['error' => 705];
+        //проверка, что сумма положительная
+        if ($money <= 0) {
+            return ['error' => 5001]; 
         }
-
-        //проверка, что убийца в комнате
-        $killerRoomMember = $this->db->getRoomMemberByUserId($killerUser->id);
-        if (!$killerRoomMember || $killerRoomMember->roomId != $roomMember->roomId) {
-            return ['error' => 2006];
-        }
-
-        //получаем данные типа бота для награды
-        $botType = $this->db->getBotTypeById($botTypeId);
-        if (!$botType) {
-            return ['error' => 5001];
-        }
-
-        //получаем персонажа убийцы
-        $killerCharacter = $this->db->getCharacterByUserId($killerUser->id);
-        if (!$killerCharacter) {
-            return ['error' => 706];
-        }
-
-        //начисляем деньгу
-        $reward = $botType->money;
-        if ($reward > 0) {
-            $this->db->updateCharacterMoneyAdd($killerCharacter->id, $reward);
-        }
-
+        
+        //начисляем деньги
+        $this->db->updateCharacterMoneyAdd($character->id, $money);
+        
         return true;
     }
 }
