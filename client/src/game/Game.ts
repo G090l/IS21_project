@@ -14,6 +14,16 @@ type TArrowData = {
     damage: number;
 };
 
+type TEnemyData = {
+    x: number;
+    y: number;
+    direction: EDIRECTION;
+    damage: number;
+    health: number;
+    isAttacking: boolean;
+
+};
+
 class Game {
     private server: Server;
     private store: Store;
@@ -144,10 +154,9 @@ class Game {
                 this.isShoot = false
                 this.arrows = []
             }
-
-            /*if (this.enemies.length > 0) {
+            if (this.userIsOwner() && this.enemies.length > 0) {
                 await this.updateEnemiesOnServer();
-            }*/
+            }
         }, CONFIG.GAME_UPDATE_TIMESTAMP);
     }
 
@@ -186,6 +195,25 @@ class Game {
         }
     }
 
+    private async updateEnemiesOnServer(): Promise<void> {
+        try {
+            const enemiesData: TEnemyData[] = this.enemies.map(enemy => ({
+                x: enemy.rect.x,
+                y: enemy.rect.y,
+                direction: enemy.direction,
+                damage: enemy.damage,
+                health: enemy.health,
+                isAttacking: enemy.isAttacking
+
+            }));
+
+            const enemiesJson = JSON.stringify(enemiesData);
+            await this.server.updateEnemy(enemiesJson);
+        } catch (error) {
+            console.error('Failed to update enemies on server:', error);
+        }
+    }
+
     private updateEnemies(): void {
         const heroRects = this.heroes.map(hero => hero.rect);
         this.enemies.forEach(enemy => {
@@ -193,7 +221,7 @@ class Game {
                 enemy.update(heroRects, this.walls);
 
                 // Обработка атак врагов
-                if (enemy.getIsAttacking()) {
+                if (enemy.isAttacking) {
                     this.handleEnemyAttack(enemy);
                 }
             }
@@ -295,7 +323,7 @@ class Game {
             // Обновляем снаряды
             this.updateArrows();
             // Обновляем врагов
-            //this.updateEnemies();
+            this.updateEnemies();
         }
     }
 
@@ -306,6 +334,9 @@ class Game {
         }
         if (sceneData.arrowsData) {
             this.updateOtherArrows(sceneData.arrowsData);
+        }
+        if (sceneData.botsData) {
+            this.updateOtherEnemies(sceneData.botsData);
         }
     }
 
@@ -323,6 +354,25 @@ class Game {
             });
         } catch (error) {
             console.error('Failed to parse arrows data:', error);
+        }
+    }
+
+    private updateOtherEnemies(enemiesDataJson: string): void {
+        try {
+            const enemiesData: TEnemyData[] = JSON.parse(enemiesDataJson);
+            this.enemies = []
+            enemiesData.forEach(enemiesData => {
+                const newEnemy = new Enemy();
+                newEnemy.rect.x = enemiesData.x;
+                newEnemy.rect.y = enemiesData.y;
+                newEnemy.direction = enemiesData.direction;
+                newEnemy.damage = enemiesData.damage;
+                newEnemy.health = enemiesData.health;
+                newEnemy.isAttacking = enemiesData.isAttacking;
+                this.enemies.push(newEnemy);
+            });
+        } catch (error) {
+            console.error('Failed to parse enemies data:', error);
         }
     }
 

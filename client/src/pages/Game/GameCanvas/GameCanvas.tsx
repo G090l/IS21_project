@@ -137,7 +137,7 @@ const GameCanvas: React.FC = () => {
             enemies.forEach(enemy => {
                 printGameObject(canvas, enemy.rect, 'red');
 
-                if (enemy.getIsAttacking()) {
+                if (enemy.isAttacking) {
                     const attackPosition = enemy.getAttackPosition();
                     if (attackPosition) {
                         printGameObject(canvas, attackPosition, 'orange');

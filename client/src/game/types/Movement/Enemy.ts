@@ -4,7 +4,7 @@ import Unit from "./Unit";
 class Enemy extends Unit {
     private detectionRange: number;
     private attackRange: number;
-    private isAttacking: boolean;
+    public isAttacking: boolean;
     private attackCooldown: number;
     private lastAttackTime: number;
 
@@ -128,10 +128,6 @@ class Enemy extends Unit {
             width: swordSize,
             height: swordSize
         };
-    }
-
-    getIsAttacking(): boolean {
-        return this.isAttacking;
     }
 }
 
