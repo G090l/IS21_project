@@ -47,7 +47,7 @@ class Hero extends Unit {
         this.speed = 8;
         this.rect.width = 100;
         this.rect.height = 100;
-        this.damage = 10;
+        this.damage = 25;
         this.health = 100;
 
         //Если владелец персонажа - owner, заполняем снаряжение

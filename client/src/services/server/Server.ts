@@ -246,8 +246,8 @@ class Server {
         return this.request<boolean>('updateArrows', { arrowsData });
     }
 
-    async updateEnemy(enemyData: string): Promise<boolean | null> {
-        return this.request<boolean>('updateBots', { enemyData });
+    async updateEnemy(botsData: string): Promise<boolean | null> {
+        return this.request<boolean>('updateBots', { botsData });
     }
 }
 

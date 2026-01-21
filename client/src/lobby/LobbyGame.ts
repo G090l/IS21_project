@@ -9,6 +9,8 @@ class LobbyGame extends Game {
 
         const lobbyMap = new LobbyMap();
         // @ts-ignore
+        this.enemies = [];
+        // @ts-ignore
         this.walls = lobbyMap.walls;
         // @ts-ignore
         this.gameMap.walls = lobbyMap.walls;

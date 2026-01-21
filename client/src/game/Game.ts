@@ -14,6 +14,15 @@ type TArrowData = {
     damage: number;
 };
 
+type TEnemyData = {
+    x: number;
+    y: number;
+    direction: EDIRECTION;
+    damage: number;
+    health: number;
+    isAttacking: boolean;
+};
+
 class Game {
     private server: Server;
     private store: Store;
@@ -26,6 +35,8 @@ class Game {
 
     private sceneUpdateInterval: NodeJS.Timer | null = null;
     private isShoot: boolean = false;
+    private previousArrowsCount: number = 0;
+    private previousEnemiesCount: number;
 
     constructor(server: Server, store: Store) {
         this.server = server;
@@ -33,6 +44,7 @@ class Game {
         this.gameMap = new GameMap();
         this.walls = this.gameMap.walls;
         this.enemies = [new Enemy()];
+        this.previousEnemiesCount = this.enemies.length;
         this.createHero();
         this.startPeriodicUpdate();
     }
@@ -92,15 +104,6 @@ class Game {
 
         hero.isAttacking = true;
 
-        const swordPosition = hero.getAttackPosition();
-        if (!swordPosition) return;
-
-        this.enemies.forEach(enemy => {
-            if (enemy.isAlive && hero.checkRectCollision(swordPosition, enemy.rect)) {
-                enemy.takeDamage(hero.damage);
-            }
-        });
-
         setTimeout(() => {
             hero.isAttacking = false;
         }, 300);
@@ -137,17 +140,20 @@ class Game {
     private startPeriodicUpdate(): void {
         this.sceneUpdateInterval = setInterval(async () => {
             this.getSceneFromBackend(await this.server.getScene());
-            this.updateScene()
+            this.updateScene();
+            const currentArrowsCount = this.arrows.length;
+            const currentEnemiesCount = this.enemies.length;
             await this.updateCurrentHeroOnServer();
-            if (this.isShoot == true || (this.userIsOwner() && this.arrows.length > 0)) {
+            if (this.isShoot || (this.userIsOwner() && (currentArrowsCount > 0 || (this.previousArrowsCount > 0 && currentArrowsCount === 0)))) {
                 await this.updateArrowsOnServer();
-                this.isShoot = false
-                this.arrows = []
+                this.isShoot = false;
+                this.arrows = [];
             }
-
-            /*if (this.enemies.length > 0) {
+            if (this.userIsOwner() && (currentEnemiesCount > 0 || (this.previousEnemiesCount > 0 && currentEnemiesCount === 0))) {
                 await this.updateEnemiesOnServer();
-            }*/
+            }
+            this.previousArrowsCount = currentArrowsCount;
+            this.previousEnemiesCount = currentEnemiesCount;
         }, CONFIG.GAME_UPDATE_TIMESTAMP);
     }
 
@@ -186,6 +192,24 @@ class Game {
         }
     }
 
+    private async updateEnemiesOnServer(): Promise<void> {
+        try {
+            const enemiesData: TEnemyData[] = this.enemies.map(enemy => ({
+                x: enemy.rect.x,
+                y: enemy.rect.y,
+                direction: enemy.direction,
+                damage: enemy.damage,
+                health: enemy.health,
+                isAttacking: enemy.isAttacking
+            }));
+
+            const enemiesJson = JSON.stringify(enemiesData);
+            await this.server.updateEnemy(enemiesJson);
+        } catch (error) {
+            console.error('Failed to update enemies on server:', error);
+        }
+    }
+
     private updateEnemies(): void {
         const heroRects = this.heroes.map(hero => hero.rect);
         this.enemies.forEach(enemy => {
@@ -193,7 +217,7 @@ class Game {
                 enemy.update(heroRects, this.walls);
 
                 // Обработка атак врагов
-                if (enemy.getIsAttacking()) {
+                if (enemy.isAttacking) {
                     this.handleEnemyAttack(enemy);
                 }
             }
@@ -241,6 +265,16 @@ class Game {
                         hero.rect.y = originalY;
                     }
                 );
+            }
+            if (hero.isAttacking) {
+                const swordPosition = hero.getAttackPosition();
+                if (swordPosition) {
+                    this.enemies.forEach(enemy => {
+                        if (enemy.isAlive && hero.checkRectCollision(swordPosition, enemy.rect)) {
+                            enemy.takeDamage(hero.damage);
+                        }
+                    });
+                }
             }
         });
     }
@@ -295,7 +329,7 @@ class Game {
             // Обновляем снаряды
             this.updateArrows();
             // Обновляем врагов
-            //this.updateEnemies();
+            this.updateEnemies();
         }
     }
 
@@ -306,6 +340,9 @@ class Game {
         }
         if (sceneData.arrowsData) {
             this.updateOtherArrows(sceneData.arrowsData);
+        }
+        if (sceneData.botsData) {
+            this.updateOtherEnemies(sceneData.botsData);
         }
     }
 
@@ -323,6 +360,25 @@ class Game {
             });
         } catch (error) {
             console.error('Failed to parse arrows data:', error);
+        }
+    }
+
+    private updateOtherEnemies(enemiesDataJson: string): void {
+        try {
+            const enemiesData: TEnemyData[] = JSON.parse(enemiesDataJson);
+            this.enemies = []
+            enemiesData.forEach(enemiesData => {
+                const newEnemy = new Enemy();
+                newEnemy.rect.x = enemiesData.x;
+                newEnemy.rect.y = enemiesData.y;
+                newEnemy.direction = enemiesData.direction;
+                newEnemy.damage = enemiesData.damage;
+                newEnemy.health = enemiesData.health;
+                newEnemy.isAttacking = enemiesData.isAttacking;
+                this.enemies.push(newEnemy);
+            });
+        } catch (error) {
+            console.error('Failed to parse enemies data:', error);
         }
     }
 

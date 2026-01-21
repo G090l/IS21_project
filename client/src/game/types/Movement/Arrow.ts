@@ -24,7 +24,7 @@ export class Arrow extends Movement implements IAttack {
             direction = EDIRECTION.RIGHT,
             x = 0,
             y = 0,
-            damage = 10,
+            damage = 25,
             speed = 5,
             width = 30,
             height = 10
