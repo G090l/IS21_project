@@ -103,6 +103,11 @@ class UserManager extends BaseManager {
         
         return $this->login($login, $passwordHash, $rnd);
     }
+
+    //возвращает возвращает 20 самых крутых пользаков с самым БОЛЬШИМ ...
+    public function getRatingTable() {
+        return $this->db->getRatingTable();
+    }
     
     public function deleteUser($token) {
         $user = $this->db->getUserByToken($token);
@@ -138,4 +143,6 @@ class UserManager extends BaseManager {
         }
         return ['error' => 2012]; 
     }
+
+
 }

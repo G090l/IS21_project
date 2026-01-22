@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: MySQL-8.0
--- Время создания: Дек 18 2025 г., 14:56
+-- Время создания: Янв 21 2026 г., 19:39
 -- Версия сервера: 8.0.41
 -- Версия PHP: 8.3.14
 
@@ -48,17 +48,18 @@ CREATE TABLE `bots` (
   `damage` int DEFAULT '10',
   `attack_speed` int DEFAULT '1',
   `attack_distance` int DEFAULT '1',
-  `money` int DEFAULT '0'
+  `money` int DEFAULT '0',
+  `rating` int DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Дамп данных таблицы `bots`
 --
 
-INSERT INTO `bots` (`id`, `name`, `hp`, `damage`, `attack_speed`, `attack_distance`, `money`) VALUES
-(1, 'Скелет', 50, 10, 1, 1, 100),
-(2, 'Гоблин', 100, 20, 1, 1, 200),
-(3, 'Злой рыцарь', 150, 20, 2, 2, 250);
+INSERT INTO `bots` (`id`, `name`, `hp`, `damage`, `attack_speed`, `attack_distance`, `money`, `rating`) VALUES
+(1, 'Скелет', 50, 10, 1, 1, 100, 5),
+(2, 'Гоблин', 100, 20, 1, 1, 200, 10),
+(3, 'Злой рыцарь', 150, 20, 2, 2, 250, 15);
 
 -- --------------------------------------------------------
 
@@ -83,7 +84,8 @@ CREATE TABLE `characters` (
   `user_id` int NOT NULL,
   `hp` int DEFAULT '100',
   `defense` int DEFAULT '10',
-  `money` int DEFAULT '100'
+  `money` int DEFAULT '100',
+  `rating` int DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -157,7 +159,7 @@ CREATE TABLE `hashes` (
 --
 
 INSERT INTO `hashes` (`id`, `chat_hash`, `room_hash`, `character_hash`, `bot_hash`, `arrow_hash`) VALUES
-(1, 'ba47d2da2a1c5162ed39ad9b66f308cb', 'c5a8b667c681ffd493a801ce1b71b1b0', '73bc9048550c82fda4096f21c0e44cd1', 'e502de9265239d9fc3e695852b5e9494', '16b3424826d3d8b3ffada29e1f083541');
+(1, 'ba47d2da2a1c5162ed39ad9b66f308cb', '20fbf3c7534e77e55d57d0f724e728d9', '73bc9048550c82fda4096f21c0e44cd1', 'e502de9265239d9fc3e695852b5e9494', '173f63ebd2f1ca8730b4868c77233816');
 
 -- --------------------------------------------------------
 
@@ -236,7 +238,8 @@ CREATE TABLE `room_members` (
   `character_id` int NOT NULL,
   `type` enum('owner','participant') NOT NULL DEFAULT 'participant',
   `status` enum('ready','started') NOT NULL DEFAULT 'ready',
-  `data` text
+  `data` text,
+  `rating` int DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -356,7 +359,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `arrows`
 --
 ALTER TABLE `arrows`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT для таблицы `bots`
@@ -368,25 +371,25 @@ ALTER TABLE `bots`
 -- AUTO_INCREMENT для таблицы `bots_rooms`
 --
 ALTER TABLE `bots_rooms`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT для таблицы `characters`
 --
 ALTER TABLE `characters`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT для таблицы `characters_classes`
 --
 ALTER TABLE `characters_classes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT для таблицы `character_items`
 --
 ALTER TABLE `character_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 
 --
 -- AUTO_INCREMENT для таблицы `classes`
@@ -410,19 +413,19 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT для таблицы `rooms`
 --
 ALTER TABLE `rooms`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT для таблицы `room_members`
 --
 ALTER TABLE `room_members`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц

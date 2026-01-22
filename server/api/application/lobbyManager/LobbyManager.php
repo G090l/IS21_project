@@ -325,11 +325,72 @@ class LobbyManager extends BaseManager {
         ];
     }
 
+    public function addRating($userId, $ratingPoints) {
+        //проверка пользователя
+        $user = $this->checkUserExists($userId);
+        if (is_array($user)) return $user;
+
+        //проверка персонажа
+        $character = $this->checkCharacterExists($userId);
+        if (is_array($character)) return $character;
+        
+        //проверка, что пользователь в комнате
+        $roomMember = $this->checkUserInRoom($userId);
+        if (is_array($roomMember)) return $roomMember;
+        
+        //проверка статуса комнаты
+        $room = $this->checkRoomIsStarted($roomMember->roomId);
+        if (is_array($room)) return $room;
+        
+        //проверка, что рейтинг положительный
+        if ($ratingPoints <= 0) {
+            return ['error' => 2016]; 
+        }
+        
+        //добавляем рейтинг
+        $this->db->addRatingToRoomMember($roomMember->id, $ratingPoints);
+        
+        return true;
+    }
+
+    public function substractRating($userId, $ratingPoints) {
+        //проверка пользователя
+        $user = $this->checkUserExists($userId);
+        if (is_array($user)) return $user;
+
+        //проверка персонажа
+        $character = $this->checkCharacterExists($userId);
+        if (is_array($character)) return $character;
+        
+        //проверка, что пользователь в комнате
+        $roomMember = $this->checkUserInRoom($userId);
+        if (is_array($roomMember)) return $roomMember;
+        
+        //проверка статуса комнаты
+        $room = $this->checkRoomIsStarted($roomMember->roomId);
+        if (is_array($room)) return $room;
+        
+        //проверка, что рейтинг положительный
+        if ($ratingPoints <= 0) {
+            return ['error' => 2016];
+        }
+        
+        //получаем текущий рейтинг
+        $currentRating = $this->db->getRoomMemberRating($roomMember->id);
+        
+        //проверка, что рейтинга достаточно для вычитания
+        if ($currentRating < $ratingPoints) {
+            //если недостаточно, вычитаем только доступный рейтинг
+            $ratingPoints = $currentRating;
+        }
+        
+        //вычитаем рейтинг
+        $this->db->substractRatingFromRoomMember($roomMember->id, $ratingPoints);
+        
+        return true;
+    }
+
     public function endGame($userId) {
-        //по сути в таком виде этот метод не нужен, так как он польностью заменяется leaveRoom, 
-        //но позже можно будет добавить функционал для подведения итого игровой сессии (так что пока оставить)
-
-
         //проверка пользователя
         $user = $this->checkUserExists($userId);
         if (is_array($user)) return $user;
@@ -351,6 +412,20 @@ class LobbyManager extends BaseManager {
         //проверка, что комната в статусе started
         if ($room->status != 'started') {
             return ['error' => 2011];
+        }
+        
+        //получаем всех участников комнаты
+        $roomMembers = $this->db->getAllRoomMembers($roomMember->roomId);
+        
+        //переносим рейтинг из room_members в characters для каждого игрока
+        foreach ($roomMembers as $member) {
+            if (isset($member['character_id']) && isset($member['rating'])) {
+                $roomRating = (int)$member['rating'];
+                if ($roomRating > 0) {
+                    //добавляем рейтинг к общему рейтингу персонажа
+                    $this->db->addRatingToCharacter($member['character_id'], $roomRating);
+                }
+            }
         }
         
         //удаляем все записи ботов для этой комнаты

@@ -57,6 +57,17 @@ class Application {
         return ['error' => 242];
     }
 
+    public function getRatingTable($params) {
+        if ($params['token']) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->user->getRatingTable();
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
     public function math($params) {
         $a = (float) ($params['a'] ?? 0);
         $b = (float) ($params['b'] ?? 0);
@@ -177,6 +188,28 @@ class Application {
             $user = $this->user->getUser($params['token']);
             if ($user) {
                 return $this->lobby->getRooms($params['roomHash']);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function addRating($params) {
+        if ($params['token'] && isset($params['ratingPoints'])) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->lobby->addRating($user->id, (int)$params['ratingPoints']);
+            }
+            return ['error' => 705];
+        }
+        return ['error' => 242];
+    }
+
+    public function substractRating($params) {
+        if ($params['token'] && isset($params['ratingPoints'])) {
+            $user = $this->user->getUser($params['token']);
+            if ($user) {
+                return $this->lobby->substractRating($user->id, (int)$params['ratingPoints']);
             }
             return ['error' => 705];
         }
@@ -350,11 +383,11 @@ class Application {
         return ['error' => 242];
     }
 
-    public function addMoneyForKill($params) {
-        if ($params['token'] && $params['killerToken'] && $params['botTypeId']) {
+    public function giveMoney($params) {
+        if ($params['token'] && isset($params['money'])) {
             $user = $this->user->getUser($params['token']);
             if ($user) {
-                return $this->game->addMoneyForKill($user->id, $params['killerToken'], $params['botTypeId']);
+                return $this->game->giveMoney($user->id, (int)$params['money']);
             }
             return ['error' => 705];
         }

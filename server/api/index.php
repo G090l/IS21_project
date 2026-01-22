@@ -21,6 +21,7 @@ function result($params) {
             case 'registration': return $app->registration($params);
             case 'deleteUser': return $app->deleteUser($params); // для тестеров
             case 'getUserInfo': return $app->getUserInfo($params);
+            case 'getRatingTable': return $app->getRatingTable($params);
             //MathManager
             case 'math': return $app->math($params);
             //ChatManager
@@ -34,6 +35,8 @@ function result($params) {
             case 'startGame': return $app->startGame($params);
             case 'renameRoom': return $app->renameRoom($params);
             case 'getRooms': return $app->getRooms($params);
+            case 'addRating': return $app->addRating($params);
+            case 'substractRating': return $app->substractRating($params);
             case 'endGame': return $app->endGame($params);
             //ClassManager
             case 'getClasses': return $app->getClasses($params);
@@ -51,7 +54,7 @@ function result($params) {
             case 'updateBots': return $app->updateBots($params);
             case 'updateArrows': return $app->updateArrows($params);
             case 'getBotsData': return $app->getBotsData($params);
-            case 'addMoneyForKill': return $app->addMoneyForKill($params);
+            case 'giveMoney': return $app->giveMoney($params);
 
             default: return ['error' => 102];
         }

@@ -56,6 +56,19 @@ class DB {
         $this->execute("INSERT INTO users (login, password, nickname) VALUES (?, ?, ?)", [$login, $password, $nickname]);
     }
 
+    public function getRatingTable() {
+        return $this->queryAll("
+            SELECT 
+                u.nickname,
+                c.rating
+            FROM characters c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.rating > 0
+            ORDER BY c.rating DESC
+            LIMIT 20
+        ");
+    }
+
     // character
     public function getCharacterByUserId($userId) {
         return $this->query("SELECT * FROM characters WHERE user_id = ?", [$userId]);
@@ -234,6 +247,35 @@ class DB {
 
     public function deleteAllArrowsForRoom($roomId) {
         return $this->execute("DELETE FROM arrows WHERE room_id = ?", [$roomId]);
+    }
+
+    public function getRoomMemberRating($roomMemberId) {
+        $result = $this->query(
+            "SELECT rating FROM room_members WHERE id = ?",
+            [$roomMemberId]
+        );
+        return $result ? $result->rating : 0;
+    }
+
+    public function addRatingToRoomMember($roomMemberId, $ratingPoints) {
+        return $this->execute(
+            "UPDATE room_members SET rating = rating + ? WHERE id = ?",
+            [$ratingPoints, $roomMemberId]
+        );
+    }
+
+    public function substractRatingFromRoomMember($roomMemberId, $ratingPoints) {
+        return $this->execute(
+            "UPDATE room_members SET rating = rating - ? WHERE id = ?",
+            [$ratingPoints, $roomMemberId]
+        );
+    }
+
+    public function addRatingToCharacter($characterId, $ratingPoints) {
+        return $this->execute(
+            "UPDATE characters SET rating = rating + ? WHERE id = ?",
+            [$ratingPoints, $characterId]
+        );
     }
 
     // classes
@@ -524,6 +566,7 @@ class DB {
                 rm.type,
                 rm.status,
                 rm.data as characterData,
+                rm.rating,
                 u.id as userId,
                 u.nickname,
                 c.money,

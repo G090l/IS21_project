@@ -34,6 +34,7 @@
 | hp | integer | 100 by default |
 | defense | integer | 10 by default |
 | money | integer | 100 by default |
+| rating | integer | 0 by default |
 
 ### 1.2. Система классов
 
@@ -99,6 +100,7 @@
 | type | enum | 'owner'/'participant' |
 | status | enum | 'ready'/'started' |
 | data | text | JSON |
+| rating | integer | 0 by default |
 
 ### 1.5. Игровые объекты
 
@@ -121,6 +123,7 @@
 | attack_speed | integer | 1 by default |
 | attack_distance | integer | 1 by default |
 | money | integer | 0 by default |
+| rating | integer | 0 by default |
 
 **bots_rooms**
 | name | type | comment |
