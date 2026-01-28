@@ -31,29 +31,43 @@ class Game {
     private walls: TRect[];
     private gameMap: GameMap;
     private arrows: Arrow[] = [];
-    private enemies: Enemy[];
+    private enemies: Enemy[] = [];
     private enemyAttackCooldowns: Map<Enemy, number> = new Map();
+    private waveTimer: NodeJS.Timer | null = null;
+    private enemiesPerWave: number = 3;
+    private waveCooldown: number = 10000;
+    private isWaveInProgress: boolean = false;
+
+    private spawnPoints = [
+        { x: 1100, y: 800 },
+        { x: 400, y: 650 },
+        { x: 1700, y: 800 },
+        { x: 200, y: 900 },
+        { x: 1600, y: 750 },
+        { x: 300, y: 600 }
+    ];
 
     private sceneUpdateInterval: NodeJS.Timer | null = null;
     private isShoot: boolean = false;
     private previousArrowsCount: number = 0;
-    private previousEnemiesCount: number;
+    private previousEnemiesCount: number = 0;
 
     constructor(server: Server, store: Store) {
         this.server = server;
         this.store = store;
         this.gameMap = new GameMap();
         this.walls = this.gameMap.walls;
-        this.enemies = [new Enemy()];
-        this.previousEnemiesCount = this.enemies.length;
         this.createHero();
+        if (this.userIsOwner()) {
+            this.startWaveSystem();
+        }
+
         this.startPeriodicUpdate();
     }
 
     private createHero(): void {
         const { user, allItems, allClasses } = this.store;
         if (user) {
-            // Передаем персонажу изначальные данные
             const { purchasedItems, selectedClass } = user;
             const hero = new Hero({ purchasedItems, selectedClass, allItems, allClasses });
             hero.name = user.nickname;
@@ -63,6 +77,41 @@ class Game {
             hero.name = "Player";
             this.heroes.push(hero);
         }
+    }
+
+    private startWaveSystem(): void {
+        this.spawnWave();
+    }
+
+    private spawnWave(): void {
+        if (this.isWaveInProgress) return;
+        this.isWaveInProgress = true;
+
+        for (let i = 0; i < this.enemiesPerWave; i++) {
+            const spawnPoint = this.spawnPoints[Math.floor(Math.random() * this.spawnPoints.length)];
+            const enemy = new Enemy();
+            enemy.rect.x = spawnPoint.x;
+            enemy.rect.y = spawnPoint.y;
+            this.enemies.push(enemy);
+        }
+    }
+
+    private checkWaveCompletion(): void {
+        if (!this.isWaveInProgress) return;
+        if (this.enemies.length === 0) {
+            this.isWaveInProgress = false;
+            this.startWaveCooldown();
+        }
+    }
+
+    private startWaveCooldown(): void {
+        if (this.waveTimer) {
+            clearTimeout(this.waveTimer);
+        }
+
+        this.waveTimer = setTimeout(() => {
+            this.spawnWave();
+        }, this.waveCooldown);
     }
 
     private getCurrentUserHero(): Hero | null {
@@ -78,7 +127,15 @@ class Game {
 
     destructor() {
         this.stopPeriodicHeroUpdate();
+        this.stopWaveSystem();
         this.store.clearGameData();
+    }
+
+    private stopWaveSystem(): void {
+        if (this.waveTimer) {
+            clearTimeout(this.waveTimer);
+            this.waveTimer = null;
+        }
     }
 
     getScene() {
@@ -142,6 +199,9 @@ class Game {
         this.sceneUpdateInterval = setInterval(async () => {
             this.getSceneFromBackend(await this.server.getScene());
             this.updateScene();
+            if (this.userIsOwner()) {
+                this.checkWaveCompletion();
+            }
             const currentArrowsCount = this.arrows.length;
             const currentEnemiesCount = this.enemies.length;
             await this.updateCurrentHeroOnServer();

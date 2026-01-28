@@ -137,7 +137,7 @@ const GameCanvas: React.FC = () => {
                     y: wall.y,
                     width: wall.width,
                     height: wall.height
-                }, 'brown');
+                }, 'transparent');
             }
 
             heroes.forEach((hero, index) => {
