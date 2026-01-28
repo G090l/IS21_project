@@ -8,8 +8,8 @@ const heroSprites = {
     idleLeftSprite: 11,
     attackRightSprites: [21, 22, 23, 24, 25],
     attackLeftSprites: [31, 32, 33, 34, 35],
-    blockRightSprites: [41, 42, 43, 44, 45],
-    blockLeftSprites: [51, 52, 53, 54, 55],
+    blockRightSprites: [45],
+    blockLeftSprites: [55],
     swordRight: [26],
     swordLeft: [36],
 };
