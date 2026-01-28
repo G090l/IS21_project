@@ -250,7 +250,7 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
             document.removeEventListener('keydown', keyDownHandler);
             document.removeEventListener('keyup', keyUpHandler);
         };
-    }, [isMovementBlocked, openLobbyBook, openClassShop]);
+    }, [isMovementBlocked]);
 
     useEffect(() => () => {
         game?.destructor();
