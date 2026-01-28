@@ -714,7 +714,9 @@
                   "    }",
                   "});"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -757,11 +759,13 @@
                   "",
                   "pm.test(\"result === error and code === 2012\", function () {",
                   "    pm.expect(responseData.result).to.equal('error');",
-                  "    pm.expect(responseData.error.code).to.equal(2012);",
-                  "    pm.expect(responseData.error.text).to.equal('Комната не заполнена (все игроки должны быть готовы)');",
+                  "    pm.expect(responseData.error.code).to.equal(2015);",
+                  "    pm.expect(responseData.error.text).to.equal(\"Комната не закрыта\");",
                   "});"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -1000,16 +1004,7 @@
                   "\r",
                   "const ownerToken = pm.environment.get('be9_ownerToken');\r",
                   "const participantToken = pm.environment.get('be9_participantToken');\r",
-                  "\r",
-                  "if (ownerToken) {\r",
-                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${ownerToken}`;\r",
-                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});\r",
-                  "}\r",
-                  "\r",
-                  "if (participantToken) {\r",
-                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${participantToken}`;\r",
-                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});\r",
-                  "}"
+                  ""
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -1663,16 +1658,8 @@
                   "    pm.expect(responseData.data).to.be.an('object');",
                   "});",
                   "",
-                  "pm.test(\"data содержит messages\", function () {",
-                  "    pm.expect(responseData.data).to.have.property('messages');",
-                  "});",
-                  "",
                   "pm.test(\"data содержит hash\", function () {",
                   "    pm.expect(responseData.data).to.have.property('hash');",
-                  "});",
-                  "",
-                  "pm.test(\"messages === array\", function () {",
-                  "    pm.expect(responseData.data.messages).to.be.an('array');",
                   "});",
                   "",
                   "pm.test(\"hash === string\", function () {",
@@ -2734,7 +2721,9 @@
                   "    }",
                   "});"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -2777,11 +2766,13 @@
                   "",
                   "pm.test(\"result === error and code === 3001\", function () {",
                   "    pm.expect(responseData.result).to.equal('error');",
-                  "    pm.expect(responseData.error.code).to.equal(3001);",
-                  "    pm.expect(responseData.error.text).to.equal('Класс не найден');",
+                  "    pm.expect(responseData.error.code).to.equal(3005);",
+                  "    pm.expect(responseData.error.text).to.equal(\"Класс не приобретен\");",
                   "});"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -3554,6 +3545,1117 @@
       ]
     },
     {
+      "name": "Предметы",
+      "item": [
+        {
+          "name": "IM-1 Попытка покупки несуществующего предмета",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = Date.now();",
+                  "const login = `im1_user_${timestamp}`;",
+                  "const passwordHash = CryptoJS.MD5('password12345').toString();",
+                  "const registerUrl = pm.environment.get('baseUrl') + `?method=registration&login=${login}&passwordHash=${passwordHash}&nickname=${login}`;",
+                  "pm.sendRequest({ url: registerUrl, method: 'GET', header: {} }, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const data = res.json();",
+                  "        if (data.result === 'ok') {",
+                  "            pm.environment.set('im1_userToken', data.data.token);",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус код === 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Ответ === JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "const responseData = pm.response.json();",
+                  "",
+                  "pm.test(\"Ответ === object\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"result === string\", function () {",
+                  "    pm.expect(responseData).to.have.property('result');",
+                  "    pm.expect(responseData.result).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"error === object\", function () {",
+                  "    pm.expect(responseData).to.have.property('error');",
+                  "    pm.expect(responseData.error).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"code === number\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('code');",
+                  "    pm.expect(responseData.error.code).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"text === string\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('text');",
+                  "    pm.expect(responseData.error.text).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"result === error and code === 4001\", function () {",
+                  "    pm.expect(responseData.result).to.equal('error');",
+                  "    pm.expect(responseData.error.code).to.equal(4001);",
+                  "    pm.expect(responseData.error.text).to.equal('Предмет не найден');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "after",
+              "script": {
+                "exec": [
+                  "const userToken = pm.environment.get('im1_userToken');",
+                  "if (userToken) {",
+                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${userToken}`;",
+                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?method=buyItem&token={{im1_userToken}}&itemId=999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": "buyItem"
+                },
+                {
+                  "key": "token",
+                  "value": "{{im1_userToken}}"
+                },
+                {
+                  "key": "itemId",
+                  "value": "999"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "IM-2 Попытка продажи несуществующего предмета",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = Date.now();",
+                  "const login = `im2_user_${timestamp}`;",
+                  "const passwordHash = CryptoJS.MD5('password12345').toString();",
+                  "const registerUrl = pm.environment.get('baseUrl') + `?method=registration&login=${login}&passwordHash=${passwordHash}&nickname=${login}`;",
+                  "pm.sendRequest({ url: registerUrl, method: 'GET', header: {} }, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const data = res.json();",
+                  "        if (data.result === 'ok') {",
+                  "            pm.environment.set('im2_userToken', data.data.token);",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус код === 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Ответ === JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "const responseData = pm.response.json();",
+                  "",
+                  "pm.test(\"Ответ === object\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"result === string\", function () {",
+                  "    pm.expect(responseData).to.have.property('result');",
+                  "    pm.expect(responseData.result).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"error === object\", function () {",
+                  "    pm.expect(responseData).to.have.property('error');",
+                  "    pm.expect(responseData.error).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"code === number\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('code');",
+                  "    pm.expect(responseData.error.code).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"text === string\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('text');",
+                  "    pm.expect(responseData.error.text).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"result === error and code === 4001\", function () {",
+                  "    pm.expect(responseData.result).to.equal('error');",
+                  "    pm.expect(responseData.error.code).to.equal(4001);",
+                  "    pm.expect(responseData.error.text).to.equal('Предмет не найден');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "after",
+              "script": {
+                "exec": [
+                  "const userToken = pm.environment.get('im2_userToken');",
+                  "if (userToken) {",
+                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${userToken}`;",
+                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?method=sellItem&token={{im2_userToken}}&itemId=999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": "sellItem"
+                },
+                {
+                  "key": "token",
+                  "value": "{{im2_userToken}}"
+                },
+                {
+                  "key": "itemId",
+                  "value": "999"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "IM-3 Попытка продажи предмета, которого нет в инвентаре",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = Date.now();",
+                  "const login = `im3_user_${timestamp}`;",
+                  "const passwordHash = CryptoJS.MD5('password12345').toString();",
+                  "const registerUrl = pm.environment.get('baseUrl') + `?method=registration&login=${login}&passwordHash=${passwordHash}&nickname=${login}`;",
+                  "pm.sendRequest({ url: registerUrl, method: 'GET', header: {} }, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const data = res.json();",
+                  "        if (data.result === 'ok') {",
+                  "            pm.environment.set('im3_userToken', data.data.token);",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус код === 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Ответ === JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "const responseData = pm.response.json();",
+                  "",
+                  "pm.test(\"Ответ === object\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"result === string\", function () {",
+                  "    pm.expect(responseData).to.have.property('result');",
+                  "    pm.expect(responseData.result).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"error === object\", function () {",
+                  "    pm.expect(responseData).to.have.property('error');",
+                  "    pm.expect(responseData.error).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"code === number\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('code');",
+                  "    pm.expect(responseData.error.code).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"text === string\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('text');",
+                  "    pm.expect(responseData.error.text).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"result === error and code === 4006\", function () {",
+                  "    pm.expect(responseData.result).to.equal('error');",
+                  "    pm.expect(responseData.error.code).to.equal(4006);",
+                  "    pm.expect(responseData.error.text).to.equal('Предмет не найден в инвентаре');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "after",
+              "script": {
+                "exec": [
+                  "const userToken = pm.environment.get('im3_userToken');",
+                  "if (userToken) {",
+                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${userToken}`;",
+                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?method=sellItem&token={{im3_userToken}}&itemId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": "sellItem"
+                },
+                {
+                  "key": "token",
+                  "value": "{{im3_userToken}}"
+                },
+                {
+                  "key": "itemId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "IM-4 Попытка использования стрелы без лука",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = Date.now();",
+                  "const login = `im4_user_${timestamp}`;",
+                  "const passwordHash = CryptoJS.MD5('password12345').toString();",
+                  "const registerUrl = pm.environment.get('baseUrl') + `?method=registration&login=${login}&passwordHash=${passwordHash}&nickname=${login}`;",
+                  "pm.sendRequest({ url: registerUrl, method: 'GET', header: {} }, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const data = res.json();",
+                  "        if (data.result === 'ok') {",
+                  "            pm.environment.set('im4_userToken', data.data.token);",
+                  "            ",
+                  "            const buyArrowUrl = pm.environment.get('baseUrl') + `?method=buyItem&token=${data.data.token}&itemId=1`;",
+                  "            pm.sendRequest({ url: buyArrowUrl, method: 'GET', header: {} }, function (err2, res2) {});",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус код === 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Ответ === JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "const responseData = pm.response.json();",
+                  "",
+                  "pm.test(\"Ответ === object\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"result === string\", function () {",
+                  "    pm.expect(responseData).to.have.property('result');",
+                  "    pm.expect(responseData.result).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"error === object\", function () {",
+                  "    pm.expect(responseData).to.have.property('error');",
+                  "    pm.expect(responseData.error).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"code === number\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('code');",
+                  "    pm.expect(responseData.error.code).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"text === string\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('text');",
+                  "    pm.expect(responseData.error.text).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"result === error and code === 4008\", function () {",
+                  "    pm.expect(responseData.result).to.equal('error');",
+                  "    pm.expect(responseData.error.code).to.equal(4008);",
+                  "    pm.expect(responseData.error.text).to.equal('Лук не экипирован');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "after",
+              "script": {
+                "exec": [
+                  "const userToken = pm.environment.get('im4_userToken');",
+                  "if (userToken) {",
+                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${userToken}`;",
+                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?method=useArrow&token={{im4_userToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": "useArrow"
+                },
+                {
+                  "key": "token",
+                  "value": "{{im4_userToken}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "IM-5 Попытка использования стрелы без стрел в инвентаре",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = Date.now();",
+                  "const login = `im5_user_${timestamp}`;",
+                  "const passwordHash = CryptoJS.MD5('password12345').toString();",
+                  "const registerUrl = pm.environment.get('baseUrl') + `?method=registration&login=${login}&passwordHash=${passwordHash}&nickname=${login}`;",
+                  "pm.sendRequest({ url: registerUrl, method: 'GET', header: {} }, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const data = res.json();",
+                  "        if (data.result === 'ok') {",
+                  "            pm.environment.set('im5_userToken', data.data.token);",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус код === 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Ответ === JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "const responseData = pm.response.json();",
+                  "",
+                  "pm.test(\"Ответ === object\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"result === string\", function () {",
+                  "    pm.expect(responseData).to.have.property('result');",
+                  "    pm.expect(responseData.result).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"error === object\", function () {",
+                  "    pm.expect(responseData).to.have.property('error');",
+                  "    pm.expect(responseData.error).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"code === number\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('code');",
+                  "    pm.expect(responseData.error.code).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"text === string\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('text');",
+                  "    pm.expect(responseData.error.text).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"result === error and code === 4009\", function () {",
+                  "    pm.expect(responseData.result).to.equal('error');",
+                  "    pm.expect(responseData.error.code).to.equal(4008);",
+                  "    pm.expect(responseData.error.text).to.equal('Лук не экипирован');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "after",
+              "script": {
+                "exec": [
+                  "const userToken = pm.environment.get('im5_userToken');",
+                  "if (userToken) {",
+                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${userToken}`;",
+                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?method=useArrow&token={{im5_userToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": "useArrow"
+                },
+                {
+                  "key": "token",
+                  "value": "{{im5_userToken}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "IM-6 Попытка использования зелья без зелий в инвентаре",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = Date.now();",
+                  "const login = `im6_user_${timestamp}`;",
+                  "const passwordHash = CryptoJS.MD5('password12345').toString();",
+                  "const registerUrl = pm.environment.get('baseUrl') + `?method=registration&login=${login}&passwordHash=${passwordHash}&nickname=${login}`;",
+                  "pm.sendRequest({ url: registerUrl, method: 'GET', header: {} }, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const data = res.json();",
+                  "        if (data.result === 'ok') {",
+                  "            pm.environment.set('im6_userToken', data.data.token);",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус код === 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Ответ === JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "const responseData = pm.response.json();",
+                  "",
+                  "pm.test(\"Ответ === object\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"result === string\", function () {",
+                  "    pm.expect(responseData).to.have.property('result');",
+                  "    pm.expect(responseData.result).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"error === object\", function () {",
+                  "    pm.expect(responseData).to.have.property('error');",
+                  "    pm.expect(responseData.error).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"code === number\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('code');",
+                  "    pm.expect(responseData.error.code).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"text === string\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('text');",
+                  "    pm.expect(responseData.error.text).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"result === error and code === 4010\", function () {",
+                  "    pm.expect(responseData.result).to.equal('error');",
+                  "    pm.expect(responseData.error.code).to.equal(4010);",
+                  "    pm.expect(responseData.error.text).to.equal('Зелья не экипированы');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "after",
+              "script": {
+                "exec": [
+                  "const userToken = pm.environment.get('im6_userToken');",
+                  "if (userToken) {",
+                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${userToken}`;",
+                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?method=usePotion&token={{im6_userToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": "usePotion"
+                },
+                {
+                  "key": "token",
+                  "value": "{{im6_userToken}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "IM-7 Покупка зелья при достижении лимита",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = Date.now();",
+                  "const login = `im7_user_${timestamp}`;",
+                  "const passwordHash = CryptoJS.MD5('password12345').toString();",
+                  "const registerUrl = pm.environment.get('baseUrl') + `?method=registration&login=${login}&passwordHash=${passwordHash}&nickname=${login}`;",
+                  "pm.sendRequest({ url: registerUrl, method: 'GET', header: {} }, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const data = res.json();",
+                  "        if (data.result === 'ok') {",
+                  "            pm.environment.set('im7_userToken', data.data.token);",
+                  "            ",
+                  "            for (let i = 0; i < 3; i++) {",
+                  "                const buyUrl = pm.environment.get('baseUrl') + `?method=buyItem&token=${data.data.token}&itemId=2`;",
+                  "                pm.sendRequest({ url: buyUrl, method: 'GET', header: {} }, function (err2, res2) {});",
+                  "            }",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус код === 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Ответ === JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "const responseData = pm.response.json();",
+                  "",
+                  "pm.test(\"Ответ === object\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"result === string\", function () {",
+                  "    pm.expect(responseData).to.have.property('result');",
+                  "    pm.expect(responseData.result).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"error === object\", function () {",
+                  "    pm.expect(responseData).to.have.property('error');",
+                  "    pm.expect(responseData.error).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"code === number\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('code');",
+                  "    pm.expect(responseData.error.code).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"text === string\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('text');",
+                  "    pm.expect(responseData.error.text).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"result === error and code === 4005\", function () {",
+                  "    pm.expect(responseData.result).to.equal('error');",
+                  "    pm.expect(responseData.error.code).to.equal(4005);",
+                  "    pm.expect(responseData.error.text).to.equal('Достигнут лимит количества для этого типа предмета');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "after",
+              "script": {
+                "exec": [
+                  "const userToken = pm.environment.get('im7_userToken');",
+                  "if (userToken) {",
+                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${userToken}`;",
+                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?method=buyItem&token={{im7_userToken}}&itemId=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": "buyItem"
+                },
+                {
+                  "key": "token",
+                  "value": "{{im7_userToken}}"
+                },
+                {
+                  "key": "itemId",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "IM-8 Покупка стрел при достижении лимита",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = Date.now();",
+                  "const login = `im8_user_${timestamp}`;",
+                  "const passwordHash = CryptoJS.MD5('password12345').toString();",
+                  "const registerUrl = pm.environment.get('baseUrl') + `?method=registration&login=${login}&passwordHash=${passwordHash}&nickname=${login}`;",
+                  "pm.sendRequest({ url: registerUrl, method: 'GET', header: {} }, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const data = res.json();",
+                  "        if (data.result === 'ok') {",
+                  "            pm.environment.set('im8_userToken', data.data.token);",
+                  "            ",
+                  "            for (let i = 0; i < 50; i++) {",
+                  "                const buyUrl = pm.environment.get('baseUrl') + `?method=buyItem&token=${data.data.token}&itemId=1`;",
+                  "                pm.sendRequest({ url: buyUrl, method: 'GET', header: {} }, function (err2, res2) {});",
+                  "            }",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус код === 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Ответ === JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "const responseData = pm.response.json();",
+                  "",
+                  "pm.test(\"Ответ === object\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"result === string\", function () {",
+                  "    pm.expect(responseData).to.have.property('result');",
+                  "    pm.expect(responseData.result).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"error === object\", function () {",
+                  "    pm.expect(responseData).to.have.property('error');",
+                  "    pm.expect(responseData.error).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"code === number\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('code');",
+                  "    pm.expect(responseData.error.code).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"text === string\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('text');",
+                  "    pm.expect(responseData.error.text).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"result === error and code === 4005\", function () {",
+                  "    pm.expect(responseData.result).to.equal('error');",
+                  "    pm.expect(responseData.error.code).to.equal(4005);",
+                  "    pm.expect(responseData.error.text).to.equal('Достигнут лимит количества для этого типа предмета');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "after",
+              "script": {
+                "exec": [
+                  "const userToken = pm.environment.get('im8_userToken');",
+                  "if (userToken) {",
+                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${userToken}`;",
+                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?method=buyItem&token={{im8_userToken}}&itemId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": "buyItem"
+                },
+                {
+                  "key": "token",
+                  "value": "{{im8_userToken}}"
+                },
+                {
+                  "key": "itemId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "IM-9 Покупка второго предмета того же типа",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = Date.now();",
+                  "const login = `im9_user_${timestamp}`;",
+                  "const passwordHash = CryptoJS.MD5('password12345').toString();",
+                  "const registerUrl = pm.environment.get('baseUrl') + `?method=registration&login=${login}&passwordHash=${passwordHash}&nickname=${login}`;",
+                  "pm.sendRequest({ url: registerUrl, method: 'GET', header: {} }, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const data = res.json();",
+                  "        if (data.result === 'ok') {",
+                  "            pm.environment.set('im9_userToken', data.data.token);",
+                  "            ",
+                  "            const buyUrl = pm.environment.get('baseUrl') + `?method=buyItem&token=${data.data.token}&itemId=3`;",
+                  "            pm.sendRequest({ url: buyUrl, method: 'GET', header: {} }, function (err2, res2) {});",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус код === 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Ответ === JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "const responseData = pm.response.json();",
+                  "",
+                  "pm.test(\"Ответ === object\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"result === string\", function () {",
+                  "    pm.expect(responseData).to.have.property('result');",
+                  "    pm.expect(responseData.result).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"error === object\", function () {",
+                  "    pm.expect(responseData).to.have.property('error');",
+                  "    pm.expect(responseData.error).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"code === number\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('code');",
+                  "    pm.expect(responseData.error.code).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"text === string\", function () {",
+                  "    pm.expect(responseData.error).to.have.property('text');",
+                  "    pm.expect(responseData.error.text).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"result === error and code === 4003\", function () {",
+                  "    pm.expect(responseData.result).to.equal('error');",
+                  "    pm.expect(responseData.error.code).to.equal(4003);",
+                  "    pm.expect(responseData.error.text).to.equal('Этот слот уже занят другим предметом!');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "after",
+              "script": {
+                "exec": [
+                  "const userToken = pm.environment.get('im9_userToken');",
+                  "if (userToken) {",
+                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${userToken}`;",
+                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?method=buyItem&token={{im9_userToken}}&itemId=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": "buyItem"
+                },
+                {
+                  "key": "token",
+                  "value": "{{im9_userToken}}"
+                },
+                {
+                  "key": "itemId",
+                  "value": "3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "IM-10 Получение данных всех предметов",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = Date.now();",
+                  "const login = `im10_user_${timestamp}`;",
+                  "const passwordHash = CryptoJS.MD5('password12345').toString();",
+                  "const registerUrl = pm.environment.get('baseUrl') + `?method=registration&login=${login}&passwordHash=${passwordHash}&nickname=${login}`;",
+                  "pm.sendRequest({ url: registerUrl, method: 'GET', header: {} }, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const data = res.json();",
+                  "        if (data.result === 'ok') {",
+                  "            pm.environment.set('im10_userToken', data.data.token);",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Статус код === 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Ответ === JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "const responseData = pm.response.json();",
+                  "",
+                  "pm.test(\"Ответ === object\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"result === string\", function () {",
+                  "    pm.expect(responseData).to.have.property('result');",
+                  "    pm.expect(responseData.result).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"data === array\", function () {",
+                  "    pm.expect(responseData).to.have.property('data');",
+                  "    pm.expect(responseData.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"result === ok\", function () {",
+                  "    pm.expect(responseData.result).to.equal('ok');",
+                  "});",
+                  "",
+                  "pm.test(\"Проверка структуры каждого предмета\", function () {",
+                  "    responseData.data.forEach(function(item, index) {",
+                  "        pm.expect(item).to.be.an('object');",
+                  "        pm.expect(item).to.have.property('id');",
+                  "        pm.expect(item.id).to.be.a('number');",
+                  "        pm.expect(item).to.have.property('name');",
+                  "        pm.expect(item.name).to.be.a('string');",
+                  "        pm.expect(item).to.have.property('itemType');",
+                  "        pm.expect(item.itemType).to.be.a('string');",
+                  "        pm.expect(item).to.have.property('cost');",
+                  "        pm.expect(item.cost).to.be.a('number');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "after",
+              "script": {
+                "exec": [
+                  "const userToken = pm.environment.get('im10_userToken');",
+                  "if (userToken) {",
+                  "    const deleteUrl = pm.environment.get('baseUrl') + `?method=deleteUser&token=${userToken}`;",
+                  "    pm.sendRequest({ url: deleteUrl, method: 'GET', header: {} }, function (err, res) {});",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?method=getItemsData&token={{im10_userToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "method",
+                  "value": "getItemsData"
+                },
+                {
+                  "key": "token",
+                  "value": "{{im10_userToken}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Игра",
       "item": [
         {
@@ -3796,7 +4898,9 @@
                   "    }",
                   "});"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -3843,7 +4947,9 @@
                   "    pm.expect(responseData.error.text).to.equal('Сумма денег не может быть отрицательной или равна нулю');",
                   "});"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -4089,808 +5195,6 @@
                 {
                   "key": "money",
                   "value": "100"
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "предметы",
-      "item": [
-        {
-          "name": "IM-1 Попытка покупки несуществующего предмета",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус код === 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Ответ === JSON\", function () {\r",
-                  "    pm.response.to.be.json;\r",
-                  "});\r",
-                  "\r",
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"Ответ === object\", function () {\r",
-                  "    pm.expect(responseData).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === string\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('result');\r",
-                  "    pm.expect(responseData.result).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"error === object\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('error');\r",
-                  "    pm.expect(responseData.error).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"code === number\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('code');\r",
-                  "    pm.expect(responseData.error.code).to.be.a('number');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"text === string\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('text');\r",
-                  "    pm.expect(responseData.error.text).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === error and code === 4001 and text === Предмет не найден\", function () {\r",
-                  "    pm.expect(responseData.result).to.equal('error');\r",
-                  "    pm.expect(responseData.error.code).to.equal(4001);\r",
-                  "    pm.expect(responseData.error.text).to.equal('Предмет не найден');\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}?method=buyItem&token=b016e63c15fa63d9938ad2d42699fc33&itemId=999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "query": [
-                {
-                  "key": "method",
-                  "value": "buyItem"
-                },
-                {
-                  "key": "token",
-                  "value": "b016e63c15fa63d9938ad2d42699fc33"
-                },
-                {
-                  "key": "itemId",
-                  "value": "999"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "IM-2 Попытка продажи несуществующего предмета",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус код === 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Ответ === JSON\", function () {\r",
-                  "    pm.response.to.be.json;\r",
-                  "});\r",
-                  "\r",
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"Ответ === object\", function () {\r",
-                  "    pm.expect(responseData).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === string\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('result');\r",
-                  "    pm.expect(responseData.result).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"error === object\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('error');\r",
-                  "    pm.expect(responseData.error).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"code === number\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('code');\r",
-                  "    pm.expect(responseData.error.code).to.be.a('number');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"text === string\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('text');\r",
-                  "    pm.expect(responseData.error.text).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === error and code === 4001 and text === Предмет не найден\", function () {\r",
-                  "    pm.expect(responseData.result).to.equal('error');\r",
-                  "    pm.expect(responseData.error.code).to.equal(4001);\r",
-                  "    pm.expect(responseData.error.text).to.equal('Предмет не найден');\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}?method=sellItem&token=b016e63c15fa63d9938ad2d42699fc33&itemId=999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "query": [
-                {
-                  "key": "method",
-                  "value": "sellItem"
-                },
-                {
-                  "key": "token",
-                  "value": "b016e63c15fa63d9938ad2d42699fc33"
-                },
-                {
-                  "key": "itemId",
-                  "value": "999"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "IM-3 Попытка продажи предмета, которого нет в инвентаре",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус код === 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Ответ === JSON\", function () {\r",
-                  "    pm.response.to.be.json;\r",
-                  "});\r",
-                  "\r",
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"Ответ === object\", function () {\r",
-                  "    pm.expect(responseData).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === string\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('result');\r",
-                  "    pm.expect(responseData.result).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"error === object\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('error');\r",
-                  "    pm.expect(responseData.error).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"code === number\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('code');\r",
-                  "    pm.expect(responseData.error.code).to.be.a('number');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"text === string\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('text');\r",
-                  "    pm.expect(responseData.error.text).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === error and code === 4006 and text === предмет не найден в инвентаре\", function () {\r",
-                  "    pm.expect(responseData.result).to.equal('error');\r",
-                  "    pm.expect(responseData.error.code).to.equal(4006);\r",
-                  "    pm.expect(responseData.error.text).to.equal('предмет не найден в инвентаре');\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}?method=sellItem&token=b016e63c15fa63d9938ad2d42699fc33&itemId=not_owned_item_id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "query": [
-                {
-                  "key": "method",
-                  "value": "sellItem"
-                },
-                {
-                  "key": "token",
-                  "value": "b016e63c15fa63d9938ad2d42699fc33"
-                },
-                {
-                  "key": "itemId",
-                  "value": "not_owned_item_id"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "IM-4 Попытка использования стрелы без лука",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус код === 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Ответ === JSON\", function () {\r",
-                  "    pm.response.to.be.json;\r",
-                  "});\r",
-                  "\r",
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"Ответ === object\", function () {\r",
-                  "    pm.expect(responseData).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === string\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('result');\r",
-                  "    pm.expect(responseData.result).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"error === object\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('error');\r",
-                  "    pm.expect(responseData.error).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"code === number\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('code');\r",
-                  "    pm.expect(responseData.error.code).to.be.a('number');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"text === string\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('text');\r",
-                  "    pm.expect(responseData.error.text).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === error and code === 4008 and text === Лук не экипирован\", function () {\r",
-                  "    pm.expect(responseData.result).to.equal('error');\r",
-                  "    pm.expect(responseData.error.code).to.equal(4008);\r",
-                  "    pm.expect(responseData.error.text).to.equal('Лук не экипирован');\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}?method=useArrow&token=b016e63c15fa63d9938ad2d42699fc33",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "query": [
-                {
-                  "key": "method",
-                  "value": "useArrow"
-                },
-                {
-                  "key": "token",
-                  "value": "b016e63c15fa63d9938ad2d42699fc33"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "IM-5 Попытка использования стрелы без стрел в инвентаре",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус код === 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Ответ === JSON\", function () {\r",
-                  "    pm.response.to.be.json;\r",
-                  "});\r",
-                  "\r",
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"Ответ === object\", function () {\r",
-                  "    pm.expect(responseData).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === string\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('result');\r",
-                  "    pm.expect(responseData.result).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"error === object\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('error');\r",
-                  "    pm.expect(responseData.error).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"code === number\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('code');\r",
-                  "    pm.expect(responseData.error.code).to.be.a('number');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"text === string\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('text');\r",
-                  "    pm.expect(responseData.error.text).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === error and code === 4009 and text === стрелы не экипированы\", function () {\r",
-                  "    pm.expect(responseData.result).to.equal('error');\r",
-                  "    pm.expect(responseData.error.code).to.equal(4009);\r",
-                  "    pm.expect(responseData.error.text).to.equal('стрелы не экипированы');\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}?method=useArrow&token=b016e63c15fa63d9938ad2d42699fc33",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "query": [
-                {
-                  "key": "method",
-                  "value": "useArrow"
-                },
-                {
-                  "key": "token",
-                  "value": "b016e63c15fa63d9938ad2d42699fc33"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "IM-6 Попытка использования зелья без зелий в инвентаре",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус код === 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Ответ === JSON\", function () {\r",
-                  "    pm.response.to.be.json;\r",
-                  "});\r",
-                  "\r",
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"Ответ === object\", function () {\r",
-                  "    pm.expect(responseData).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === string\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('result');\r",
-                  "    pm.expect(responseData.result).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"error === object\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('error');\r",
-                  "    pm.expect(responseData.error).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"code === number\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('code');\r",
-                  "    pm.expect(responseData.error.code).to.be.a('number');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"text === string\", function () {\r",
-                  "    pm.expect(responseData.error).to.have.property('text');\r",
-                  "    pm.expect(responseData.error.text).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === error and code === 4010 and text === Зелья не экипированы\", function () {\r",
-                  "    pm.expect(responseData.result).to.equal('error');\r",
-                  "    pm.expect(responseData.error.code).to.equal(4010);\r",
-                  "    pm.expect(responseData.error.text).to.equal('Зелья не экипированы');\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}?method=usePotion&token=b016e63c15fa63d9938ad2d42699fc33",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "query": [
-                {
-                  "key": "method",
-                  "value": "usePotion"
-                },
-                {
-                  "key": "token",
-                  "value": "b016e63c15fa63d9938ad2d42699fc33"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "IM-7 Покупка зелья при достижении лимита",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}?method=buyItem&token=b016e63c15fa63d9938ad2d42699fc33&itemId=1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "query": [
-                {
-                  "key": "method",
-                  "value": "buyItem"
-                },
-                {
-                  "key": "token",
-                  "value": "b016e63c15fa63d9938ad2d42699fc33"
-                },
-                {
-                  "key": "itemId",
-                  "value": "1"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "IM-8 Покупка стрел при достижении лимита",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}?method=buyItem&token=user_token&itemId=arrow_id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "query": [
-                {
-                  "key": "method",
-                  "value": "buyItem"
-                },
-                {
-                  "key": "token",
-                  "value": "user_token"
-                },
-                {
-                  "key": "itemId",
-                  "value": "arrow_id"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "IM-9 Покупка второго предмета того же типа (не расходника)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}?method=buyItem&token=user_token&itemId=another_sword_id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "query": [
-                {
-                  "key": "method",
-                  "value": "buyItem"
-                },
-                {
-                  "key": "token",
-                  "value": "user_token"
-                },
-                {
-                  "key": "itemId",
-                  "value": "another_sword_id"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "IM-10 Получение данных всех предметов",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус код === 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Ответ === JSON\", function () {\r",
-                  "    pm.response.to.be.json;\r",
-                  "});\r",
-                  "\r",
-                  "const responseData = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"Ответ === object\", function () {\r",
-                  "    pm.expect(responseData).to.be.an('object');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === string\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('result');\r",
-                  "    pm.expect(responseData.result).to.be.a('string');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"data === array\", function () {\r",
-                  "    pm.expect(responseData).to.have.property('data');\r",
-                  "    pm.expect(responseData.data).to.be.an('array');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"result === ok\", function () {\r",
-                  "    pm.expect(responseData.result).to.equal('ok');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Проверка структуры каждого элемента массива (предмета)\", function () {\r",
-                  "    responseData.data.forEach(function(item, index) {\r",
-                  "        pm.expect(item).to.be.an('object');\r",
-                  "        \r",
-                  "        // Обязательные свойства\r",
-                  "        pm.expect(item).to.have.property('id');\r",
-                  "        pm.expect(item.id).to.be.a('number');\r",
-                  "        pm.expect(item.id).to.be.greaterThan(0);\r",
-                  "        \r",
-                  "        pm.expect(item).to.have.property('name');\r",
-                  "        pm.expect(item.name).to.be.a('string');\r",
-                  "        pm.expect(item.name).to.not.be.empty;\r",
-                  "        \r",
-                  "        pm.expect(item).to.have.property('itemType');\r",
-                  "        pm.expect(item.itemType).to.be.a('string');\r",
-                  "        pm.expect(['weapon', 'arrow', 'potion', 'helmet', 'chestplate', 'leggings', 'shield']).to.include(item.itemType);\r",
-                  "        \r",
-                  "        pm.expect(item).to.have.property('weaponType');\r",
-                  "        // weaponType может быть null или строкой\r",
-                  "        if (item.weaponType !== null) {\r",
-                  "            pm.expect(item.weaponType).to.be.a('string');\r",
-                  "            pm.expect(['sword', 'bow']).to.include(item.weaponType);\r",
-                  "        }\r",
-                  "        \r",
-                  "        pm.expect(item).to.have.property('damage');\r",
-                  "        pm.expect(item.damage).to.be.a('number');\r",
-                  "        pm.expect(item.damage).to.be.at.least(0);\r",
-                  "        \r",
-                  "        pm.expect(item).to.have.property('attackSpeed');\r",
-                  "        pm.expect(item.attackSpeed).to.be.a('number');\r",
-                  "        pm.expect(item.attackSpeed).to.be.at.least(0);\r",
-                  "        \r",
-                  "        pm.expect(item).to.have.property('attackDistance');\r",
-                  "        pm.expect(item.attackDistance).to.be.a('number');\r",
-                  "        pm.expect(item.attackDistance).to.be.at.least(0);\r",
-                  "        \r",
-                  "        pm.expect(item).to.have.property('bonusDefense');\r",
-                  "        pm.expect(item.bonusDefense).to.be.a('number');\r",
-                  "        pm.expect(item.bonusDefense).to.be.at.least(0);\r",
-                  "        \r",
-                  "        pm.expect(item).to.have.property('bonusHp');\r",
-                  "        pm.expect(item.bonusHp).to.be.a('number');\r",
-                  "        pm.expect(item.bonusHp).to.be.at.least(0);\r",
-                  "        \r",
-                  "        pm.expect(item).to.have.property('cost');\r",
-                  "        pm.expect(item.cost).to.be.a('number');\r",
-                  "        pm.expect(item.cost).to.be.greaterThan(0);\r",
-                  "    });\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Проверка логики типов предметов\", function () {\r",
-                  "    responseData.data.forEach(function(item) {\r",
-                  "        // Проверка для оружия\r",
-                  "        if (item.itemType === 'weapon') {\r",
-                  "            pm.expect(item.weaponType).to.be.oneOf(['sword', 'bow']);\r",
-                  "            pm.expect(item.damage).to.be.greaterThan(0);\r",
-                  "        }\r",
-                  "        \r",
-                  "        // Проверка для стрел\r",
-                  "        if (item.itemType === 'arrow') {\r",
-                  "            pm.expect(item.weaponType).to.equal(null);\r",
-                  "            pm.expect(item.damage).to.be.greaterThan(0);\r",
-                  "        }\r",
-                  "        \r",
-                  "        // Проверка для зелий\r",
-                  "        if (item.itemType === 'potion') {\r",
-                  "            pm.expect(item.weaponType).to.equal(null);\r",
-                  "            pm.expect(item.damage).to.equal(0);\r",
-                  "            pm.expect(item.bonusDefense).to.equal(0);\r",
-                  "            pm.expect(item.bonusHp).to.equal(0);\r",
-                  "        }\r",
-                  "        \r",
-                  "        // Проверка для брони\r",
-                  "        if (['helmet', 'chestplate', 'leggings', 'shield'].includes(item.itemType)) {\r",
-                  "            pm.expect(item.weaponType).to.equal(null);\r",
-                  "            pm.expect(item.damage).to.equal(0);\r",
-                  "            pm.expect(item.bonusDefense).to.be.greaterThan(0);\r",
-                  "            pm.expect(item.bonusHp).to.be.greaterThan(0);\r",
-                  "        }\r",
-                  "    });\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Проверка конкретных предметов из ответа\", function () {\r",
-                  "    const items = responseData.data;\r",
-                  "    \r",
-                  "    // Проверка стрелы (ID: 1)\r",
-                  "    const arrow = items.find(i => i.id === 1);\r",
-                  "    pm.expect(arrow).to.exist;\r",
-                  "    pm.expect(arrow.name).to.equal('Стрела');\r",
-                  "    pm.expect(arrow.itemType).to.equal('arrow');\r",
-                  "    pm.expect(arrow.damage).to.equal(10);\r",
-                  "    pm.expect(arrow.cost).to.equal(4);\r",
-                  "    \r",
-                  "    // Проверка зелья (ID: 2)\r",
-                  "    const potion = items.find(i => i.id === 2);\r",
-                  "    pm.expect(potion).to.exist;\r",
-                  "    pm.expect(potion.name).to.equal('Зелье');\r",
-                  "    pm.expect(potion.itemType).to.equal('potion');\r",
-                  "    pm.expect(potion.damage).to.equal(0);\r",
-                  "    pm.expect(potion.cost).to.equal(8);\r",
-                  "    \r",
-                  "    // Проверка стандартного меча (ID: 3)\r",
-                  "    const sword = items.find(i => i.id === 3);\r",
-                  "    pm.expect(sword).to.exist;\r",
-                  "    pm.expect(sword.name).to.equal('Стандартный меч');\r",
-                  "    pm.expect(sword.itemType).to.equal('weapon');\r",
-                  "    pm.expect(sword.weaponType).to.equal('sword');\r",
-                  "    pm.expect(sword.damage).to.equal(10);\r",
-                  "    pm.expect(sword.cost).to.equal(20);\r",
-                  "    \r",
-                  "    // Проверка меча героя (ID: 9)\r",
-                  "    const heroSword = items.find(i => i.id === 9);\r",
-                  "    pm.expect(heroSword).to.exist;\r",
-                  "    pm.expect(heroSword.name).to.equal('Меч героя');\r",
-                  "    pm.expect(heroSword.damage).to.equal(20);\r",
-                  "    pm.expect(heroSword.cost).to.equal(40);\r",
-                  "    \r",
-                  "    // Проверка, что меч героя лучше стандартного\r",
-                  "    pm.expect(heroSword.damage).to.be.greaterThan(sword.damage);\r",
-                  "    pm.expect(heroSword.cost).to.be.greaterThan(sword.cost);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Проверка уникальности ID предметов\", function () {\r",
-                  "    const ids = responseData.data.map(item => item.id);\r",
-                  "    const uniqueIds = [...new Set(ids)];\r",
-                  "    pm.expect(ids.length).to.equal(uniqueIds.length);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Проверка наличия всех типов предметов\", function () {\r",
-                  "    const itemTypes = responseData.data.map(item => item.itemType);\r",
-                  "    const uniqueTypes = [...new Set(itemTypes)];\r",
-                  "    \r",
-                  "    // Должны присутствовать все основные типы\r",
-                  "    const expectedTypes = ['arrow', 'potion', 'weapon', 'helmet', 'chestplate', 'leggings', 'shield'];\r",
-                  "    expectedTypes.forEach(function(type) {\r",
-                  "        pm.expect(uniqueTypes).to.include(type);\r",
-                  "    });\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}?method=getItemsData&token=b016e63c15fa63d9938ad2d42699fc33",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "query": [
-                {
-                  "key": "method",
-                  "value": "getItemsData"
-                },
-                {
-                  "key": "token",
-                  "value": "b016e63c15fa63d9938ad2d42699fc33"
                 }
               ]
             }
