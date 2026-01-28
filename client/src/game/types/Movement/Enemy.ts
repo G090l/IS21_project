@@ -5,8 +5,7 @@ class Enemy extends Unit {
     private detectionRange: number;
     private attackRange: number;
     public isAttacking: boolean;
-    private attackCooldown: number;
-    private lastAttackTime: number;
+    public isMoving: boolean;
 
     constructor() {
         super();
@@ -19,9 +18,8 @@ class Enemy extends Unit {
         this.damage = 20;
         this.detectionRange = 300;
         this.attackRange = 80;
+        this.isMoving = false;
         this.isAttacking = false;
-        this.attackCooldown = 1000;
-        this.lastAttackTime = 0;
         this.direction = EDIRECTION.RIGHT;
     }
 
@@ -31,6 +29,8 @@ class Enemy extends Unit {
 
     private moveTowardsTarget(heroRects: TRect[], walls: TRect[]): void {
         const nearestHeroRect = this.findNearestHeroRect(heroRects);
+        this.isAttacking = false;
+        this.isMoving = false;
 
         if (!nearestHeroRect) {
             this.movement.dx = 0;
@@ -45,10 +45,7 @@ class Enemy extends Unit {
         if (distance <= this.attackRange) {
             this.movement.dx = 0;
             this.movement.dy = 0;
-
-            if (this.canAttack()) {
-                this.attack();
-            }
+            this.isAttacking = true;
             return;
         }
 
@@ -66,6 +63,7 @@ class Enemy extends Unit {
 
         // Пытаемся переместиться
         this.move(newX, newY);
+        this.isMoving = true;
 
         // Проверяем столкновения со стенами
         this.checkCollisionsWithArray(
@@ -99,20 +97,6 @@ class Enemy extends Unit {
         }
 
         return nearestHeroRect;
-    }
-
-    private canAttack(): boolean {
-        const currentTime = Date.now();
-        return currentTime - this.lastAttackTime >= this.attackCooldown;
-    }
-
-    private attack(): void {
-        this.isAttacking = true;
-        this.lastAttackTime = Date.now();
-
-        setTimeout(() => {
-            this.isAttacking = false;
-        }, 300);
     }
 
     getAttackPosition(): TRect {
