@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import cn from 'classnames';
-import { ServerContext} from '../../../App';
+import { ServerContext, StoreContext } from '../../../App';
 import Button from '../../../components/Button/Button';
 import { IBasePage } from '../../PageManager';
 
@@ -19,13 +19,24 @@ interface IClassShop extends IBasePage {
 const ClassShop: React.FC<IClassShop> = (props) => {
     const { isOpen, onClose } = props;
     const server = useContext(ServerContext);
+    const store = useContext(StoreContext);
     const [activeSection, setActiveSection] = useState<'warrior' | 'mage'>('warrior');
-    const [selectedClass, setSelectedClass] = useState<string | null>(null);
+    const [selectedClass, setSelectedClass] = useState<number | null>(store.getUser()?.selectedClass ?? null);
+    const [user, setUser] = useState(() => store.getUser());
 
-    const selectClassClickHandler = async (id: number, type: string) => {
+    const selectClassClickHandler = async (id: number) => {
         const success = await server.selectClass(id);
         if (success) {
-            setSelectedClass(type);
+            setSelectedClass(id);
+        }
+    };
+    const buyClassClickHandler = async (id: number) => {
+        const success = await server.buyClass(id);
+        if (success) {
+            const updatedUser = await server.getUserInfo();
+            if (updatedUser) {
+                setUser(updatedUser);
+            }
         }
     };
 
@@ -47,10 +58,17 @@ const ClassShop: React.FC<IClassShop> = (props) => {
                                 src={warriorDescription}
                                 className="warriorDescription"
                             />
-                            <Button
-                                onClick={() => selectClassClickHandler(1, 'warrior')}
-                                className={cn('choose-button', { 'active': selectedClass === 'warrior' })}
-                            />
+                            {user?.purchasedClasses.includes(1) ? (
+                                <Button
+                                    onClick={() => selectClassClickHandler(1)}
+                                    className={cn('choose-button', { 'active': selectedClass === 1 })}
+                                />
+                            ) : (
+                                <Button
+                                    onClick={() => buyClassClickHandler(1)}
+                                    className='buy-button'
+                                />
+                            )}
                             <Button
                                 onClick={backClickHandler}
                                 className='back-button'
@@ -71,10 +89,17 @@ const ClassShop: React.FC<IClassShop> = (props) => {
                                 src={mageDescription}
                                 className="mageDescription"
                             />
-                            <Button
-                                onClick={() => selectClassClickHandler(2, 'mage')}
-                                className={cn('choose-button', { 'active': selectedClass === 'mage' })}
-                            />
+                            {user?.purchasedClasses.includes(2) ? (
+                                <Button
+                                    onClick={() => selectClassClickHandler(2)}
+                                    className={cn('choose-button', { 'active': selectedClass === 2 })}
+                                />
+                            ) : (
+                                <Button
+                                    onClick={() => buyClassClickHandler(2)}
+                                    className='buy-button'
+                                />
+                            )}
                             <Button
                                 onClick={backClickHandler}
                                 className='back-button'

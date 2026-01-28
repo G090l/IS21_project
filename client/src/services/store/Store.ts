@@ -12,6 +12,7 @@ class Store {
     messages: TMessages = [];
     rooms: TRoom[] = [];
     allClasses: TClass[] = [];
+    selectedClass: number | null = null;
     allItems: TItem[] = [];
     chatHash: string = 'empty chat hash';
     roomHash: string = 'empty room hash';
@@ -134,6 +135,7 @@ class Store {
     }
 
     setSelectedClass(classId: number): void {
+        this.selectedClass = classId;
     }
 
     getCharacterHash(): string {

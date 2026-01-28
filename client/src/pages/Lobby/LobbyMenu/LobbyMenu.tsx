@@ -82,12 +82,10 @@ const LobbyMenu: React.FC<TLobbyMenu> = ({
             <Button
                 onClick={deleteUserClickHandler}
                 className='deleteUser-button'
-                text='Удалить аккаунт'
             />
             <Button
                 onClick={exitAccountClickHandler}
                 className='exitAccount-button'
-                text='Выйти из аккаунта'
             />
         </div>
         {showStartButton && (

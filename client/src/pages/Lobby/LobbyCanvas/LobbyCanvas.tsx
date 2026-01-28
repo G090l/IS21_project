@@ -14,6 +14,9 @@ const lobbyField = 'lobby-field';
 let bg = new Image();
 bg.src = menuBackground;
 
+let game: LobbyGame | null = null;
+let canvas: Canvas;
+
 let movementKeys = {
     w: false,
     a: false,
@@ -30,11 +33,9 @@ type TLobbyCanvas = IBasePage & {
 };
 
 const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
-    let game: LobbyGame | null = null;
     const { setGame, setPage, openLobbyBook, openClassShop, isMovementBlocked } = props;
     const server = useContext(ServerContext);
     const store = useContext(StoreContext);
-    let canvas: Canvas;
     const Canvas = useCanvas(render);
     const { WINDOW, SPRITE_SIZE } = CONFIG;
     const user = store.getUser();

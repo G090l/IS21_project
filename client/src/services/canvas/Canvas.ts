@@ -156,11 +156,13 @@ class Canvas {
     }
 
     clear(): void {
+        if (!this.contextV) return;
         this.contextV.fillStyle = '#305160';
         this.contextV.fillRect(0, 0, this.WIDTH, this.HEIGHT);
     }
 
     clearImage(image: HTMLImageElement): void {
+        if (!this.contextV) return;
         this.contextV.drawImage(image, 0, 0, this.WIDTH, this.HEIGHT);
     }
 
@@ -175,6 +177,7 @@ class Canvas {
     }
 
     text(x: number, y: number, text: string, color = '#fff', font = 'bold 1rem Arial'): void {
+        if (!this.contextV) return;
         this.contextV.fillStyle = color;
         this.contextV.font = font;
         this.contextV.fillText(text, this.xs(x), this.ys(y));
@@ -187,16 +190,19 @@ class Canvas {
 
     // прямоугольник. НЕ квадрат
     rectangle(x: number, y: number, width = 64, height = 64, color = '#f004'): void {
+        if (!this.contextV) return;
         this.contextV.fillStyle = color;
         this.contextV.fillRect(this.xs(x), this.ys(y), width, height);
     }
 
     spriteFull(image: HTMLImageElement, dx: number, dy: number, sx: number, sy: number, size: number): void {
+        if (!this.contextV) return;
         this.contextV.drawImage(image, sx, sy, size, size, this.xs(dx), this.ys(dy), size, size);
     }
 
     // копируем изображение с виртуального канваса на основной
     render(): void {
+        if (!this.contextV) return;
         this.context.drawImage(this.canvasV, 0, 0);
     }
 }

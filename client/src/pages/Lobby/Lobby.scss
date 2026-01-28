@@ -58,14 +58,32 @@
         .buttons {
             .deleteUser-button {
                 position: absolute;
-                top: 28%;
-                left: 1%;
+                top: 12.77%;
+                left: 0%;
+                width: 20.98%;
+                aspect-ratio: 403 / 128;
+                border: none;
+                outline: none;
+                background-image: url('../../assets/img/lobby/deleteUser-button.png');
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                background-color: transparent;
+                cursor: pointer;
             }
 
             .exitAccount-button {
                 position: absolute;
-                top: 28%;
-                left: 13%;
+                top: 0%;
+                left: 0%;
+                width: 20.98%;
+                aspect-ratio: 402 / 128;
+                border: none;
+                outline: none;
+                background-image: url('../../assets/img/lobby/exitAccount-button.png');
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                background-color: transparent;
+                cursor: pointer;
             }
         }
 
