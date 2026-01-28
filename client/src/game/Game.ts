@@ -21,6 +21,7 @@ type TEnemyData = {
     damage: number;
     health: number;
     isAttacking: boolean;
+    isMoving: boolean;
 };
 
 class Game {
@@ -147,7 +148,6 @@ class Game {
             if (this.isShoot || (this.userIsOwner() && (currentArrowsCount > 0 || (this.previousArrowsCount > 0 && currentArrowsCount === 0)))) {
                 await this.updateArrowsOnServer();
                 this.isShoot = false;
-                this.arrows = [];
             }
             if (this.userIsOwner() && (currentEnemiesCount > 0 || (this.previousEnemiesCount > 0 && currentEnemiesCount === 0))) {
                 await this.updateEnemiesOnServer();
@@ -200,7 +200,8 @@ class Game {
                 direction: enemy.direction,
                 damage: enemy.damage,
                 health: enemy.health,
-                isAttacking: enemy.isAttacking
+                isAttacking: enemy.isAttacking,
+                isMoving: enemy.isMoving
             }));
 
             const enemiesJson = JSON.stringify(enemiesData);
@@ -375,6 +376,7 @@ class Game {
                 newEnemy.damage = enemiesData.damage;
                 newEnemy.health = enemiesData.health;
                 newEnemy.isAttacking = enemiesData.isAttacking;
+                newEnemy.isMoving = enemiesData.isMoving;
                 this.enemies.push(newEnemy);
             });
         } catch (error) {

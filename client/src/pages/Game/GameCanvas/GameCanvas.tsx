@@ -33,13 +33,18 @@ const GameCanvas: React.FC = () => {
 
     const {
         spritesImage,
+        enemySpritesImage,
         getSprite,
         animationFunctions,
-        heroSprites
+        enemyAnimationFunctions,
+        heroSprites,
+        enemySprites
     } = useSprites();
 
     const heroIdleRightSprite = heroSprites.idleRightSprite;
     const heroIdleLeftSprite = heroSprites.idleLeftSprite;
+    const enemyIdleRightSprite = enemySprites.idleRightSprite;
+    const enemyIdleLeftSprite = enemySprites.idleLeftSprite;
 
     function printGameObject(
         canvas: Canvas,
@@ -80,6 +85,30 @@ const GameCanvas: React.FC = () => {
 
         const [sx, sy, size] = getSprite(spriteNumber);
         printFillSprite(spritesImage, canvas, { x, y }, [sx, sy, size]);
+    }
+
+    function printEnemySprite(
+        canvas: Canvas,
+        { x = 0, y = 0 },
+        enemy: any
+    ): void {
+        let spriteNumber: number;
+        if (enemy.isAttacking) {
+            spriteNumber = enemy.direction === EDIRECTION.RIGHT
+                ? enemyAnimationFunctions.enemyAttackRight()
+                : enemyAnimationFunctions.enemyAttackLeft();
+        } else if (enemy.isMoving) {
+            spriteNumber = enemy.direction === EDIRECTION.RIGHT
+                ? enemyAnimationFunctions.enemyWalkRight()
+                : enemyAnimationFunctions.enemyWalkLeft();
+        } else {
+            spriteNumber = enemy.direction === EDIRECTION.RIGHT
+                ? enemyIdleRightSprite
+                : enemyIdleLeftSprite;
+        }
+
+        const [sx, sy, size] = getSprite(spriteNumber);
+        printFillSprite(enemySpritesImage, canvas, { x, y }, [sx, sy, size]);
     }
 
     function printHeroSword(
@@ -136,6 +165,10 @@ const GameCanvas: React.FC = () => {
 
             enemies.forEach(enemy => {
                 printGameObject(canvas, enemy.rect, 'red');
+                printEnemySprite(canvas, {
+                    x: enemy.rect.x - SPRITE_SIZE + enemy.rect.width + 100,
+                    y: enemy.rect.y - SPRITE_SIZE + enemy.rect.height + 10
+                }, enemy);
 
                 if (enemy.isAttacking) {
                     const attackPosition = enemy.getAttackPosition();
