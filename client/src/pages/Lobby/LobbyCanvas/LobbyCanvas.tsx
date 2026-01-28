@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef, useContext, useCallback, useMemo } from 'react';
 import { ServerContext, StoreContext } from '../../../App';
 import CONFIG, { EDIRECTION } from "../../../config";
-import Game from '../../../game/Game';
 import { Canvas, useCanvas } from "../../../services/canvas";
 import { IBasePage, PAGES } from '../../PageManager';
 import { useRoomUser } from '../../../hooks/useRoomUser';
@@ -12,34 +11,35 @@ import menuBackground from '../../../assets/img/lobby/menu-background.png';
 import lobbyBackground from '../../../assets/img/lobby/lobby-background.png';
 
 const lobbyField = 'lobby-field';
+let bg = new Image();
+bg.src = menuBackground;
+
+let movementKeys = {
+    w: false,
+    a: false,
+    s: false,
+    d: false
+};
 
 type TLobbyCanvas = IBasePage & {
     setGame: (game: LobbyGame) => void;
+    setPage: (page: PAGES) => void;
     openLobbyBook: () => void;
     openClassShop: () => void;
     isMovementBlocked: boolean;
 };
 
 const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
-    const { room } = props;
+    let game: LobbyGame | null = null;
+    const { setGame, setPage, openLobbyBook, openClassShop, isMovementBlocked } = props;
     const server = useContext(ServerContext);
     const store = useContext(StoreContext);
-
+    let canvas: Canvas;
+    const Canvas = useCanvas(render);
     const { WINDOW, SPRITE_SIZE } = CONFIG;
     const user = store.getUser();
-
-    const gameRef = useRef<LobbyGame | null>(null);
-    const canvasRef = useRef<Canvas | null>(null);
-    const animationFrameRef = useRef<number>(0);
-    const backgroundImageRef = useRef<HTMLImageElement>(new Image());
-
+    const room = store.getUserRoom();
     const { isUserRoomMember } = useRoomUser(room, user);
-    const background = isUserRoomMember ? lobbyBackground : menuBackground;
-    const { setPage } = props;
-
-    useEffect(() => {
-        backgroundImageRef.current.src = background;
-    }, [background]);
 
     const {
         spritesImage,
@@ -50,6 +50,22 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
 
     const heroIdleRightSprite = heroSprites.idleRightSprite;
     const heroIdleLeftSprite = heroSprites.idleLeftSprite;
+
+    useEffect(() => {
+        bg.src = isUserRoomMember ? lobbyBackground : menuBackground;
+    }, [isUserRoomMember]);
+
+    function printGameObject(
+        canvas: Canvas,
+        { x = 0, y = 0, width = 0, height = 0 }: { x: number; y: number; width: number; height: number },
+        color: string
+    ): void {
+        canvas.rectangle(x, y, width, height, color);
+    }
+
+    function printFillSprite(image: HTMLImageElement, canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
+        canvas.spriteFull(image, x, y, points[0], points[1], points[2]);
+    }
 
     function printHeroSprite(
         canvas: Canvas,
@@ -80,103 +96,61 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
         printFillSprite(spritesImage, canvas, { x, y }, [sx, sy, size]);
     }
 
-    const keysPressedRef = useRef({
-        w: false,
-        a: false,
-        s: false,
-        d: false
-    });
+    function render(fps: number): void {
+        if (!canvas || !game) return;
+        canvas.clear();
+        canvas.clearImage(bg);
 
-    // Функция для отрисовки
-    function printGameObject(
-        canvas: Canvas,
-        { x = 0, y = 0, width = 100, height = 100 }: { x: number; y: number; width: number; height: number },
-        color: string
-    ): void {
-        canvas.rectangle(x, y, width, height, color);
-    }
+        const scene = game.getScene();
+        const { heroes, walls } = scene;
 
-    function printFillSprite(image: HTMLImageElement, canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
-        canvas.spriteFull(image, x, y, points[0], points[1], points[2]);
-    }
-    function printSprite(canvas: Canvas, { x = 0, y = 0 }, points: number[]): void {
-        printFillSprite(spritesImage, canvas, { x, y }, points);
-    }
-
-    // Использование функции render:
-    const render = (FPS: number): void => {
-        if (canvasRef.current && gameRef.current && backgroundImageRef.current) {
-            canvasRef.current.clearImage(backgroundImageRef.current);
-            const scene = gameRef.current.getScene();
-            const { heroes, walls } = scene;
-            // Рисуем стены
-            walls.forEach(wall => {
-                printGameObject(canvasRef.current!, {
-                    x: wall.x,
-                    y: wall.y,
-                    width: wall.width,
-                    height: wall.height
-                }, 'transparent');
-            });
-
-            // Рисуем всех героев
-            heroes.forEach((hero, index) => {
-                const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
-                printGameObject(canvasRef.current!, hero.rect, color);
-
-                // Подписываем имя героя
-                canvasRef.current!.text(hero.rect.x, hero.rect.y - 150, hero.name || "Неизвестно", 'white');
-                printHeroSprite(canvasRef.current!, {
-                    x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
-                    y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
-                }, hero);
-            });
-
-            // Рисуем FPS
-            canvasRef.current.text(WINDOW.LEFT + 20, WINDOW.TOP + 50, String(FPS), 'green');
-
-            canvasRef.current.render();
+        for (let i = 0; i < walls.length; i++) {
+            const wall = walls[i];
+            printGameObject(canvas, {
+                x: wall.x,
+                y: wall.y,
+                width: wall.width,
+                height: wall.height
+            }, 'transparent');
         }
-    };
 
-    const CanvasComponent = useCanvas(render);
+        heroes.forEach((hero, index) => {
+            const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
+            printGameObject(canvas, hero.rect, color);
 
-    const handleMovement = useCallback(() => {
-        // Если движение заблокировано (меню открыто), не обрабатываем нажатия клавиш
-        if (props.isMovementBlocked) {
-            keysPressedRef.current = { w: false, a: false, s: false, d: false };
+            canvas.text(hero.rect.x, hero.rect.y - 150, hero.name || "Неизвестно", 'white');
+
+            printHeroSprite(canvas, {
+                x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
+                y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
+            }, hero);
+        });
+
+        canvas.text(WINDOW.LEFT + 20, WINDOW.TOP + 50, String(fps), 'green');
+        canvas.render();
+    }
+
+    const handleMovement = () => {
+        if (isMovementBlocked) {
+            movementKeys = { w: false, a: false, s: false, d: false };
             return;
         }
 
-        const { w, a, s, d } = keysPressedRef.current;
-
-        let dx = 0;
-        let dy = 0;
-
+        const { w, a, s, d } = movementKeys;
+        let dx = 0, dy = 0;
         if (a) dx -= 1;
         if (d) dx += 1;
         if (w) dy -= 1;
         if (s) dy += 1;
 
-        if (gameRef.current) {
-            gameRef.current.updateCurrentUserMovement(dx, dy);
-        }
-    }, [props.isMovementBlocked]);
+        game?.updateCurrentUserMovement(dx, dy);
+    };
 
     useEffect(() => {
-        // Инициализация игры
-        const game = new LobbyGame(server, store);
-        gameRef.current = game;
-        props.setGame(game);
+        game = new LobbyGame(server, store);
+        setGame(game);
 
-        const scene = gameRef.current.getScene();
-        scene.heroes.forEach(hero => {
-            hero.rect.x = 740;
-            hero.rect.y = 800;
-        });
-
-        // Инициализация канваса
-        canvasRef.current = CanvasComponent({
+        canvas = Canvas({
             parentId: lobbyField,
             WIDTH: WINDOW.WIDTH,
             HEIGHT: WINDOW.HEIGHT,
@@ -184,53 +158,51 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
             callbacks: {
                 mouseMove: () => { },
                 mouseClick: () => { },
-                mouseRightClick: () => { },
+                mouseRightClick: () => { }
             },
         });
 
-        // Игровой цикл
+        let animationFrame: number;
+
         const gameLoop = () => {
             if (store.gameStatus == 'started' && store.rooms.length > 0) {
                 setPage(PAGES.GAME);
             };
             handleMovement();
-            animationFrameRef.current = requestAnimationFrame(gameLoop);
+            animationFrame = requestAnimationFrame(gameLoop);
         };
 
-        animationFrameRef.current = requestAnimationFrame(gameLoop);
+        animationFrame = requestAnimationFrame(gameLoop);
 
         return () => {
-            // Очистка ресурсов
-            cancelAnimationFrame(animationFrameRef.current);
-            gameRef.current?.destructor();
-            canvasRef.current?.destructor();
-            canvasRef.current = null;
-            gameRef.current = null;
+            cancelAnimationFrame(animationFrame);
+            canvas?.destructor();
         };
-    }, [handleMovement, WINDOW]);
-
+    }, []);
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
             const keyCode = event.keyCode ? event.keyCode : event.which ? event.which : 0;
             if (document.activeElement?.tagName === 'INPUT' && keyCode === 70) return;
+            if (isMovementBlocked) return;
+
             switch (keyCode) {
                 case 65: // a
-                    if (!props.isMovementBlocked) keysPressedRef.current.a = true;
+                    movementKeys.a = true;
                     break;
                 case 68: // d
-                    if (!props.isMovementBlocked) keysPressedRef.current.d = true;
+                    movementKeys.d = true;
                     break;
                 case 87: // w
-                    if (!props.isMovementBlocked) keysPressedRef.current.w = true;
+                    movementKeys.w = true;
                     break;
                 case 83: // s
-                    if (!props.isMovementBlocked) keysPressedRef.current.s = true;
+                    movementKeys.s = true;
                     break;
                 case 70: // f
                     event.preventDefault();
-                    if (!props.isMovementBlocked && gameRef.current) {
-                        const hero = gameRef.current.getScene().heroes[0];
+                    if (game) {
+                        const hero = game.getScene().heroes[0];
 
                         const inStartZone = hero.rect.x > 814 && hero.rect.x < 1105 &&
                             hero.rect.y > 685 && hero.rect.y < 770;
@@ -239,9 +211,9 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
                             hero.rect.y > 866 && hero.rect.y < 951;
 
                         if (inStartZone) {
-                            props.openLobbyBook();
+                            openLobbyBook();
                         } else if (inShopZone) {
-                            props.openClassShop();
+                            openClassShop();
                         }
                     }
                     break;
@@ -255,16 +227,16 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
 
             switch (keyCode) {
                 case 65: // a
-                    keysPressedRef.current.a = false;
+                    movementKeys.a = false;
                     break;
                 case 68: // d
-                    keysPressedRef.current.d = false;
+                    movementKeys.d = false;
                     break;
                 case 87: // w
-                    keysPressedRef.current.w = false;
+                    movementKeys.w = false;
                     break;
                 case 83: // s
-                    keysPressedRef.current.s = false;
+                    movementKeys.s = false;
                     break;
                 default:
                     break;
@@ -278,7 +250,12 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
             document.removeEventListener('keydown', keyDownHandler);
             document.removeEventListener('keyup', keyUpHandler);
         };
-    }, [props.isMovementBlocked]);
+    }, [isMovementBlocked]);
+
+    useEffect(() => () => {
+        game?.destructor();
+    }, []);
+
 
     return (<div id={lobbyField} className={lobbyField}></div>)
 }
