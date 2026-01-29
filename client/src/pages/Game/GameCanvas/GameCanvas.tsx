@@ -126,69 +126,72 @@ const GameCanvas: React.FC = () => {
     function render(fps: number): void {
         if (canvas && game) {
             canvas.clear();
-            canvas.clearImage(arenaImage)
             const scene = game.getScene();
             const { heroes, walls, arrows, enemies } = scene;
-
-            for (let i = 0; i < walls.length; i++) {
-                const wall = walls[i];
-                printGameObject(canvas, {
-                    x: wall.x,
-                    y: wall.y,
-                    width: wall.width,
-                    height: wall.height
-                }, 'transparent');
-            }
-
-            heroes.forEach((hero, index) => {
-                const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
-                printGameObject(canvas, hero.rect, color);
-
-                canvas.text(hero.rect.x, hero.rect.y - 150, hero.name || "Неизвестно", 'white');
-
-                if (hero.isAttacking && attackMode === EAttackMode.Sword) {
-                    const attackPosition = hero.getAttackPosition();
-                    if (attackPosition) {
-                        printGameObject(canvas, attackPosition, 'red');
-                        printHeroSword(canvas, {
-                            x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
-                            y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
-                        }, hero);
-                    }
+            const currentHero = game.getCurrentUserHero();
+            if (currentHero) {
+                canvas.clearImage(arenaImage)
+                for (let i = 0; i < walls.length; i++) {
+                    const wall = walls[i];
+                    printGameObject(canvas, {
+                        x: wall.x,
+                        y: wall.y,
+                        width: wall.width,
+                        height: wall.height
+                    }, 'transparent');
                 }
 
-                printHeroSprite(canvas, {
-                    x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
-                    y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
-                }, hero);
-            });
+                heroes.forEach((hero, index) => {
+                    const color = index === 0 ? 'blue' : ['green', 'yellow', 'purple'][index % 3];
+                    printGameObject(canvas, hero.rect, color);
 
-            enemies.forEach(enemy => {
-                printGameObject(canvas, enemy.rect, 'red');
-                printEnemySprite(canvas, {
-                    x: enemy.rect.x - SPRITE_SIZE + enemy.rect.width + 100,
-                    y: enemy.rect.y - SPRITE_SIZE + enemy.rect.height + 10
-                }, enemy);
+                    canvas.text(hero.rect.x, hero.rect.y - 150, hero.name || "Неизвестно", 'white');
 
-                if (enemy.isAttacking) {
-                    const attackPosition = enemy.getAttackPosition();
-                    if (attackPosition) {
-                        printGameObject(canvas, attackPosition, 'orange');
+                    if (hero.isAttacking && attackMode === EAttackMode.Sword) {
+                        const attackPosition = hero.getAttackPosition();
+                        if (attackPosition) {
+                            printGameObject(canvas, attackPosition, 'red');
+                            printHeroSword(canvas, {
+                                x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
+                                y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
+                            }, hero);
+                        }
                     }
-                }
-            });
 
-            arrows.forEach(arrow => {
-                printGameObject(canvas, {
-                    x: arrow.rect.x,
-                    y: arrow.rect.y,
-                    width: arrow.rect.width,
-                    height: arrow.rect.height
-                }, "red");
-            });
+                    printHeroSprite(canvas, {
+                        x: hero.rect.x - SPRITE_SIZE + hero.rect.width + 100,
+                        y: hero.rect.y - SPRITE_SIZE + hero.rect.height + 10
+                    }, hero);
+                });
 
-            canvas.text(WINDOW.LEFT + 20, WINDOW.TOP + 50, String(fps), 'green');
-            canvas.render();
+                enemies.forEach(enemy => {
+                    printGameObject(canvas, enemy.rect, 'red');
+                    printEnemySprite(canvas, {
+                        x: enemy.rect.x - SPRITE_SIZE + enemy.rect.width + 100,
+                        y: enemy.rect.y - SPRITE_SIZE + enemy.rect.height + 10
+                    }, enemy);
+
+                    if (enemy.isAttacking) {
+                        const attackPosition = enemy.getAttackPosition();
+                        if (attackPosition) {
+                            printGameObject(canvas, attackPosition, 'orange');
+                        }
+                    }
+                });
+
+                arrows.forEach(arrow => {
+                    printGameObject(canvas, {
+                        x: arrow.rect.x,
+                        y: arrow.rect.y,
+                        width: arrow.rect.width,
+                        height: arrow.rect.height
+                    }, "red");
+                });
+
+                canvas.text(WINDOW.LEFT + 20, WINDOW.TOP + 50, String(fps), 'green');
+            } else {
+                canvas.text(WINDOW.WIDTH / 2, WINDOW.HEIGHT / 2, 'GAME OVER', 'red');
+            } canvas.render();
         }
     };
 
