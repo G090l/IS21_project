@@ -23,8 +23,8 @@
         .left-section {
             .warriorSection-button {
                 position: absolute;
-                top: 27.59%;
-                left: 27.70%;
+                top: 28.51%;
+                left: 28.28%;
                 width: 19.68%;
                 aspect-ratio: 378/95;
                 border: none;
@@ -34,7 +34,6 @@
                 background-repeat: no-repeat;
                 background-color: transparent;
                 padding: 0;
-                margin: 0.92% 0.52%;
 
                 &.active {
                     background-image: url('../../../assets/img/classShop/warriorSection-button-active.png');
@@ -43,8 +42,8 @@
 
             .mageSection-button {
                 position: absolute;
-                top: 38.33%;
-                left: 27.70%;
+                top: 39.25%;
+                left: 28.28%;
                 width: 19.68%;
                 aspect-ratio: 378 / 95;
                 border: none;
@@ -54,7 +53,6 @@
                 background-repeat: no-repeat;
                 background-color: transparent;
                 padding: 0;
-                margin: 0.92% 0.52%;
 
                 &.active {
                     background-image: url('../../../assets/img/classShop/mageSection-button-active.png');
@@ -63,53 +61,32 @@
 
             .others-button {
                 position: absolute;
-                top: 48.05%;
-                left: 27.70%;
+                top: 48.98%;
+                left: 28.28%;
                 width: 19.68%;
                 aspect-ratio: 378 / 95;
                 border: none;
                 outline: none;
+                background-image: url('../../../assets/img/classShop/others-button.png');
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
                 background-color: transparent;
                 padding: 0;
-                margin: 0.92% 0.52%;
 
-                &::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background-image: url('../../../assets/img/classShop/others-button-bg.png');
-                    background-size: 100% 100%;
-                    background-repeat: no-repeat;
-                }
-
-                &::after {
-                    content: '';
-                    position: absolute;
-                    top: 14.58%;
-                    left: 42.48%;
-                    width: 15.03%;
-                    height: 70.83%;
-                    background-image: url('../../../assets/img/classShop/others-button-fg.png');
-                    background-size: 100% 100%;
-                    background-repeat: no-repeat;
-                }
             }
 
             .others2-button {
                 @extend .others-button;
-                top: 57.87%;
+                top: 58.78%;
             }
         }
 
         .right-section {
             .choose-button {
                 position: absolute;
-                top: 21.94%;
-                left: 55.83%;
-                width: 8.125%;
+                top: 24.16%;
+                left: 56.35%;
+                width: 7.03%;
                 aspect-ratio: 135 / 50;
                 border: none;
                 outline: none;
@@ -118,16 +95,30 @@
                 background-repeat: no-repeat;
                 background-color: transparent;
                 padding: 0;
-                margin: 0.92% 0.52%;
 
                 &.active {
                     background-image: url('../../../assets/img/classShop/choose-button-active.png');
                 }
             }
 
+            .buy-button {
+                position: absolute;
+                top: 24.16%;
+                left: 56.35%;
+                width: 7.03%;
+                aspect-ratio: 135 / 50;
+                border: none;
+                outline: none;
+                background-image: url('../../../assets/img/classShop/buy-button.png');
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                background-color: transparent;
+                padding: 0;
+            }
+
             .warriorPortrait {
                 position: absolute;
-                top: 24.62%;
+                top: 26.48%;
                 left: 51.71%;
                 width: 16.30%;
             }
@@ -139,7 +130,8 @@
                 width: 17.96%;
             }
 
-            .warriorDescription, .mageDescription {
+            .warriorDescription,
+            .mageDescription {
                 position: absolute;
                 top: 48.14%;
                 left: 50%;
@@ -148,9 +140,9 @@
 
             .back-button {
                 position: absolute;
-                top: 22.68%;
-                left: 66.61%;
-                width: 2.76%;
+                top: 23.61%;
+                left: 67.13%;
+                width: 1.71%;
                 aspect-ratio: 30 / 30;
                 border: none;
                 outline: none;
@@ -159,7 +151,6 @@
                 background-repeat: no-repeat;
                 background-color: transparent;
                 padding: 0;
-                margin: 0.92% 0.52%;
             }
         }
     }

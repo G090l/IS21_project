@@ -4,6 +4,7 @@ import CONFIG, { EDIRECTION } from "../../../config";
 import { Canvas, useCanvas } from "../../../services/canvas";
 import { IBasePage, PAGES } from '../../PageManager';
 import { useRoomUser } from '../../../hooks/useRoomUser';
+import { useTypingState } from '../../../hooks/useTypingState';
 import LobbyGame from '../../../lobby/LobbyGame';
 import useSprites from '../../Game/hooks/useSprites';
 
@@ -13,6 +14,9 @@ import lobbyBackground from '../../../assets/img/lobby/lobby-background.png';
 const lobbyField = 'lobby-field';
 let bg = new Image();
 bg.src = menuBackground;
+
+let game: LobbyGame | null = null;
+let canvas: Canvas;
 
 let movementKeys = {
     w: false,
@@ -30,11 +34,9 @@ type TLobbyCanvas = IBasePage & {
 };
 
 const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
-    let game: LobbyGame | null = null;
     const { setGame, setPage, openLobbyBook, openClassShop, isMovementBlocked } = props;
     const server = useContext(ServerContext);
     const store = useContext(StoreContext);
-    let canvas: Canvas;
     const Canvas = useCanvas(render);
     const { WINDOW, SPRITE_SIZE } = CONFIG;
     const user = store.getUser();
@@ -183,6 +185,7 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
             const keyCode = event.keyCode ? event.keyCode : event.which ? event.which : 0;
+            if (useTypingState.isTyping) return;
             if (document.activeElement?.tagName === 'INPUT' && keyCode === 70) return;
             if (isMovementBlocked) return;
 

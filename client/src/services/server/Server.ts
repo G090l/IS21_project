@@ -113,7 +113,6 @@ class Server {
         if (this.chatInterval) {
             clearInterval(this.chatInterval);
             this.chatInterval = null;
-            this.store.clearMessages();
         }
     }
 
@@ -205,10 +204,15 @@ class Server {
         return this.request<TClass[]>('getClasses');
     }
 
+    async buyClass(classId: number): Promise<boolean | null> {
+        return this.request<boolean>('buyClass', { classId });
+    }
+
     async selectClass(classId: number): Promise<boolean | null> {
         const result = await this.request<boolean>('selectClass', { classId });
         if (result) {
             this.store.setSelectedClass(classId);
+            return true;
         }
         return null;
     }

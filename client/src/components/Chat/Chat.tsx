@@ -41,9 +41,7 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
             if (e.key === 'Escape' && isOpen) {
                 e.preventDefault();
                 e.stopPropagation();
-                onToggle(false);
-                useTypingState.set(false);
-                cancelAutoClose();
+                closeChat();
             }
         }
 
@@ -66,7 +64,7 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
         cancelAutoClose();
         autoCloseTimerRef.current = setTimeout(() => {
             if (isOpen && !useTypingState.isTyping) {
-                onToggle(false);
+                closeChat();
             }
         }, 3000);
     };
@@ -154,7 +152,18 @@ const Chat: React.FC<IChat> = ({ isOpen, onToggle }) => {
 
     const handleMouseEnter = () => setIsHovered(true);
     const handleMouseLeave = () => setIsHovered(false);
-    const toggleChat = () => onToggle(!isOpen);
+    const closeChat = () => {
+        useTypingState.set(false);
+        onToggle(false);
+    };
+
+    const toggleChat = () => {
+        if (isOpen) {
+            closeChat();
+        } else {
+            onToggle(true);
+        }
+    };
 
     return (<div
         className={cn('chat', { 'chat-open': isOpen })}
