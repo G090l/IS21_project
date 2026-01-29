@@ -1,9 +1,4 @@
-export type TPoint = {
-    x: number;
-    y: number;
-}
-
-export type FPoint = {
+export type TRect = {
     x: number;
     y: number;
     width: number;
@@ -16,6 +11,36 @@ export enum EDIRECTION {
     UP = 'up',
     DOWN = 'down',
 };
+
+export enum EITEMTYPE {
+    WEAPON = 'weapon',
+    HELMET = 'helmet',
+    CHESTPLATE = 'chestplate',
+    LEGGINGS = 'leggings',
+    SHIELD = 'shield',
+}
+
+export enum EWEAPONTYPE {
+    SWORD = 'sword',
+    BOW = 'bow',
+    AXE = 'axe',
+    STAFF = 'staff',
+    DAGGER = 'dagger'
+}
+
+
+export enum ECLASSTYPE {
+    WARRIOR = "warrior",
+    MAGE = "mage",
+    ROUGE = "rouge"
+}
+
+
+export type TARMOR = {
+    type: EITEMTYPE;
+    cost: number;
+    bonusDefense: number;
+}
 
 export type TWINDOW = {
     LEFT: number;
@@ -30,9 +55,10 @@ const CONFIG = {
 
     HOST: 'http://knightwars.local/api',
 
-    CHAT_TIMESTAMP: 200, //ms
-
-    SPRITE_SIZE: 64, // размер спрайта в пикселях
+    CHAT_TIMESTAMP: 1000, //ms
+    ROOM_TIMESTAMP: 1000, //ms
+    GAME_UPDATE_TIMESTAMP: 80,
+    SPRITE_SIZE: 250, // размер спрайта в пикселях
     LINE_OF_SPRITES: 10, // количество спрайтов в карте спрайтов
     WIDTH: 50, // ширина карты
     HEIGHT: 32, // высота карты 
@@ -40,8 +66,8 @@ const CONFIG = {
     WINDOW: {
         LEFT: 0,
         TOP: 0,
-        HEIGHT: 800,
-        WIDTH: 1300,
+        HEIGHT: 1080,
+        WIDTH: 1920,
     },
 };
 

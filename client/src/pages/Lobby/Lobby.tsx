@@ -1,22 +1,60 @@
-import React from 'react';
+import React, { useEffect, useState, useRef, useContext, useCallback } from 'react';
 import { IBasePage, PAGES } from '../PageManager';
-import Button from '../../components/Button/Button';
+import LobbyGame from '../../lobby/LobbyGame';
+import LobbyCanvas from './LobbyCanvas/LobbyCanvas';
+import LobbyMenu from './LobbyMenu/LobbyMenu';
+import './Lobby.scss';
 
-const Lobby: React.FC<IBasePage> = (props: IBasePage) => {
-const { setPage } = props;
-    const classShopClickHandler = () => {
-        setPage(PAGES.CLASS_SHOP);
+const Lobby: React.FC<IBasePage> = ({ setPage }) => {
+    const [game, setGame] = useState<LobbyGame | null>(null);
+    const [isLobbyBookOpen, setIsLobbyBookOpen] = useState(false);
+    const [isClassShopOpen, setIsClassShopOpen] = useState(false);
+    const [isMovementBlocked, setIsMovementBlocked] = useState(false);
+
+
+    const openLobbyBook = () => {
+        setIsLobbyBookOpen(true);
+        setIsMovementBlocked(true);
     };
 
-    const startingGameMenuClickHandler = () => {
-        setPage(PAGES.STARTING_GAME_MENU);
+    const closeLobbyBook = () => {
+        setIsLobbyBookOpen(false);
+        setIsMovementBlocked(false);
     };
 
-    return (<>
-        <div>Меню</div>
-        <Button onClick={classShopClickHandler} text='Назад' />
-        <Button onClick={startingGameMenuClickHandler} text='Начать игру' />
-    </>)
+    const openClassShop = () => {
+        setIsClassShopOpen(true);
+        setIsMovementBlocked(true);
+    };
+
+    const closeClassShop = () => {
+        setIsClassShopOpen(false);
+        setIsMovementBlocked(false);
+    };
+
+    return (<div className='lobby'>
+        <div className="canvas-container">
+            {game && (
+                <LobbyMenu
+                    game={game}
+                    openLobbyBook={openLobbyBook}
+                    closeLobbyBook={closeLobbyBook}
+                    openClassShop={openClassShop}
+                    closeClassShop={closeClassShop}
+                    isLobbyBookOpen={isLobbyBookOpen}
+                    isClassShopOpen={isClassShopOpen}
+                    setPage={setPage}
+                />
+            )}
+            <LobbyCanvas
+                setPage={setPage}
+                setGame={setGame}
+                openLobbyBook={openLobbyBook}
+                openClassShop={openClassShop}
+                isMovementBlocked={isMovementBlocked}
+            />
+        </div>
+    </div>)
 }
 
 export default Lobby;

@@ -2,9 +2,11 @@
 
 error_reporting(1);
 
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
+require_once('application/config.php');
 require_once('application/Answer.php');
 require_once('application/Application.php');
 
@@ -13,18 +15,46 @@ function result($params) {
     if ($method) {
         $app = new Application();
         switch ($method) {
-            // user
+            //UserManager
             case 'login': return $app->login($params);
             case 'logout': return $app->logout($params);
             case 'registration': return $app->registration($params);
-            //math
+            case 'deleteUser': return $app->deleteUser($params); // для тестеров
+            case 'getUserInfo': return $app->getUserInfo($params);
+            case 'getRatingTable': return $app->getRatingTable($params);
+            //MathManager
             case 'math': return $app->math($params);
-            // chat
+            //ChatManager
             case 'sendMessage': return $app->sendMessage($params);
             case 'getMessages': return $app->getMessages($params);
-            //lobby
+            //LobbyManager
             case 'createRoom': return $app->createRoom($params);
             case 'joinToRoom': return $app->joinToRoom($params);
+            case 'leaveRoom': return $app->leaveRoom($params);
+            case 'dropFromRoom': return $app->dropFromRoom($params);
+            case 'startGame': return $app->startGame($params);
+            case 'renameRoom': return $app->renameRoom($params);
+            case 'getRooms': return $app->getRooms($params);
+            case 'addRating': return $app->addRating($params);
+            case 'substractRating': return $app->substractRating($params);
+            case 'endGame': return $app->endGame($params);
+            //ClassManager
+            case 'getClasses': return $app->getClasses($params);
+            case 'buyClass': return $app->buyClass($params);
+            case 'selectClass': return $app->selectClass($params);
+            //ItemManager
+            case 'buyItem': return $app->buyItem($params);
+            case 'sellItem': return $app->sellItem($params);
+            case 'useArrow': return $app->useArrow($params);
+            case 'usePotion': return $app->usePotion($params);
+            case 'getItemsData': return $app->getItemsData($params);
+            //GameManager
+            case 'getScene': return $app->getScene($params);
+            case 'updateCharacter': return $app->updateCharacter($params);
+            case 'updateBots': return $app->updateBots($params);
+            case 'updateArrows': return $app->updateArrows($params);
+            case 'getBotsData': return $app->getBotsData($params);
+            case 'giveMoney': return $app->giveMoney($params);
 
             default: return ['error' => 102];
         }
