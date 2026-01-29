@@ -113,7 +113,6 @@ class Server {
         if (this.chatInterval) {
             clearInterval(this.chatInterval);
             this.chatInterval = null;
-            this.store.clearMessages();
         }
     }
 

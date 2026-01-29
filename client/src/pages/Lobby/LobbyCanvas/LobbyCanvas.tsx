@@ -4,6 +4,7 @@ import CONFIG, { EDIRECTION } from "../../../config";
 import { Canvas, useCanvas } from "../../../services/canvas";
 import { IBasePage, PAGES } from '../../PageManager';
 import { useRoomUser } from '../../../hooks/useRoomUser';
+import { useTypingState } from '../../../hooks/useTypingState';
 import LobbyGame from '../../../lobby/LobbyGame';
 import useSprites from '../../Game/hooks/useSprites';
 
@@ -184,6 +185,7 @@ const LobbyCanvas: React.FC<TLobbyCanvas> = (props: TLobbyCanvas) => {
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
             const keyCode = event.keyCode ? event.keyCode : event.which ? event.which : 0;
+            if (useTypingState.isTyping) return;
             if (document.activeElement?.tagName === 'INPUT' && keyCode === 70) return;
             if (isMovementBlocked) return;
 
