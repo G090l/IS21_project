@@ -75,7 +75,6 @@ class Hero extends Unit {
             isBlocking: this.isBlocking,
             isMoving: this.isMoving,
             damage: this.damage,
-            health: this.health,
             direction: this.direction,
             name: this.name,
         };
@@ -92,7 +91,6 @@ class Hero extends Unit {
         this.rect.x = data.rect.x;
         this.rect.y = data.rect.y;
         this.damage = data.damage;
-        this.health = data.health;
         this.direction = data.direction;
         this.name = data.name;
     }

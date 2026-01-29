@@ -114,7 +114,7 @@ class Game {
         }, this.waveCooldown);
     }
 
-    private getCurrentUserHero(): Hero | null {
+    getCurrentUserHero(): Hero | null {
         const user = this.store.getUser();
         if (!user || !user.nickname) return null;
 
@@ -196,24 +196,30 @@ class Game {
     }
 
     private startPeriodicUpdate(): void {
+        let isUpdate = true;
         this.sceneUpdateInterval = setInterval(async () => {
-            this.getSceneFromBackend(await this.server.getScene());
-            this.updateScene();
-            if (this.userIsOwner()) {
-                this.checkWaveCompletion();
+            if (isUpdate) {
+                this.getSceneFromBackend(await this.server.getScene());
+                this.updateScene();
+                if (this.userIsOwner()) {
+                    this.checkWaveCompletion();
+                }
+                const currentArrowsCount = this.arrows.length;
+                const currentEnemiesCount = this.enemies.length;
+                await this.updateCurrentHeroOnServer();
+                if (this.isShoot || (this.userIsOwner() && (currentArrowsCount > 0 || (this.previousArrowsCount > 0 && currentArrowsCount === 0)))) {
+                    await this.updateArrowsOnServer();
+                    this.isShoot = false;
+                }
+                if (this.userIsOwner() && (currentEnemiesCount > 0 || (this.previousEnemiesCount > 0 && currentEnemiesCount === 0))) {
+                    await this.updateEnemiesOnServer();
+                }
+                this.previousArrowsCount = currentArrowsCount;
+                this.previousEnemiesCount = currentEnemiesCount;
+                if (!this.getCurrentUserHero()) {
+                    isUpdate = false
+                }
             }
-            const currentArrowsCount = this.arrows.length;
-            const currentEnemiesCount = this.enemies.length;
-            await this.updateCurrentHeroOnServer();
-            if (this.isShoot || (this.userIsOwner() && (currentArrowsCount > 0 || (this.previousArrowsCount > 0 && currentArrowsCount === 0)))) {
-                await this.updateArrowsOnServer();
-                this.isShoot = false;
-            }
-            if (this.userIsOwner() && (currentEnemiesCount > 0 || (this.previousEnemiesCount > 0 && currentEnemiesCount === 0))) {
-                await this.updateEnemiesOnServer();
-            }
-            this.previousArrowsCount = currentArrowsCount;
-            this.previousEnemiesCount = currentEnemiesCount;
         }, CONFIG.GAME_UPDATE_TIMESTAMP);
     }
 
@@ -297,12 +303,19 @@ class Game {
         }
 
         const attackPosition = enemy.getAttackPosition();
+        const roomMembers = this.store.getRoomMembers();
 
         this.heroes.forEach(hero => {
             if (hero.isAlive && enemy.checkRectCollision(attackPosition, hero.rect)) {
                 hero.takeDamage(enemy.damage);
                 console.log(`Враг атаковал героя ${hero.name}! Здоровье: ${hero.health}`);
+                const targetMember = roomMembers?.find(member =>
+                    member.nickname === hero.name
+                );
 
+                if (targetMember && targetMember.token && !hero.isAlive) {
+                    this.server.dropFromRoom(targetMember.token);
+                }
                 this.enemyAttackCooldowns.set(enemy, currentTime);
             }
         });
@@ -310,34 +323,39 @@ class Game {
 
     private updateHeroes(): void {
         this.heroes.forEach(hero => {
-            if (!hero.isAttacking && !hero.isBlocking) {
-                const dx = hero.movement.dx * hero.speed * 1.2;
-                const dy = hero.movement.dy * hero.speed * 1.2;
+            if (hero.isAlive) {
+                if (!hero.isAttacking && !hero.isBlocking) {
+                    const dx = hero.movement.dx * hero.speed * 1.2;
+                    const dy = hero.movement.dy * hero.speed * 1.2;
 
-                const originalX = hero.rect.x;
-                const originalY = hero.rect.y;
+                    const originalX = hero.rect.x;
+                    const originalY = hero.rect.y;
 
-                hero.move(dx, dy);
+                    hero.move(dx, dy);
 
-                const hasCollision = hero.checkCollisionsWithArray(
-                    this.walls,
-                    (wall, heroRect) => {
-                        hero.rect.x = originalX;
-                        hero.rect.y = originalY;
-                    }
-                );
-            }
-            if (hero.isAttacking) {
-                const swordPosition = hero.getAttackPosition();
-                if (swordPosition) {
-                    this.enemies.forEach(enemy => {
-                        if (enemy.isAlive && hero.checkRectCollision(swordPosition, enemy.rect)) {
-                            enemy.takeDamage(hero.damage);
+                    const hasCollision = hero.checkCollisionsWithArray(
+                        this.walls,
+                        (wall, heroRect) => {
+                            hero.rect.x = originalX;
+                            hero.rect.y = originalY;
                         }
-                    });
+                    );
+                }
+
+                if (hero.isAttacking) {
+                    const swordPosition = hero.getAttackPosition();
+                    if (swordPosition) {
+                        this.enemies.forEach(enemy => {
+                            if (enemy.isAlive && hero.checkRectCollision(swordPosition, enemy.rect)) {
+                                enemy.takeDamage(hero.damage);
+                            }
+                        });
+                    }
                 }
             }
         });
+
+        this.heroes = this.heroes.filter(hero => hero.isAlive);
     }
 
     private updateArrows(): void {
@@ -395,7 +413,12 @@ class Game {
     }
 
     private getSceneFromBackend(sceneData: TSceneResponse | null): void {
-        if (!sceneData) return
+        if (!sceneData) {
+            if (this.heroes.length > 1) {
+                this.heroes = [];
+            }
+            return
+        }
         if (sceneData.characters) {
             this.updateOtherHeroes(sceneData.characters);
         }
@@ -448,6 +471,7 @@ class Game {
         const currentUser = this.store.getUser();
 
         characters.forEach((character: any) => {
+            this.store.setRoomMembers(character)
             if (character.userId === currentUser?.userId) {
                 return;
             }

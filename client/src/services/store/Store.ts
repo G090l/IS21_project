@@ -17,6 +17,7 @@ class Store {
     chatHash: string = 'empty chat hash';
     roomHash: string = 'empty room hash';
     roomMembersHash: string = 'empty room members hash';
+    roomMembers: TRoomMember[] = [];
     characterHash: string = 'empty character hash';
     botHash: string = 'empty bot hash';
     arrowHash: string = 'empty arrow hash';
@@ -112,6 +113,16 @@ class Store {
 
     clearRooms(): void {
         this.rooms = [];
+    }
+
+    getRoomMembers(): TRoomMember[] {
+        return this.roomMembers;
+    }
+
+    setRoomMembers(roomMember: TRoomMember): void {
+        if (roomMember) {
+            this.roomMembers.push(roomMember);
+        }
     }
 
     getRoomHash(): string {
