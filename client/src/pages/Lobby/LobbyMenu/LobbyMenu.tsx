@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ServerContext } from "../../../App";
+import { ServerContext, StoreContext } from "../../../App";
 import Button from "../../../components/Button/Button";
-import { IBasePage, PAGES } from "../../PageManager";
+import { PAGES } from "../../PageManager";
 import Chat from "../../../components/Chat/Chat";
 import LobbyBook from "../LobbyBook/LobbyBook";
 import ClassShop from "../ClassShop/ClassShop";
@@ -29,20 +29,14 @@ const isHeroInZone = (hero: any, zone: typeof zones[keyof typeof zones]) =>
     hero.rect.y > zone.y1 &&
     hero.rect.y < zone.y2;
 
-const LobbyMenu: React.FC<TLobbyMenu> = ({
-    game,
-    openLobbyBook,
-    openClassShop,
-    closeLobbyBook,
-    closeClassShop,
-    isLobbyBookOpen,
-    isClassShopOpen,
-    setPage
-}) => {
+const LobbyMenu: React.FC<TLobbyMenu> = (props: TLobbyMenu) => {
+    const { game, openLobbyBook, openClassShop, closeLobbyBook, closeClassShop, isLobbyBookOpen, isClassShopOpen, setPage } = props;
     const server = useContext(ServerContext);
+    const store = useContext(StoreContext);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [showStartButton, setShowStartButton] = useState(false);
     const [showShopButton, setShowShopButton] = useState(false);
+    const user = store.getUser();
 
     useEffect(() => {
         let rafId: number;
@@ -78,6 +72,9 @@ const LobbyMenu: React.FC<TLobbyMenu> = ({
     };
 
     return (<>
+        <div className='overlay'>
+            <p className='money'>{`${user?.money}`}</p>
+        </div>
         <div className='buttons'>
             <Button
                 onClick={deleteUserClickHandler}

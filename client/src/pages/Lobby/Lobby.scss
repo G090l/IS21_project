@@ -55,6 +55,28 @@
             cursor: pointer;
         }
 
+        .overlay {
+            .money {
+                display: flex;
+                flex-direction: row;
+                position: absolute;
+                right: 1%;
+                gap: 10px;
+                color: aliceblue;
+                font-family: 'vcrosd';
+                font-size: clamp(1rem, 4vw, 4rem);
+
+                &::before {
+                    content: '';
+                    width: clamp(1rem, 4vw, 4rem);
+                    display: block;
+                    background-image: url('../../assets/img/lobby/coin.png');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                }
+            }
+        }
+
         .buttons {
             .deleteUser-button {
                 position: absolute;

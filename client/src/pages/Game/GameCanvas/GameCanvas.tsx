@@ -3,6 +3,7 @@ import CONFIG, { EDIRECTION } from "../../../config";
 import { ServerContext, StoreContext } from "../../../App";
 import Game from "../../../game/Game";
 import { Canvas, useCanvas } from "../../../services/canvas";
+import { useTypingState } from "../../../hooks/useTypingState";
 import useSprites from "../hooks/useSprites";
 import arena from "../../../assets/img/background/arena.png"
 
@@ -14,8 +15,13 @@ enum EAttackMode {
     Sword = 'sword',
     Bow = 'bow'
 }
+type TGameCanvas = {
+    onOpenItemShop: () => void;
+    onCloseItemShop: () => void;
+};
 
-const GameCanvas: React.FC = () => {
+const GameCanvas: React.FC<TGameCanvas> = (props: TGameCanvas) => {
+    const { onOpenItemShop, onCloseItemShop } = props;
     let game: Game | null = null;
     const server = useContext(ServerContext);
     const store = useContext(StoreContext);
@@ -225,7 +231,10 @@ const GameCanvas: React.FC = () => {
     };
 
     useEffect(() => {
-        game = new Game(server, store);
+        game = new Game(server, store, {
+            openItemShop: onOpenItemShop,
+            closeItemShop: onCloseItemShop
+        });
         canvas = Canvas({
             parentId: gameField,
             WIDTH: WINDOW.WIDTH,
@@ -256,6 +265,7 @@ const GameCanvas: React.FC = () => {
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
             const keyCode = event.keyCode ? event.keyCode : event.which ? event.which : 0;
+            if (useTypingState.isTyping) return;
 
             switch (keyCode) {
                 case 65: // a

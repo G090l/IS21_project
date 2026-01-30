@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useContext, useCallback, useMemo } 
 import { ServerContext, StoreContext } from '../../../App';
 import CONFIG, { EDIRECTION } from "../../../config";
 import { Canvas, useCanvas } from "../../../services/canvas";
-import { IBasePage, PAGES } from '../../PageManager';
+import { PAGES } from '../../PageManager';
 import { useRoomUser } from '../../../hooks/useRoomUser';
 import { useTypingState } from '../../../hooks/useTypingState';
 import LobbyGame from '../../../lobby/LobbyGame';
@@ -25,7 +25,7 @@ let movementKeys = {
     d: false
 };
 
-type TLobbyCanvas = IBasePage & {
+type TLobbyCanvas = {
     setGame: (game: LobbyGame) => void;
     setPage: (page: PAGES) => void;
     openLobbyBook: () => void;

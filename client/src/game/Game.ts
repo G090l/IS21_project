@@ -52,7 +52,14 @@ class Game {
     private previousArrowsCount: number = 0;
     private previousEnemiesCount: number = 0;
 
-    constructor(server: Server, store: Store) {
+    constructor(
+        server: Server,
+        store: Store,
+        callbacks?: {
+            openItemShop?: () => void;
+            closeItemShop?: () => void;
+        }
+    ) {
         this.server = server;
         this.store = store;
         this.gameMap = new GameMap();
@@ -63,6 +70,8 @@ class Game {
         }
 
         this.startPeriodicUpdate();
+        this.openItemShop = callbacks?.openItemShop;
+        this.closeItemShop = callbacks?.closeItemShop;
     }
 
     private createHero(): void {
@@ -100,6 +109,7 @@ class Game {
         if (!this.isWaveInProgress) return;
         if (this.enemies.length === 0) {
             this.isWaveInProgress = false;
+            this.openItemShop?.();
             this.startWaveCooldown();
         }
     }
@@ -110,9 +120,13 @@ class Game {
         }
 
         this.waveTimer = setTimeout(() => {
+            this.closeItemShop?.();
             this.spawnWave();
         }, this.waveCooldown);
     }
+
+    private openItemShop?: () => void;
+    private closeItemShop?: () => void;
 
     getCurrentUserHero(): Hero | null {
         const user = this.store.getUser();
