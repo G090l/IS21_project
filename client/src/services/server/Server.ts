@@ -167,7 +167,7 @@ class Server {
         return this.request<boolean>('dropFromRoom', { targetToken });
     }
 
-    async renameRoom(newRoomName: string): Promise<boolean | null> {
+    renameRoom(newRoomName: string): Promise<boolean | null> {
         return this.request<boolean>('renameRoom', { newRoomName });
     }
 
@@ -204,7 +204,7 @@ class Server {
         return this.request<TClass[]>('getClasses');
     }
 
-    async buyClass(classId: number): Promise<boolean | null> {
+    buyClass(classId: number): Promise<boolean | null> {
         return this.request<boolean>('buyClass', { classId });
     }
 
@@ -215,6 +215,22 @@ class Server {
             return true;
         }
         return null;
+    }
+
+    buyItem(itemId: number): Promise<boolean | null> {
+        return this.request<boolean>('buyItem', { itemId });
+    }
+
+    sellItem(itemId: number): Promise<boolean | null> {
+        return this.request<boolean>('sellItem', { itemId });
+    }
+
+    useArrow(): Promise<boolean | null> {
+        return this.request<boolean>('useArrow');
+    }
+
+    usePotion(): Promise<boolean | null> {
+        return this.request<boolean>('usePotion');
     }
 
     async getScene(): Promise<TSceneResponse | null> {
@@ -242,15 +258,15 @@ class Server {
         return null;
     }
 
-    async updateCharacter(characterData: string): Promise<boolean | null> {
+    updateCharacter(characterData: string): Promise<boolean | null> {
         return this.request<boolean>('updateCharacter', { characterData });
     }
 
-    async updateArrows(arrowsData: string): Promise<boolean | null> {
+    updateArrows(arrowsData: string): Promise<boolean | null> {
         return this.request<boolean>('updateArrows', { arrowsData });
     }
 
-    async updateEnemy(botsData: string): Promise<boolean | null> {
+    updateEnemy(botsData: string): Promise<boolean | null> {
         return this.request<boolean>('updateBots', { botsData });
     }
 }
