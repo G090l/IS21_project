@@ -1,5 +1,5 @@
 class CONFIG {
-    static DB_HOST = '127.127.126.15';     // Хост базы данных
+    static DB_HOST = 'MySQL-8.0';     // Хост базы данных
     static DB_PORT = '3306';               // Порт базы данных
     static DB_NAME = 'knightwars';         // Имя базы данных
     static DB_USER = 'root';               // Имя пользователя БД

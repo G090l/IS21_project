@@ -55,6 +55,37 @@ class BaseManager {
         
         return roomMember;
     }
+
+    async useArrow(characterId) {
+         //получаем запись о расходнике
+        const consumable = await this.db.getCharacterConsumable(characterId, "arrow");
+        //обрабатываем в зависимости от количества
+        if (consumable.quantity > 1) {
+            //уменьшаем количество на 1
+            const newQuantity = consumable.quantity - 1;
+            await this.db.updateUserItemQuantity(characterId, consumable.itemId, newQuantity);
+        } else {
+            //последний предмет - удаляем
+            await this.db.deleteUserItem(characterId, consumable.itemId);
+        }
+        return true;
+    }
+
+    async usePotion(characterId) {
+         //получаем запись о расходнике
+        const consumable = await this.db.getCharacterConsumable(characterId, "potion");
+        
+        //обрабатываем в зависимости от количества
+        if (consumable.quantity > 1) {
+            //уменьшаем количество на 1
+            const newQuantity = consumable.quantity - 1;
+            await this.db.updateUserItemQuantity(characterId, consumable.itemId, newQuantity);
+        } else {
+            //последний предмет - удаляем
+            await this.db.deleteUserItem(characterId, consumable.itemId);
+        }
+        return true;
+    }
 }
 
 module.exports = BaseManager;

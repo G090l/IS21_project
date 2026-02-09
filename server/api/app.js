@@ -31,6 +31,12 @@ app.all('/api', async (req, res) => {
                     case 'deleteUser': return app.deleteUser(params);
                     case 'getUserInfo': return app.getUserInfo(params);
                     case 'getRatingTable': return app.getRatingTable(params);
+                    // itemHandlers
+                    case 'buyItem': return app.buyItem(params);
+                    case 'sellItem': return app.sellItem(params);
+                    case 'useArrow': return app.useArrow(params);
+                    case 'usePotion': return app.usePotion(params);
+                    case 'getItemsData': return app.getItemsData(params);
                     default: return { error: 102 };
                 }
             }

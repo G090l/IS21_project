@@ -6,6 +6,11 @@ const Registration = require('./handlers/userHandlers/registration.js');
 const DeleteUser = require('./handlers/userHandlers/deleteUser.js');
 const GetUserInfo = require('./handlers/userHandlers/getUserInfo.js');
 const GetRatingTable = require('./handlers/userHandlers/getRatingTable.js');
+const BuyItem = require('./handlers/itemHandlers/buyItem.js');
+const SellItem = require('./handlers/itemHandlers/sellItem.js');
+const UseArrow = require('./handlers/itemHandlers/useArrow.js');
+const UsePotion = require('./handlers/itemHandlers/usePotion.js');
+const GetItemsData = require('./handlers/itemHandlers/getItemsData.js');
 
 class Router extends BaseManager {
     constructor() {
@@ -72,6 +77,71 @@ class Router extends BaseManager {
             if (user) {
                 const handler = new GetRatingTable(this.db);
                 return await handler.execute(params);
+            }
+            return { error: 705 };
+        }
+        return { error: 242 };
+    }
+
+    // ============ ITEM METHODS ============
+    async buyItem(params) {
+        if (params.token && params.itemId) {
+            const user = await this.db.getUserByToken(params.token);
+            if (user) {
+                const handler = new BuyItem(this.db);
+                params.userId = user.id;
+                return await handler.execute(params);
+            }
+            return { error: 705 };
+        }
+        return { error: 242 };
+    }
+
+    async sellItem(params) {
+        if (params.token && params.itemId) {
+            const user = await this.db.getUserByToken(params.token);
+            if (user) {
+                const handler = new SellItem(this.db);
+                params.userId = user.id;
+                return await handler.execute(params);
+            }
+            return { error: 705 };
+        }
+        return { error: 242 };
+    }
+
+    async useArrow(params) {
+        if (params.token) {
+            const user = await this.db.getUserByToken(params.token);
+            if (user) {
+                const handler = new UseArrow(this.db);
+                params.userId = user.id;
+                return await handler.execute(params);
+            }
+            return { error: 705 };
+        }
+        return { error: 242 };
+    }
+
+    async usePotion(params) {
+        if (params.token) {
+            const user = await this.db.getUserByToken(params.token);
+            if (user) {
+                const handler = new UsePotion(this.db);
+                params.userId = user.id;
+                return await handler.execute(params);
+            }
+            return { error: 705 };
+        }
+        return { error: 242 };
+    }
+
+    async getItemsData(params) {
+        if (params.token) {
+            const user = await this.db.getUserByToken(params.token);
+            if (user) {
+                const handler = new GetItemsData(this.db);
+                return await handler.execute();
             }
             return { error: 705 };
         }
