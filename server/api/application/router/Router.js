@@ -1,152 +1,121 @@
-const BaseManager = require('./BaseManager.js');
-const DB = require('./db/DB.js');
-const Login = require('./handlers/userHandlers/login.js');
-const Logout = require('./handlers/userHandlers/logout.js');
-const Registration = require('./handlers/userHandlers/registration.js');
-const DeleteUser = require('./handlers/userHandlers/deleteUser.js');
-const GetUserInfo = require('./handlers/userHandlers/getUserInfo.js');
-const GetRatingTable = require('./handlers/userHandlers/getRatingTable.js');
-const BuyItem = require('./handlers/itemHandlers/buyItem.js');
-const SellItem = require('./handlers/itemHandlers/sellItem.js');
-const UseArrow = require('./handlers/itemHandlers/useArrow.js');
-const UsePotion = require('./handlers/itemHandlers/usePotion.js');
-const GetItemsData = require('./handlers/itemHandlers/getItemsData.js');
+const express = require('express');
+const DB = require('../modules/db/DB.js');
+const UserManager = require('../modules/user/UserManager.js'); 
+const ItemsManager = require('../modules/items/ItemsManager.js');
+const Answer = require('./Answer.js');
 
-class Router extends BaseManager {
-    constructor() {
-        const db = new DB();
-        super(db);
-    }
+function Router() {
+    const router = express.Router();
+    const db = new DB();
+    
+    const userManager = new UserManager(db);
+    const itemsManager = new ItemsManager(db);
 
-    // ============ USER METHODS ============
-    async login(params) {
-        if (params.login && params.passwordHash) {
-            const handler = new Login(this.db);
-            return await handler.execute(params);
-        }
-        return { error: 242 };
-    }
+    // ============ USER ROUTES ============
+    router.post('/login{/:login}{/:passwordHash}', async (req, res) => {
+        const params = {
+            login: req.params.login,
+            passwordHash: req.params.passwordHash
+        };
+        const response = await userManager.login(params);
+        res.json(Answer.response(response));
+    });
 
-    async logout(params) {
-        if (params.token) {
-            const user = await this.db.getUserByToken(params.token);
-            if (user) {
-                const handler = new Logout(this.db);
-                return await handler.execute(params);
-            }
-            return { error: 705 };
-        }
-        return { error: 242 };
-    }
+    router.post('/logout{/:token}', async (req, res) => {
+        const params = {
+            token: req.params.token
+        };
+        const response = await userManager.logout(params);
+        res.json(Answer.response(response));
+    });
 
-    async registration(params) {
-        if (params.login && params.passwordHash && params.nickname) {
-            const handler = new Registration(this.db);
-            return await handler.execute(params);
-        }
-        return { error: 242 };
-    }
+    router.post('/registration{/:login}{/:passwordHash}{/:nickname}', async (req, res) => {
+        const params = {
+            login: req.params.login,
+            passwordHash: req.params.passwordHash,
+            nickname: req.params.nickname
+        };
+        const response = await userManager.registration(params);
+        res.json(Answer.response(response));
+    });
 
-    async getUserInfo(params) {
-        if (params.token) {
-            const user = await this.db.getUserByToken(params.token);
-            if (user) {
-                const handler = new GetUserInfo(this.db);
-                return await handler.execute(params);
-            }
-            return { error: 705 };
-        }
-        return { error: 242 };
-    }
+    router.post('/deleteUser{/:token}', async (req, res) => {
+        const params = {
+            token: req.params.token
+        };
+        const response = await userManager.deleteUser(params);
+        res.json(Answer.response(response));
+    });
 
-    async deleteUser(params) {
-        if (params.token) {
-            const user = await this.db.getUserByToken(params.token);
-            if (user) {
-                const handler = new DeleteUser(this.db);
-                return await handler.execute(params);
-            }
-            return { error: 705 };
-        }
-        return { error: 242 };
-    }
+    router.post('/getUserInfo{/:token}', async (req, res) => {
+        const params = {
+            token: req.params.token
+        };
+        const response = await userManager.getUserInfo(params);
+        res.json(Answer.response(response));
+    });
 
-    async getRatingTable(params) {
-        if (params.token) {
-            const user = await this.db.getUserByToken(params.token);
-            if (user) {
-                const handler = new GetRatingTable(this.db);
-                return await handler.execute(params);
-            }
-            return { error: 705 };
-        }
-        return { error: 242 };
-    }
+    router.get('/getRatingTable{/:token}', async (req, res) => {
+        const params = {
+            token: req.params.token
+        };
+        const response = await userManager.getRatingTable(params);
+        res.json(Answer.response(response));
+    });
 
-    // ============ ITEM METHODS ============
-    async buyItem(params) {
-        if (params.token && params.itemId) {
-            const user = await this.db.getUserByToken(params.token);
-            if (user) {
-                const handler = new BuyItem(this.db);
-                params.userId = user.id;
-                return await handler.execute(params);
-            }
-            return { error: 705 };
-        }
-        return { error: 242 };
-    }
+    // ============ ITEMS ROUTES ============
+    router.post('/buyItem{/:token}{/:itemId}', async (req, res) => {
+        const params = {
+            token: req.params.token,
+            itemId: req.params.itemId
+        };
+        const response = await itemsManager.buyItem(params);
+        res.json(Answer.response(response));
+    });
 
-    async sellItem(params) {
-        if (params.token && params.itemId) {
-            const user = await this.db.getUserByToken(params.token);
-            if (user) {
-                const handler = new SellItem(this.db);
-                params.userId = user.id;
-                return await handler.execute(params);
-            }
-            return { error: 705 };
-        }
-        return { error: 242 };
-    }
+    router.post('/sellItem{/:token}{/:itemId}', async (req, res) => {
+        const params = {
+            token: req.params.token,
+            itemId: req.params.itemId
+        };
+        const response = await itemsManager.sellItem(params);
+        res.json(Answer.response(response));
+    });
 
-    async useArrow(params) {
-        if (params.token) {
-            const user = await this.db.getUserByToken(params.token);
-            if (user) {
-                const handler = new UseArrow(this.db);
-                params.userId = user.id;
-                return await handler.execute(params);
-            }
-            return { error: 705 };
-        }
-        return { error: 242 };
-    }
+    router.post('/useArrow{/:token}', async (req, res) => {
+        const params = {
+            token: req.params.token
+        };
+        const response = await itemsManager.useArrow(params);
+        res.json(Answer.response(response));
+    });
 
-    async usePotion(params) {
-        if (params.token) {
-            const user = await this.db.getUserByToken(params.token);
-            if (user) {
-                const handler = new UsePotion(this.db);
-                params.userId = user.id;
-                return await handler.execute(params);
-            }
-            return { error: 705 };
-        }
-        return { error: 242 };
-    }
+    router.post('/usePotion{/:token}', async (req, res) => {
+        const params = {
+            token: req.params.token
+        };
+        const response = await itemsManager.usePotion(params);
+        res.json(Answer.response(response));
+    });
 
-    async getItemsData(params) {
-        if (params.token) {
-            const user = await this.db.getUserByToken(params.token);
-            if (user) {
-                const handler = new GetItemsData(this.db);
-                return await handler.execute();
-            }
-            return { error: 705 };
-        }
-        return { error: 242 };
-    }
+    router.get('/getItemsData{/:token}', async (req, res) => {
+        const params = {
+            token: req.params.token
+        };
+        const response = await itemsManager.getItemsData(params);
+        res.json(Answer.response(response));
+    });
+
+    // ============ NOT FOUND ============
+    router.get('/*path', (req, res) => {
+        res.json(Answer.response({ error: 404 }));
+    });
+
+    router.post('/*path', (req, res) => {
+        res.json(Answer.response({ error: 404 }));
+    });
+
+    return router;
 }
 
 module.exports = Router;
