@@ -50,7 +50,7 @@ class DB {
 
     async registration(login, password, nickname) {
         await this.execute(
-            "INSERT INTO users (login, password, nickname) VALUES (?, ?, ?)", 
+            "INSERT INTO users (login, password, nickname) VALUES (?, ?, ?)",
             [login, password, nickname]
         );
     }
@@ -86,6 +86,16 @@ class DB {
         return result.affectedRows > 0;
     }
 
+    async updateCharacterMoneyAdd(characterId, amount) {
+        const result = await this.execute("UPDATE characters SET money = money + ? WHERE id = ?", [amount, characterId]);
+        return result.affectedRows > 0;
+    }
+
+    async updateCharacterMoneySubtract(characterId, amount) {
+        const result = await this.execute("UPDATE characters SET money = money - ? WHERE id = ?", [amount, characterId]);
+        return result.affectedRows > 0;
+    }
+
     // ============ LOBBY METHODS (нужны для deleteUser) ============
     async getUserTypeInRoom(userId) {
         const character = await this.getCharacterByUserId(userId);
@@ -103,31 +113,31 @@ class DB {
     async getUserSelectedClassId(userId) {
         const character = await this.getCharacterByUserId(userId);
         if (!character) return null;
-        
+
         const result = await this.query(
             "SELECT class_id FROM characters_classes WHERE character_id = ? AND selected = 1",
             [character.id]
         );
-        
+
         return result ? result.class_id : null;
     }
 
     async getUserPurchasedClassIds(userId) {
         const character = await this.getCharacterByUserId(userId);
         if (!character) return [];
-        
+
         const results = await this.queryAll(
             "SELECT class_id FROM characters_classes WHERE character_id = ?",
             [character.id]
         );
-        
+
         return results.map(row => parseInt(row.class_id));
     }
 
     async addUserPersonClass(userId, classId) {
         const character = await this.getCharacterByUserId(userId);
         if (!character) return false;
-        
+
         const result = await this.execute(
             "INSERT INTO characters_classes (character_id, class_id, selected) VALUES (?, ?, 0)",
             [character.id, classId]
@@ -138,7 +148,7 @@ class DB {
     async setUserSelectedPersonClass(userId, classId) {
         const character = await this.getCharacterByUserId(userId);
         if (!character) return false;
-        
+
         const result = await this.execute(
             "UPDATE characters_classes SET selected = 1 WHERE character_id = ? AND class_id = ?",
             [character.id, classId]
@@ -147,12 +157,39 @@ class DB {
     }
 
     // ============ ITEM METHODS ============
+    async getItemById(itemId) {
+        const result = await this.query(
+            `SELECT 
+                id, 
+                name, 
+                item_type as itemType,
+                weapon_type as weaponType,
+                damage,
+                attack_speed as attackSpeed,
+                attack_distance as attackDistance,
+                bonus_defense as bonusDefense,
+                bonus_hp as bonusHp,
+                cost
+            FROM items 
+            WHERE id = ?`,
+            [itemId]
+        );
+        return result;
+    }
+
+    async getUserItem(characterId, itemId) {
+        return await this.query(
+            "SELECT * FROM character_items WHERE character_id=? AND item_id=?",
+            [characterId, itemId]
+        );
+    }
+
     async getUserPurchasedItemsWithQuantity(characterId) {
         const results = await this.queryAll(
             "SELECT item_id as itemId, quantity FROM character_items WHERE character_id = ?",
             [characterId]
         );
-        
+
         return results.map(row => ({
             itemId: parseInt(row.itemId),
             quantity: parseInt(row.quantity)
@@ -165,6 +202,97 @@ class DB {
             [characterId, itemId]
         );
         return result.affectedRows > 0;
+    }
+
+    async hasCharacterWeaponType(characterId, weaponType) {
+        const result = await this.query(
+            `SELECT ci.* FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.weapon_type = ?`,
+            [characterId, weaponType]
+        );
+        return result;
+    }
+
+    async hasCharacterItemType(characterId, itemType) {
+        const result = await this.query(
+            `SELECT 
+                ci.id, 
+                ci.item_id as itemId, 
+                ci.character_id as characterId, 
+                ci.quantity, 
+                i.item_type as itemType, 
+                i.weapon_type as weaponType
+            FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.item_type = ?`,
+            [characterId, itemType]
+        );
+        return result;
+    }
+
+    async hasCharacterArrows(characterId) {
+        const arrowItem = await this.query(
+            `SELECT ci.* FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.item_type = 'arrow' AND ci.quantity > 0`,
+            [characterId]
+        );
+        return arrowItem && arrowItem.quantity > 0;
+    }
+
+    async hasCharacterPotion(characterId) {
+        const potionItem = await this.query(
+            `SELECT ci.* FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.item_type = 'potion' AND ci.quantity > 0`,
+            [characterId]
+        );
+        return potionItem && potionItem.quantity > 0;
+    }
+    
+    async getCharacterConsumable(characterId, itemType) {
+        const result = await this.query(
+            `SELECT ci.id, ci.item_id as itemId, ci.quantity 
+            FROM character_items ci 
+            JOIN items i ON ci.item_id = i.id 
+            WHERE ci.character_id = ? AND i.item_type = ?`,
+            [characterId, itemType]
+        );
+        return result;
+    }
+
+    async updateUserItemQuantity(characterId, itemId, quantity) {
+        const result = await this.execute(
+            "UPDATE character_items SET quantity = ? WHERE character_id = ? AND item_id = ?",
+            [quantity, characterId, itemId]
+        );
+        return result.affectedRows > 0;
+    }
+
+    async deleteUserItem(characterId, itemId) {
+        const result = await this.execute(
+            "DELETE FROM character_items WHERE character_id = ? AND item_id = ?", 
+            [characterId, itemId]
+        );
+        return result.affectedRows > 0;
+    }
+
+    async getAllItemsData() {
+        return await this.queryAll(`
+            SELECT 
+                id,
+                name,
+                item_type as itemType,
+                weapon_type as weaponType,
+                damage,
+                attack_speed as attackSpeed,
+                attack_distance as attackDistance,
+                bonus_defense as bonusDefense,
+                bonus_hp as bonusHp,
+                cost
+            FROM items
+        `);
     }
 
     // ============ DELETE USER METHODS ============
