@@ -1,9 +1,9 @@
-const Login = require('../../router/handlers/userHandlers/login.js');
-const Logout = require('../../router/handlers/userHandlers/logout.js');
-const Registration = require('../../router/handlers/userHandlers/registration.js');
-const DeleteUser = require('../../router/handlers/userHandlers/deleteUser.js');
-const GetUserInfo = require('../../router/handlers/userHandlers/getUserInfo.js');
-const GetRatingTable = require('../../router/handlers/userHandlers/getRatingTable.js');
+const LoginHandler = require('../../router/handlers/userHandlers/loginHandler.js');
+const LogoutHandler = require('../../router/handlers/userHandlers/logoutHandler.js');
+const RegistrationHandler = require('../../router/handlers/userHandlers/registrationHandler.js');
+const DeleteUserHandler = require('../../router/handlers/userHandlers/deleteUserHandler.js');
+const GetUserInfoHandler = require('../../router/handlers/userHandlers/getUserInfoHandler.js');
+const GetRatingTableHandler = require('../../router/handlers/userHandlers/getRatingTableHandler.js');
 
 class UserManager {
     constructor(db) {
@@ -14,7 +14,7 @@ class UserManager {
         if (!params.login || !params.passwordHash) {
             return { error: 242 };
         }
-        const handler = new Login(this.db);
+        const handler = new LoginHandler(this.db);
         return await handler.execute(params);
     }
 
@@ -22,7 +22,7 @@ class UserManager {
         if (!params.token) {
             return { error: 242 };
         }
-        const handler = new Logout(this.db);
+        const handler = new LogoutHandler(this.db);
         return await handler.execute(params);
     }
 
@@ -30,7 +30,7 @@ class UserManager {
         if (!params.login || !params.passwordHash || !params.nickname) {
             return { error: 242 };
         }
-        const handler = new Registration(this.db);
+        const handler = new RegistrationHandler(this.db);
         return await handler.execute(params);
     }
 
@@ -38,7 +38,7 @@ class UserManager {
         if (!params.token) {
             return { error: 242 };
         }
-        const handler = new GetUserInfo(this.db);
+        const handler = new GetUserInfoHandler(this.db);
         return await handler.execute(params);
     }
 
@@ -46,7 +46,7 @@ class UserManager {
         if (!params.token) {
             return { error: 242 };
         }
-        const handler = new DeleteUser(this.db);
+        const handler = new DeleteUserHandler(this.db);
         return await handler.execute(params);
     }
 
@@ -54,7 +54,7 @@ class UserManager {
         if (!params.token) {
             return { error: 242 };
         }
-        const handler = new GetRatingTable(this.db);
+        const handler = new GetRatingTableHandler(this.db);
         return await handler.execute(params);
     }
 }

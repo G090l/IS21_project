@@ -1,8 +1,8 @@
-const BuyItem = require('../../router/handlers/itemHandlers/buyItem.js');
-const SellItem = require('../../router/handlers/itemHandlers/sellItem.js');
-const UseArrow = require('../../router/handlers/itemHandlers/useArrow.js');
-const UsePotion = require('../../router/handlers/itemHandlers/usePotion.js');
-const GetItemsData = require('../../router/handlers/itemHandlers/getItemsData.js');
+const BuyItemHandler = require('../../router/handlers/itemHandlers/buyItemHandler.js');
+const SellItemHandler = require('../../router/handlers/itemHandlers/sellItemHandler.js');
+const UseArrowHandler = require('../../router/handlers/itemHandlers/useArrowHandler.js');
+const UsePotionHandler = require('../../router/handlers/itemHandlers/usePotionHandler.js');
+const GetItemsDataHandler = require('../../router/handlers/itemHandlers/getItemsDataHandler.js');
 
 class ItemsManager {
     constructor(db) {
@@ -13,7 +13,7 @@ class ItemsManager {
         if (!params.token || !params.itemId) {
             return { error: 242 };
         }
-        const handler = new BuyItem(this.db);
+        const handler = new BuyItemHandler(this.db);
         return await handler.execute(params);
     }
 
@@ -21,7 +21,7 @@ class ItemsManager {
         if (!params.token || !params.itemId) {
             return { error: 242 };
         }
-        const handler = new SellItem(this.db);
+        const handler = new SellItemHandler(this.db);
         return await handler.execute(params);
     }
 
@@ -29,7 +29,7 @@ class ItemsManager {
         if (!params.token) {
             return { error: 242 };
         }
-        const handler = new UseArrow(this.db);
+        const handler = new UseArrowHandler(this.db);
         return await handler.execute(params);
     }
 
@@ -37,7 +37,7 @@ class ItemsManager {
         if (!params.token) {
             return { error: 242 };
         }
-        const handler = new UsePotion(this.db);
+        const handler = new UsePotionHandler(this.db);
         return await handler.execute(params);
     }
 
@@ -45,7 +45,7 @@ class ItemsManager {
         if (!params.token) {
             return { error: 242 };
         }
-        const handler = new GetItemsData(this.db);
+        const handler = new GetItemsDataHandler(this.db);
         return await handler.execute();
     }
 }

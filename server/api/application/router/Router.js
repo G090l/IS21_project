@@ -12,7 +12,7 @@ function Router() {
     const itemsManager = new ItemsManager(db);
 
     // ============ USER ROUTES ============
-    router.post('/login/:login/:passwordHash', async (req, res) => {
+    router.post('/login{/:login}{/:passwordHash}', async (req, res) => {
         const params = {
             login: req.params.login,
             passwordHash: req.params.passwordHash
@@ -21,7 +21,7 @@ function Router() {
         res.json(Answer.response(response));
     });
 
-    router.post('/logout/:token', async (req, res) => {
+    router.post('/logout{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
@@ -29,7 +29,7 @@ function Router() {
         res.json(Answer.response(response));
     });
 
-    router.post('/registration/:login/:passwordHash/:nickname', async (req, res) => {
+    router.post('/registration{/:login}{/:passwordHash}{/:nickname}', async (req, res) => {
         const params = {
             login: req.params.login,
             passwordHash: req.params.passwordHash,
@@ -39,7 +39,7 @@ function Router() {
         res.json(Answer.response(response));
     });
 
-    router.post('/deleteUser/:token', async (req, res) => {
+    router.post('/deleteUser{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
@@ -47,7 +47,7 @@ function Router() {
         res.json(Answer.response(response));
     });
 
-    router.post('/getUserInfo/:token', async (req, res) => {
+    router.post('/getUserInfo{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
@@ -55,7 +55,7 @@ function Router() {
         res.json(Answer.response(response));
     });
 
-    router.get('/getRatingTable/:token', async (req, res) => {
+    router.get('/getRatingTable{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
@@ -64,7 +64,7 @@ function Router() {
     });
 
     // ============ ITEMS ROUTES ============
-    router.post('/buyItem/:token/:itemId', async (req, res) => {
+    router.post('/buyItem{/:token}{/:itemId}', async (req, res) => {
         const params = {
             token: req.params.token,
             itemId: req.params.itemId
@@ -73,7 +73,7 @@ function Router() {
         res.json(Answer.response(response));
     });
 
-    router.post('/sellItem/:token/:itemId', async (req, res) => {
+    router.post('/sellItem{/:token}{/:itemId}', async (req, res) => {
         const params = {
             token: req.params.token,
             itemId: req.params.itemId
@@ -82,7 +82,7 @@ function Router() {
         res.json(Answer.response(response));
     });
 
-    router.post('/useArrow/:token', async (req, res) => {
+    router.post('/useArrow{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
@@ -90,7 +90,7 @@ function Router() {
         res.json(Answer.response(response));
     });
 
-    router.post('/usePotion/:token', async (req, res) => {
+    router.post('/usePotion{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
@@ -98,7 +98,7 @@ function Router() {
         res.json(Answer.response(response));
     });
 
-    router.get('/getItemsData/:token', async (req, res) => {
+    router.get('/getItemsData{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
