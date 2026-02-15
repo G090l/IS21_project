@@ -1,6 +1,6 @@
-const BaseManager = require('../../BaseManager.js');
+const BaseHandler = require('../../BaseHandler.js');
 
-class UsePotion extends BaseManager {
+class UsePotion extends BaseHandler {
 
     constructor(db) {
         super(db);

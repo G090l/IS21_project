@@ -1,7 +1,7 @@
-const BaseManager = require('../../BaseManager.js');
+const BaseHandler = require('../../BaseHandler.js');
 const CONFIG = require('../../../../config.js');
 
-class Registration extends BaseManager {
+class Registration extends BaseHandler {
     constructor(db) {
         super(db);
     }

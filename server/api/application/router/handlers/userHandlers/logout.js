@@ -1,6 +1,6 @@
-const BaseManager = require('../../BaseManager.js');
+const BaseHandler = require('../../BaseHandler.js');
 
-class Logout extends BaseManager {
+class Logout extends BaseHandler {
     constructor(db) {
         super(db);
     }

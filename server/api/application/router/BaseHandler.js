@@ -1,4 +1,4 @@
-class BaseManager {
+class BaseHandler {
     constructor(db) {
         this.db = db;
     }
@@ -21,6 +21,7 @@ class BaseManager {
         return character;
     }
 
+    
     // Проверка, что пользователь является владельцем комнаты
     async checkUserIsRoomOwner(userId) {
         const roomMember = await this.db.getRoomMemberByUserId(userId);
@@ -55,6 +56,7 @@ class BaseManager {
         
         return roomMember;
     }
+    
 
     async useArrow(characterId) {
          //получаем запись о расходнике
@@ -88,4 +90,4 @@ class BaseManager {
     }
 }
 
-module.exports = BaseManager;
+module.exports = BaseHandler;
