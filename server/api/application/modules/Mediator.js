@@ -1,5 +1,5 @@
 class Mediator {
-    constructor({EVENTS, TRIGGERS}) {
+    constructor({ EVENTS, TRIGGERS }) {
         this.events = {};
         this.triggers = {};
         this.EVENTS = EVENTS;
@@ -36,7 +36,7 @@ class Mediator {
 
     unsubscribe(name, _func) {
         if (!this.events[name]) return;
-        
+
         const handlerEntry = this.events[name]
             .map((func, i) => ([func, i]))
             .filter(([func]) => func === _func)[0];
