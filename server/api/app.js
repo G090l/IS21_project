@@ -1,7 +1,11 @@
 const express = require('express');
 const Router = require('./application/router/Router.js');
+const Mediator = require('./application/modules/Mediator.js');
 const CONFIG = require('./config.js');
 const Answer = require('./application/router/Answer.js');
+const UserManager = require('./application/modules/user/UserManager.js');
+const ItemsManager = require('./application/modules/items/ItemsManager.js');
+const DB = require('./application/modules/db/DB.js');
 
 const app = express();
 
@@ -14,8 +18,22 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Роутер
-app.use('/', Router());
+// Экз БД
+const db = new DB();
+
+// Создание медиатора
+const mediator = new Mediator({
+    EVENTS: CONFIG.EVENTS,
+    TRIGGERS: CONFIG.TRIGGERS
+});
+
+// Создаем менеджеры
+new UserManager({ mediator, db });
+new ItemsManager({ mediator, db });
+
+// Создаем роутер
+const router = new Router(mediator);
+app.use('/', router);
 
 app.use((err, req, res, next) => {
     console.error('Cringe error:', err);

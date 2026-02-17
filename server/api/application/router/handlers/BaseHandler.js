@@ -3,6 +3,15 @@ class BaseHandler {
         this.db = db;
     }
 
+    // Проверка пользователя по токену
+    async checkUserByToken(token) {
+        const user = await this.db.getUserByToken(token);
+        if (!user) {
+            return { error: 705 };
+        }
+        return user;
+    }
+    
     // Проверка существования пользователя по ID
     async checkUserExists(userId) {
         const user = await this.db.getUserById(userId);

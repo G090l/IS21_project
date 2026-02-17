@@ -1,39 +1,36 @@
 const BaseHandler = require('../BaseHandler.js');
 
 class UseArrowHandler extends BaseHandler {
-
     constructor(db) {
         super(db);
     }
 
     async execute(params) {
-        const { userId } = params
-        //проверка пользователя
-        const user = await this.checkUserExists(userId);
-        if (user.error) {
-            return user;
-        }
-        // проверка персонажа
-        const character = await this.checkCharacterExists(userId);
-        if (character.error) {
-            return character;
-        }
-        //проверка наличия лука
+        const { token } = params;
+        
+        // Получаем пользователя по токену
+        const user = await this.checkUserByToken(token);
+        if (user.error) return user;
+        
+        // Получаем персонажа
+        const character = await this.checkCharacterExists(user.id);
+        if (character.error) return character;
+        
+        // проверка наличия лука
         const hasBow = await this.db.hasCharacterWeaponType(character.id, 'bow');
         if (!hasBow) {
             return { error: 4008 };
         }
 
-        //проверка наличия стрел
+        // проверка наличия стрел
         const hasArrows = await this.db.hasCharacterArrows(character.id);
         if (!hasArrows) {
             return { error: 4009 };
         }
 
-        //используем стрелу
+        // используем стрелу
         return await this.useArrow(character.id);
     }
 }
-
 
 module.exports = UseArrowHandler;
