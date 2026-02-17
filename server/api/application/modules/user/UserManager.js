@@ -6,8 +6,23 @@ const GetUserInfoHandler = require('../../router/handlers/userHandlers/getUserIn
 const GetRatingTableHandler = require('../../router/handlers/userHandlers/getRatingTableHandler.js');
 
 class UserManager {
-    constructor(db) {
+    constructor({ mediator, db }) { 
         this.db = db;
+        this.mediator = mediator;
+
+        // Получение типов ивентов и триггеров из медиатора
+        const events = mediator.getEventTypes();
+        const triggers = mediator.getTriggerTypes();
+
+        // Подписка на ивенты
+        mediator.subscribe(events.LOGIN, this.login.bind(this));
+        mediator.subscribe(events.LOGOUT, this.logout.bind(this));
+        mediator.subscribe(events.REGISTRATION, this.registration.bind(this));
+        mediator.subscribe(events.DELETE_USER, this.deleteUser.bind(this));
+
+        // Устанавливаем обработчики для триггеров
+        mediator.set(triggers.GET_RATING_TABLE, this.getRatingTable.bind(this));
+        mediator.set(triggers.GET_USER_INFO, this.getUserInfo.bind(this));
     }
 
     async login(params) {

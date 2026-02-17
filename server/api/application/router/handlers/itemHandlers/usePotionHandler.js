@@ -1,32 +1,30 @@
 const BaseHandler = require('../BaseHandler.js');
 
 class UsePotionHandler extends BaseHandler {
-
     constructor(db) {
         super(db);
     }
 
     async execute(params) {
-        const { userId } = params
-        //проверка пользователя
-        const user = await this.checkUserExists(userId);
-        if (user.error) {
-            return user;
-        }
-        // проверка персонажа
-        const character = await this.checkCharacterExists(userId);
-        if (character.error) {
-            return character;
-        }
-        //проверка наличия зелий
+        const { token } = params; 
+        
+        // Получаем пользователя по токену
+        const user = await this.checkUserByToken(token);
+        if (user.error) return user;
+        
+        // Получаем персонажа
+        const character = await this.checkCharacterExists(user.id);
+        if (character.error) return character;
+        
+        // проверка наличия зелий
         const hasPotion = await this.db.hasCharacterPotion(character.id);
         if (!hasPotion) {
-            return { error: 4009 };
+            return { error: 4010 };
         }
-        //используем зелье
+
+        // используем зелье
         return await this.usePotion(character.id);
     }
 }
-
 
 module.exports = UsePotionHandler;

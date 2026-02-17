@@ -5,8 +5,22 @@ const UsePotionHandler = require('../../router/handlers/itemHandlers/usePotionHa
 const GetItemsDataHandler = require('../../router/handlers/itemHandlers/getItemsDataHandler.js');
 
 class ItemsManager {
-    constructor(db) {
+    constructor({ mediator, db }) {
         this.db = db;
+        this.mediator = mediator;
+
+        // Получение типов ивентов и триггеров из медиатора
+        const events = mediator.getEventTypes();
+        const triggers = mediator.getTriggerTypes();
+
+        // Подписка на ивенты
+        mediator.subscribe(events.BUY_ITEM, this.buyItem.bind(this));
+        mediator.subscribe(events.SELL_ITEM, this.sellItem.bind(this));
+        mediator.subscribe(events.USE_ARROW, this.useArrow.bind(this));
+        mediator.subscribe(events.USE_POTION, this.usePotion.bind(this));
+        
+        // Устанавливаем обработчики для триггеров
+        mediator.set(triggers.GET_ITEMS_DATA, this.getItemsData.bind(this));
     }
 
     async buyItem(params) {
@@ -14,7 +28,7 @@ class ItemsManager {
             return { error: 242 };
         }
         const handler = new BuyItemHandler(this.db);
-        return await handler.execute(params);
+        return await handler.execute(params); 
     }
 
     async sellItem(params) {
@@ -30,7 +44,7 @@ class ItemsManager {
             return { error: 242 };
         }
         const handler = new UseArrowHandler(this.db);
-        return await handler.execute(params);
+        return await handler.execute(params); 
     }
 
     async usePotion(params) {
@@ -38,7 +52,7 @@ class ItemsManager {
             return { error: 242 };
         }
         const handler = new UsePotionHandler(this.db);
-        return await handler.execute(params);
+        return await handler.execute(params); 
     }
 
     async getItemsData(params) {
@@ -46,7 +60,7 @@ class ItemsManager {
             return { error: 242 };
         }
         const handler = new GetItemsDataHandler(this.db);
-        return await handler.execute();
+        return await handler.execute(params); 
     }
 }
 

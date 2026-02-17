@@ -1,108 +1,112 @@
 const express = require('express');
-const DB = require('../modules/db/DB.js');
-const UserManager = require('../modules/user/UserManager.js'); 
-const ItemsManager = require('../modules/items/ItemsManager.js');
 const Answer = require('./Answer.js');
 
-function Router() {
+function Router(mediator) { 
     const router = express.Router();
-    const db = new DB();
-    
-    const userManager = new UserManager(db);
-    const itemsManager = new ItemsManager(db);
 
     // ============ USER ROUTES ============
+    //LOGIN
     router.post('/login{/:login}{/:passwordHash}', async (req, res) => {
         const params = {
             login: req.params.login,
             passwordHash: req.params.passwordHash
         };
-        const response = await userManager.login(params);
+        const response = await mediator.call(mediator.getEventTypes().LOGIN, params);
         res.json(Answer.response(response));
     });
 
+    //LOGOUT
     router.post('/logout{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
-        const response = await userManager.logout(params);
+        const response = await mediator.call(mediator.getEventTypes().LOGOUT, params);
         res.json(Answer.response(response));
     });
 
+    //REGISTATION
     router.post('/registration{/:login}{/:passwordHash}{/:nickname}', async (req, res) => {
         const params = {
             login: req.params.login,
             passwordHash: req.params.passwordHash,
             nickname: req.params.nickname
         };
-        const response = await userManager.registration(params);
+        const response = await mediator.call(mediator.getEventTypes().REGISTRATION, params);
         res.json(Answer.response(response));
     });
 
+    //DELETE_USER
     router.post('/deleteUser{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
-        const response = await userManager.deleteUser(params);
+        const response = await mediator.call(mediator.getEventTypes().DELETE_USER, params);
         res.json(Answer.response(response));
     });
 
-    router.post('/getUserInfo{/:token}', async (req, res) => {
+    //GET_USER_INFO
+    router.get('/getUserInfo{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
-        const response = await userManager.getUserInfo(params);
+        const response = await mediator.get(mediator.getTriggerTypes().GET_USER_INFO, params);
         res.json(Answer.response(response));
     });
 
+    //GET_RATING_TABLE
     router.get('/getRatingTable{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
-        const response = await userManager.getRatingTable(params);
+        const response = await mediator.get(mediator.getTriggerTypes().GET_RATING_TABLE, params);
         res.json(Answer.response(response));
     });
 
     // ============ ITEMS ROUTES ============
+    //BUY_ITEM
     router.post('/buyItem{/:token}{/:itemId}', async (req, res) => {
         const params = {
             token: req.params.token,
             itemId: req.params.itemId
         };
-        const response = await itemsManager.buyItem(params);
+        const response = await mediator.call(mediator.getEventTypes().BUY_ITEM, params);
         res.json(Answer.response(response));
     });
 
+    //SELL_ITEM
     router.post('/sellItem{/:token}{/:itemId}', async (req, res) => {
         const params = {
             token: req.params.token,
             itemId: req.params.itemId
         };
-        const response = await itemsManager.sellItem(params);
+        const response = await mediator.call(mediator.getEventTypes().SELL_ITEM, params);
         res.json(Answer.response(response));
     });
 
+    //USE_ARROW
     router.post('/useArrow{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
-        const response = await itemsManager.useArrow(params);
+        const response = await mediator.call(mediator.getEventTypes().USE_ARROW, params);
         res.json(Answer.response(response));
     });
 
+    //USE_POTION
     router.post('/usePotion{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
-        const response = await itemsManager.usePotion(params);
+        const response = await mediator.call(mediator.getEventTypes().USE_POTION, params);
         res.json(Answer.response(response));
     });
 
+    //GET_ITEMS_DATA
     router.get('/getItemsData{/:token}', async (req, res) => {
         const params = {
             token: req.params.token
         };
-        const response = await itemsManager.getItemsData(params);
+        const response = await mediator.get(mediator.getTriggerTypes().GET_ITEMS_DATA, params);
         res.json(Answer.response(response));
     });
 
